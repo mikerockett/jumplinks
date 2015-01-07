@@ -495,10 +495,12 @@ class AdvancedRedirects extends Process {
 				{
 					if (isset($compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]]))
 					{
+						// If we have a match, bring it in
 						return $compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]];
 					}
 					else
 					{
+						// Otherwise, fill the mapping wildcard with the original data
 						return $mapCaptures[1];
 					}
 				}, $convertedWildcards);
@@ -512,7 +514,7 @@ class AdvancedRedirects extends Process {
 				? ($time >= $starts && $time <= $ends)
 				: true;
 
-				// If we're not debugging, then do the redirect
+				// If we're not debugging, and we're Time-activated, then do the redirect
 				if (!$this->moduleDebug && $activated)
 				{
 					$this->session->redirect($convertedWildcards, !$activated);

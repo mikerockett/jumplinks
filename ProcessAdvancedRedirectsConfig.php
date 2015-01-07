@@ -129,8 +129,9 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 			'label' => $this->_('Enhanced Path Cleaning'),
 			'description' => $this->_("To make things a little easier, the following experiment enhances path cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
 			'label2' => $this->_('Use Enhanced Path Cleaning'),
-			'notes' => $this->_("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'\n**ALPHA Note:** When you hit 'Submit', the state of this option will save, but the box will remain unchecked. Identified bug, tested in PW 2.5.13."),
+			'notes' => $this->_("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'"),
 			'collapsed' => Inputfield::collapsedNever,
+			'autocheck' => true,
 		)));
 
 		$inputfields->add($fieldset);
@@ -142,8 +143,8 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 			'icon' => 'bug',
 			'description' => $this->_("If you run into any problems with your redirects, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
 			'label2' => $this->_('Turn Debug Mode on'),
-			'notes' => $this->_("**ALPHA Note:** When you hit 'Submit', the state of this option will save, but the box will remain unchecked. Identified bug, tested in PW 2.5.13."),
 			'collapsed' => Inputfield::collapsedYes,
+			'autocheck' => true,
 		)));
 
 		return $inputfields;
