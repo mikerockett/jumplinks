@@ -462,7 +462,7 @@ class UtilityProcess extends Process {
                 }, $request);
 
                 // Perform any mappings
-                $convertedWildcards = preg_replace_callback("~\(([\w-_]+)\|([a-z]+)\)~i", function ($mapCaptures) use ($compiledCollections)
+                $convertedWildcards = preg_replace_callback("~\(([\w-_\/]+)\|([a-z]+)\)~i", function ($mapCaptures) use ($compiledCollections)
                 {
                     if (isset($compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]]))
                         return $compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]];
