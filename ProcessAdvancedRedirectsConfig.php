@@ -139,6 +139,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		$inputfields->add($this->buildField('InputfieldCheckbox', array(
 			'name+id' => self::MODULE_DEBUG,
 			'label' => $this->_('Debug Mode'),
+			'icon' => 'bug',
 			'description' => $this->_("If you run into any problems with your redirects, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
 			'label2' => $this->_('Turn Debug Mode on'),
 			'notes' => $this->_("**ALPHA Note:** When you hit 'Submit', the state of this option will save, but the box will remain unchecked. Identified bug, tested in PW 2.5.13."),
