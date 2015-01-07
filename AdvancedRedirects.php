@@ -4,7 +4,7 @@
  * ProcessAdvancedRedirects - a ProcessWire Module by Mike Anthony
  * Manage permanent and temporay redirects. Supports wildcards.
  *
- * Intended for: ProcessWire 2.5.2+
+ * Intended for: ProcessWire 2.6-dev
  * Developed in: ProcessWire 2.5.13
  *
  * Copyright (c) 2015, Mike Anthony. All Rights Reserved.

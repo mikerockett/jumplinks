@@ -3,7 +3,7 @@
     "version": "0.1.2",
     "author": "Mike Anthony",
     "summary": "Manage permanent and temporary redirects. Supports wildcards.",
-    "requires": "ProcessWire>=2.5.2",
+    "requires": "ProcessWire>=2.5.10",
     "href": "http://pw.foundrybusiness.co.za/advanced-redirects",
     "autoload": true,
     "icon": "paper-plane",
