@@ -29,7 +29,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	{
 		return array(
 			'moduleDebug' => false,
-			'defaultExtensions' => 'aspx asp cfm cgi fcgi dll html htm shtml shtm jhtml phtml xhtm rbml jspx jsp phps php4 php',
+			'defaultExtensions' => 'aspx asp cfm cgi fcgi dll html htm shtml shtm jhtml phtml xhtm xhtml rbml jspx jsp phps php4 php',
 			'cleanPath' => 'fullClean',
 			'statusCodes' => '200 301 302',
 			'experimentEnhancedPathCleaning' => false,
@@ -61,7 +61,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 			'name+id' => self::DEFAULT_EXTENSIONS,
 			'label' => $this->_('Default File Extensions'),
 			'description' => $this->_("The file extensions below (each separated by a space) will be checked when an extension wilcard type is used in the Source Path of a redirect definition.\nWe've already provided a handy set of defaults (which will also be used of you empty this field), but feel free to tinker."),
-			'notes' => sprintf($this->_("Regex permitted, e.g.: %s\n**Important Note:** If you use them, avoid using literal spaces. Use **\s** instead.\n**[Use Default](#resetDefaultExtensions)** • **[Use Default Regex](#regexDefaultExtensions)** • [Learn more about Default Extensions](%s/config#default-extensions)"), 'aspx?|cfm|f?cgi|dll|s?html?|[jp]html|xhtm|rbml|jspx?|php[s4]?', self::HREF),
+			'notes' => sprintf($this->_("Regex permitted, e.g.: %s\n**Important Note:** If you use them, avoid using literal spaces. Use **\s** instead.\n**[Use Default](#resetDefaultExtensions)** • **[Use Default Regex](#regexDefaultExtensions)** • [Learn more about Default Extensions](%s/config#default-extensions)"), 'aspx?|cfm|f?cgi|dll|s?html?|[jp]html|xhtml?|rbml|jspx?|php[s4]?', self::HREF),
 			'columnWidth' => 50,
 			'collapsed' => Inputfield::collapsedNever,
 			'spellcheck' => 'false',

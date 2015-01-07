@@ -71,8 +71,8 @@ $(function() {
         classInputfieldTask = "InputfieldTask";
         defaults = {
             statusCodes: "200 301 302",
-            extensions: "aspx asp cfm cgi fcgi dll html htm shtml shtm jhtml phtml xhtm rbml jspx jsp phps php4 php",
-            extensionRegex: "aspx?|cfm|f?cgi|dll|s?html?|[jp]html|xhtm|rbml|jspx?|php[s4]?"
+            extensions: "aspx asp cfm cgi fcgi dll html htm shtml shtm jhtml phtml xhtm xhtml rbml jspx jsp phps php4 php",
+            extensionRegex: "aspx?|cfm|f?cgi|dll|s?html?|[jp]html|xhtml?|rbml|jspx?|php[s4]?"
         }
 
         // Set action for 'HTTP Status Codes for Legacy Domain' Restore Defaults link-button
