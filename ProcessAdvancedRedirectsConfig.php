@@ -68,10 +68,9 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		)));
 
 		// Path Cleaning
-		$pathCleaningRecommendedMessage = ($this->cleanPath === 'fullClean') ? ' ('.$this->_('recommended value set').')' : '';
 		$inputfields->add($this->buildField('InputfieldRadios', array(
 			'name+id' => self::CLEAN_PATH,
-			'label' => $this->_('Path Cleaning').$pathCleaningRecommendedMessage,
+			'label' => $this->_('Path Cleaning'),
 			'description' => $this->_("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
 			'notes' => sprintf($this->_("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Path Cleaning](%s/config#path-cleaning)"), self::HREF),
 			'options' => array(
@@ -85,10 +84,8 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		)));
 
 		// Legacy Domain Fieldset
-		$message = ($this->legacyDomain && (trim($this->legacyDomain) !== '')) ? " (currently set to: {$this->legacyDomain})" : '';
-
 		$fieldset = $this->buildField('InputfieldFieldset', array(
-			'label' => $this->_('Legacy Domain').$message,
+			'label' => $this->_('Legacy Domain'),
 			'icon' => 'globe',
 			'collapsed' => Inputfield::collapsedYes,
 		));
