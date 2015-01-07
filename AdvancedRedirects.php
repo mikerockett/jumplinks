@@ -19,17 +19,6 @@ require_once __DIR__.'/Blueprint.php';
 class AdvancedRedirects extends Process {
 
 	/**
-	 * Config Defaults
-	 */
-	protected static $defaultConfig = array(
-		'moduleDebug' => false,
-		'defaultExtensions' => 'aspx asp cfm cgi fcgi dll html htm shtml shtm jhtml phtml xhtm rbml jspx jsp phps php4 php',
-		'cleanPath' => 'fullClean',
-		'statusCodes' => '200 301 302',
-		'experimentEnhancedPathCleaning' => false,
-	);
-
-	/**
 	 * Set the wildcard types.
 	 * A wildcard type is the second fragment of a wildcard/
 	 * Ex: {name:type}
@@ -322,14 +311,14 @@ class AdvancedRedirects extends Process {
 	 */
 	protected function scanAndRedirect()
 	{
-		$this->log("Page not found; scanning for redirects...");
-
 		$redirects = $this->db->query($this->sql->entitySelectAll);
 
 		if ($redirects->num_rows === 0)
 		{
 			return false;
 		}
+
+		$this->log("Page not found; scanning for redirects...");
 
 		$request = $this->request;
 		$requestedUrlFirstPart = "http".((@$_SERVER['HTTPS'] == 'on') ? "s" : "")."://{$_SERVER['HTTP_HOST']}";
