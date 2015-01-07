@@ -12,6 +12,8 @@ For information about this module, [see this forum thread](https://processwire.c
 
 Usage Guides and Documentation to come soon.
 
+See the **[Master Task List](https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/1)**.
+
 ## License
 
 Module is released under the [MIT License](http://mikeanthony.mit-license.org/)
