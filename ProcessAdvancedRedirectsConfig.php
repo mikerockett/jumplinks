@@ -16,6 +16,15 @@
 
 class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 
+	const HREF = "http://pw.foundrybusiness.co.za/advanced-redirects";
+
+	const DEFAULT_EXTENSIONS = "defaultExtensions";
+	const CLEAN_PATH = "cleanPath";
+	const LEGACY_DOMAIN = "legacyDomain";
+	const STATUS_CODES = "statusCodes";
+	const EXPERIMENT_EPC = "experimentEnhancedPathCleaning";
+	const MODULE_DEBUG = "moduleDebug";
+
 	public function getDefaults()
 	{
 		return array(
@@ -27,113 +36,119 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		);
 	}
 
+	protected function buildField($fieldNameId, $meta)
+	{
+		$field = wire('modules')->get($fieldNameId);
+		foreach ($meta as $metaNames => $metaInfo)
+		{
+			$metaNames = explode('+', $metaNames);
+			foreach ($metaNames as $metaName)
+			{
+				$field->$metaName = $metaInfo;
+			}
+		}
+
+		return $field;
+	}
+
+	// I would use the array method, but I prefer this.
 	public function getInputfields()
 	{
-		$inputFields = parent::getInputfields();
+		$inputfields = parent::getInputfields();
 
-		// Default Extensions
-		$f = wire('modules')->get("InputfieldText");
-		$f->attr('name+id', 'defaultExtensions');
-		$f->attr('spellcheck', 'false');
-		$f->label = $this->_('Default File Extensions');
-		$f->description = $this->_("The file extensions below (each separated by a space) will be checked when an extension wilcard type is used in the Source Path of a redirect definition.\nWe've already provided a handy set of defaults (which will also be used of you empty this field), but feel free to tinker.");
-		$f->notes = sprintf($this->_("Regex permitted, e.g.: %s\n**Important Note:** If you use them, avoid using literal spaces. Use **\s** instead.\n**[Use Default](#resetDefaultExtensions)** • **[Use Default Regex](#regexDefaultExtensions)** • [Learn more about Default Extensions](%s/config#default-extensions)"), 'aspx?|cfm|f?cgi|dll|s?html?|[jp]html|xhtm|rbml|jspx?|php[s4]?', $this->moduleInfo['href']);
-		$f->columnWidth = 50;
-		$f->collapsed = Inputfield::collapsedNever;
-
-		$inputFields->add($f);
+		// Default File Extensions
+		$inputfields->add($this->buildField('InputfieldText', array(
+			'name+id' => self::DEFAULT_EXTENSIONS,
+			'label' => $this->_('Default File Extensions'),
+			'description' => $this->_("The file extensions below (each separated by a space) will be checked when an extension wilcard type is used in the Source Path of a redirect definition.\nWe've already provided a handy set of defaults (which will also be used of you empty this field), but feel free to tinker."),
+			'notes' => sprintf($this->_("Regex permitted, e.g.: %s\n**Important Note:** If you use them, avoid using literal spaces. Use **\s** instead.\n**[Use Default](#resetDefaultExtensions)** • **[Use Default Regex](#regexDefaultExtensions)** • [Learn more about Default Extensions](%s/config#default-extensions)"), 'aspx?|cfm|f?cgi|dll|s?html?|[jp]html|xhtm|rbml|jspx?|php[s4]?', self::HREF),
+			'columnWidth' => 50,
+			'collapsed' => Inputfield::collapsedNever,
+			'spellcheck' => 'false',
+		)));
 
 		// Path Cleaning
-		$f = wire('modules')->get("InputfieldRadios");
-		$f->attr('name+id', 'cleanPath');
-		$recommendedValueSet = ($this->cleanPath === 'fullClean') ? ' ('.$this->_('recommended value set').')' : '';
-		$f->label = sprintf($this->_('Path Cleaning%s'), $recommendedValueSet);
-		$f->description = $this->_("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators.");
-		$f->notes = sprintf($this->_("**Note:** It's highly recommended to keep this set to 'Full Clean' (or even 'Complete Clean'), unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Path Cleaning](%s/config#path-cleaning)"), $this->moduleInfo['href']);
-		$f->options = array(
-			'completeClean' => $this->_('Complete Clean (cleans entire Destination Path) [don\'t use yet]'),
-			'fullClean' => $this->_('Full Clean (default, recommended)'),
-			'semiClean' => $this->_("Clean, but don't change case"),
-			'noClean' => $this->_("Don't clean at all (not recommended)"),
-		);
-		$f->columnWidth = 50;
-		$f->collapsed = Inputfield::collapsedNever;
+		$pathCleaningRecommendedMessage = ($this->cleanPath === 'fullClean') ? ' ('.$this->_('recommended value set').')' : '';
+		$inputfields->add($this->buildField('InputfieldRadios', array(
+			'name+id' => self::CLEAN_PATH,
+			'label' => $this->_('Path Cleaning').$pathCleaningRecommendedMessage,
+			'description' => $this->_("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
+			'notes' => sprintf($this->_("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Path Cleaning](%s/config#path-cleaning)"), self::HREF),
+			'options' => array(
+				//'completeClean' => $this->_('Complete Clean (cleans entire Destination Path) [don\'t use yet]'),
+				'fullClean' => $this->_('Full Clean (default, recommended)'),
+				'semiClean' => $this->_("Clean, but don't change case"),
+				'noClean' => $this->_("Don't clean at all (not recommended)"),
+			),
+			'columnWidth' => 50,
+			'collapsed' => Inputfield::collapsedNever,
+		)));
 
-		$inputFields->add($f);
+		// Legacy Domain Fieldset
+		$message = ($this->legacyDomain && (trim($this->legacyDomain) !== '')) ? " (currently set to: {$this->legacyDomain})" : '';
 
-		$s = wire('modules')->get('InputfieldFieldset');
+		$fieldset = $this->buildField('InputfieldFieldset', array(
+			'label' => $this->_('Legacy Domain').$message,
+			'icon' => 'globe',
+			'collapsed' => Inputfield::collapsedYes,
+		));
 
-		// Legacy Domain
-		$message = ($this->legacyDomain && (trim($this->legacyDomain) !== ''))
-		? " (currently set to: {$this->legacyDomain})" : '';
-
-		$s->label = $this->_("Legacy Domain{$message}");
-		$s->icon = 'globe';
-		$s->collapsed = Inputfield::collapsedYes;
-
-		$f = wire('modules')->get('InputfieldText');
-		$f->attr('name+id', 'legacyDomain');
-		$f->attr('spellcheck', 'false');
-		$f->skipLabel = Inputfield::skipLabelHeader;
-		$f->description = $this->_('Attempt any requested, unresolved Source Paths on a legacy domain/URL.');
-		$f->notes = $this->_("Enter a full, valid domain/URL. **Source Path won't be cleaned upon redirect**.");
-		$f->placeholder = $this->_('Examples: "http://legacy.domain.com/" or "http://domain.com/old/"');
-
-		$f->columnWidth = 50;
-		$f->collapsed = Inputfield::collapsedNever;
-
-		$s->add($f);
+		// Legacy Domain Name
+		$fieldset->add($this->buildField('InputfieldText', array(
+			'name+id' => self::LEGACY_DOMAIN,
+			'columnWidth' => 50,
+			'description' => $this->_('Attempt any requested, unresolved Source Paths on a legacy domain/URL.'),
+			'notes' => $this->_("Enter a full, valid domain/URL. **Source Path won't be cleaned upon redirect**."),
+			'placeholder' => $this->_('Examples: "http://legacy.domain.com/" or "http://domain.com/old/"'),
+			'collapsed' => Inputfield::collapsedNever,
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'spellcheck' => 'false',
+		)));
 
 		// Legacy Domain Status Codes
-		$f = wire('modules')->get('InputfieldText');
-		$f->attr('name+id', 'statusCodes');
-		$f->attr('spellcheck', 'false');
-		$f->skipLabel = Inputfield::skipLabelHeader;
-		$f->description = $this->_('Only redirect if a request to it yields one of these HTTP status codes:');
-		$f->notes = $this->_('Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**');
-		$f->columnWidth = 50;
-		$f->collapsed = Inputfield::collapsedNever;
+		$fieldset->add($this->buildField('InputfieldText', array(
+			'name+id' => self::STATUS_CODES,
+			'columnWidth' => 50,
+			'description' => $this->_('Only redirect if a request to it yields one of these HTTP status codes:'),
+			'notes' => $this->_("Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**"),
+			'collapsed' => Inputfield::collapsedNever,
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'spellcheck' => 'false',
+		)));
 
-		$s->add($f);
+		$inputfields->add($fieldset);
 
-		$inputFields->add($s);
-
-		// Experiments Set
-		$s = wire('modules')->get('InputfieldFieldset');
-		$s->label = $this->_('Experiments');
-		$s->description = $this->_('Any experiments listed below are only experiments, and may not make it to the final v1.0 release. They may not be perfect, so your input on the forums is welcome.');
-		$s->icon = 'flag';
-		$s->collapsed = Inputfield::collapsedYes;
+		// Experiments Fieldset
+		$fieldset = $this->buildField('InputfieldFieldset', array(
+			'label' => $this->_('Experiments'),
+			'icon' => 'flag',
+			'description' => $this->_('Any experiments listed below are only experiments, and may not make it to the final v1.0 release. They may not be perfect, so your input on the forums is welcome.'),
+			'collapsed' => Inputfield::collapsedYes,
+		));
 
 		// Enhanced Path Cleaning
-		$f = wire('modules')->get('InputfieldCheckbox');
-		$f->attr('name+id', 'experimentEnhancedPathCleaning');
-		$f->label = $this->_('Enhanced Path Cleaning');
-		$f->skipLabel = Inputfield::skipLabelHeader;
-		$f->description = $this->_("To make things a little easier, the following experiment enhances path cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below.");
-		$f->label2 = $this->_('Use Enhanced Path Cleaning');
-		$f->notes = $this->_("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'\n**ALPHA Note:** When you hit 'Submit', the state of this option will save, but the box will remain unchecked. Identified bug, tested in PW 2.5.13.");
-		//$f->checked = $this->experimentEnhancedPathCleaning;
-		$f->collapsed = Inputfield::collapsedNever;
+		$fieldset->add($this->buildField('InputfieldCheckbox', array(
+			'name+id' => self::EXPERIMENT_EPC,
+			'label' => $this->_('Enhanced Path Cleaning'),
+			'description' => $this->_("To make things a little easier, the following experiment enhances path cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
+			'label2' => $this->_('Use Enhanced Path Cleaning'),
+			'notes' => $this->_("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'\n**ALPHA Note:** When you hit 'Submit', the state of this option will save, but the box will remain unchecked. Identified bug, tested in PW 2.5.13."),
+			'collapsed' => Inputfield::collapsedNever,
+		)));
 
-		$s->add($f);
-
-		$inputFields->add($s);
+		$inputfields->add($fieldset);
 
 		// Debug Mode
-		$f = wire('modules')->get('InputfieldCheckbox');
-		$f->attr('name+id', 'moduleDebug');
-		$f->label = $this->_('Debug Mode');
-		$f->icon = 'bug';
-		$f->description = $this->_("If you run into any problems with your redirects, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums.");
-		$f->label2 = $this->_('Turn Debug Mode on');
-		$f->notes = $this->_("**ALPHA Note:** When you hit 'Submit', the state of this option will save, but the box will remain unchecked. Identified bug, tested in PW 2.5.13.");
-		//$f->checked = $this->moduleDebug;
-		$f->collapsed = Inputfield::collapsedYes;
+		$inputfields->add($this->buildField('InputfieldCheckbox', array(
+			'name+id' => self::MODULE_DEBUG,
+			'label' => $this->_('Debug Mode'),
+			'description' => $this->_("If you run into any problems with your redirects, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
+			'label2' => $this->_('Turn Debug Mode on'),
+			'notes' => $this->_("**ALPHA Note:** When you hit 'Submit', the state of this option will save, but the box will remain unchecked. Identified bug, tested in PW 2.5.13."),
+			'collapsed' => Inputfield::collapsedYes,
+		)));
 
-		$inputFields->add($f);
-
-		return $inputFields;
+		return $inputfields;
 	}
 
 }
