@@ -16,6 +16,8 @@
 
 require_once __DIR__.'/AdvancedRedirects.php';
 
+use ProcessAdvancedRedirectsConfig as Config;
+
 class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 	protected $headerSet = false;
@@ -669,8 +671,8 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		foreach ($mappings as $mapping)
 		{
 			$mapping = explode('=', $mapping);
-			$cleanPath = ($this->cleanPath === null) ? self::$defaultConfig['cleanPath'] : $this->cleanPath;
 
+            $cleanPath = $this->{Config::CLEAN_PATH};
 			if ($cleanPath === 'fullClean' || $cleanPath === 'semiClean')
 			{
 				$mapping[1] = $this->cleanPath($mapping[1], ($cleanPath === 'fullClean') ? false : true);

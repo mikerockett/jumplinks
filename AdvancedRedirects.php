@@ -15,6 +15,9 @@
  */
 
 require_once __DIR__.'/Blueprint.php';
+require_once __DIR__.'/ProcessAdvancedRedirectsConfig.php';
+
+use ProcessAdvancedRedirectsConfig as Config;
 
 class AdvancedRedirects extends Process {
 
@@ -54,11 +57,8 @@ class AdvancedRedirects extends Process {
 		parent::init();
 		$this->prepareAssets();
 
-		// Get the default extensions list, and regexify (that is now a word) it
-		$this->wildcards['ext'] = ($this->defaultExtensions === '')
-		? self::$defaultConfig['defaultExtensions']
-		: $this->defaultExtensions;
-		$this->wildcards['ext'] = implode(explode(' ', $this->wildcards['ext']), '|');
+		// Get the default extensions list, and regex it
+		$this->wildcards['ext'] = implode(explode(' ', $this->{Config::DEFAULT_EXTENSIONS}), '|');
 
 		// Set the request (URI), and trim off the leading slash,
 		// as we won't be needing it for comparison.
@@ -195,7 +195,7 @@ class AdvancedRedirects extends Process {
 	 */
 	public function cleanPath($input, $noLower = false)
 	{
-		if ($this->experimentEnhancedPathCleaning)
+		if ($this->{Config::EXPERIMENT_EPC})
 		{
 			// Courtesy @sln on StackOverflow
 			$input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures)
@@ -209,7 +209,7 @@ class AdvancedRedirects extends Process {
 		$input = preg_replace("~[^\\pL\d\/]+~u", '-', $input);
 		$input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
-		if ($this->experimentEnhancedPathCleaning)
+		if ($this->{Config::EXPERIMENT_EPC})
 		{
 			// Merge these two?
 			$input = preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input);
@@ -284,7 +284,7 @@ class AdvancedRedirects extends Process {
 	 */
 	protected function log($message, $indent = false, $break = false, $die = false)
 	{
-		if ($this->moduleDebug)
+		if ($this->{Config::MODULE_DEBUG})
 		{
 			if (!$this->headerSet)
 			{
@@ -464,7 +464,7 @@ class AdvancedRedirects extends Process {
 						$uncleanedCapture = $captures[$c];
 						if (!preg_match($paramSkipCleanCheck, $result))
 						{
-							$cleanPath = ($this->cleanPath === null) ? self::$defaultConfig['cleanPath'] : $this->cleanPath;
+							$cleanPath = $this->{Config::CLEAN_PATH};
 							if ($cleanPath === 'fullClean' || $cleanPath === 'semiClean')
 							{
 								$captures[$c] = $this->cleanPath($captures[$c], ($cleanPath === 'fullClean') ? false : true);
@@ -515,7 +515,7 @@ class AdvancedRedirects extends Process {
 				: true;
 
 				// If we're not debugging, and we're Time-activated, then do the redirect
-				if (!$this->moduleDebug && $activated)
+				if (!$this->{Config::MODULE_DEBUG} && $activated)
 				{
 					$this->session->redirect($convertedWildcards, !$activated);
 				}
@@ -543,7 +543,7 @@ class AdvancedRedirects extends Process {
 				}
 
 				// We can exit at this point.
-				if ($this->moduleDebug)
+				if ($this->{Config::MODULE_DEBUG})
 				{
 					die();
 				}
@@ -556,15 +556,15 @@ class AdvancedRedirects extends Process {
 
 		// Considering we don't have one available, let's check to see if the Source Path
 		// exists on the Legacy Domain, if defined.
-		if (!empty(trim($this->legacyDomain)))
+		if (!empty(trim($this->{Config::LEGACY_DOMAIN})))
 		{
 			// Fetch the accepted codes
-			$okCodes = trim(!empty($this->statusCodes))
-			? array_map('trim', explode(' ', $this->statusCodes))
-			: explode(',', self::$defaultConfig['statusCodes']);
+			$okCodes = trim(!empty($this->{Config::STATUS_CODES}))
+			? array_map('trim', explode(' ', $this->{Config::STATUS_CODES}))
+			: explode(',', $this->statusCodes);
 
 			// Prepare and do the request
-			$domainRequest = $this->legacyDomain.$request;
+			$domainRequest = $this->{Config::LEGACY_DOMAIN}.$request;
 			$status = $this->getResponseCode($domainRequest);
 
 			// If the response has an accepted code, then redirect (or log)
@@ -578,7 +578,7 @@ class AdvancedRedirects extends Process {
 
 		// If all fails, say so.
 		$this->log("No matches, sorry...");
-		if ($this->moduleDebug)
+		if ($this->{Config::MODULE_DEBUG})
 		{
 			die();
 		}
