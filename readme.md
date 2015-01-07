@@ -1,12 +1,14 @@
-# ProcessAdvancedRedirects Alpha
+## ProcessAdvancedRedirects
 
-**Current Development Phase:** [Alpha 0.1.2](http://pw.foundrybusiness.co.za/ProcessAdvancedRedirects-012.zip)
+**Current Development Phase:** 0.1.2-alpha
+
+**Intended for:** ProcessWire 2.6-dev
 
 **Developed in:** ProcessWire 2.5.12-13
 
-Module is in ALPHA phase, and SHOULD NOT be used for production. Critical things, like database schematics, may change at any time during this phase of development.
+Module is in alpha phase, and **should not** be used for production.
 
-For information about this module, [see this forum thread](https://processwire.com/talk/topic/8697-alpha-processadvancedredirects/).
+For information about the module, [see this forum thread](https://processwire.com/talk/topic/8697-alpha-processadvancedredirects/).
 
 Usage Guides and Documentation to come soon.
 
