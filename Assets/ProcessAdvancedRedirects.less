@@ -1,0 +1,183 @@
+/*! @preserve
+ *
+ *  ProcessAdvancedRedirects - Main Styles
+ *
+ *  Author: Mike Anthony
+ *  Copyright (c) 2015, Mike Anthony. All Rights Reserved.
+ *  Licence: MIT License - http://mikeanthony.mit-license.org/
+ *
+ *  http://pw.foundrybusiness.co.za/advanced-redirects
+ *
+ *  Crunched: Yip
+ */
+
+@-webkit-keyframes affected {
+    0% {
+        background-color: none;
+    }
+    80% {
+        background-color: darken(lightyellow, 10%);
+    }
+    100% {
+        background-color: lightyellow;
+    }
+}
+@-moz-keyframes affected {
+    0% {
+        background-color: none;
+    }
+    80% {
+        background-color: darken(lightyellow, 10%);
+    }
+    100% {
+        background-color: lightyellow;
+    }
+}
+@-o-keyframes affected {
+    0% {
+        background-color: none;
+    }
+    80% {
+        background-color: darken(lightyellow, 10%);
+    }
+    100% {
+        background-color: lightyellow;
+    }
+}
+@keyframes affected {
+    0% {
+        background-color: none;
+    }
+    80% {
+        background-color: darken(lightyellow, 10%);
+    }
+    100% {
+        background-color: lightyellow;
+    }
+}
+#parInputForm {
+    p.notes {
+        background: none !important;
+    }
+    textarea#collectionData {
+        font-family: "Consolas", "Courier New", monospace;
+    }
+}
+#ModuleEditForm[action$=ProcessAdvancedRedirects] {
+    p.notes {
+        background: none !important;
+        a.InputfieldTask {
+            color: #69b7ef;
+            &:hover {
+                color: darken(#69b7ef, 20%);
+            }
+        }
+    }
+}
+#parTabs .InputfieldContent, #parTabs .Inputfields {
+    margin-top: 0;
+    .InputfieldContent {
+        p.description + p {
+            margin-bottom: 0;
+        }
+    }
+    table.advanced-redirects {
+        font-size: 13px;
+        margin-bottom: 0;
+        &.redirects {
+            td:last-child, td:nth-last-child(2) {
+                width: 7em;
+            }
+        }
+        &.mapping-collections {
+            td:last-child, td:nth-last-child(2) {
+                width: 20%;
+            }
+            td:nth-last-child(3) {
+                width: 5%;
+            }
+        }
+        tbody {
+            tr {
+                & > td {
+                    cursor: default;
+                    padding: 4px 8px !important;
+                    abbr {
+                        border-bottom: 1px dotted #ccc;
+                        cursor: help;
+                    }
+                    span.ellipses {
+                        background-color: fade(black, 2%);
+                        border: 1px solid fade(black, 4%);
+                        padding: 2px 4px;
+                        -webkit-border-radius: 4px;
+                        -moz-border-radius: 4px;
+                        border-radius: 4px;
+                        font-weight: 800;
+                        cursor: help;
+                        &:hover {
+                            background-color: fade(black, 4%);
+                            border-color: fade(black, 8%);
+                        }
+                    }
+                }
+                &.affected td {
+                    -webkit-animation: affected 1.8s 1 forwards;
+                    -moz-animation: affected 1.8s 1 forwards;
+                    -o-animation: affected 1.8s 1 forwards;
+                    animation: affected 1.8s 1 forwards;
+                }
+            }
+        }
+        thead {
+            tr {
+                & > th {
+                    cursor: default;
+                    padding: 8px 8px !important;
+                }
+            }
+        }
+        tfoot {
+            tr {
+                & > td {
+                    background-color: rgba(0, 0, 0, 0.05);
+                    border-top: 2px solid #bbb;
+                    font-weight: bold;
+                    padding: 8px 8px !important;
+                }
+            }
+            tr:hover {
+                td {
+                    background-color: rgba(0, 0, 0, 0.05) !important;
+                }
+            }
+        }
+        + p {
+            margin-bottom: 0;
+        }
+    }
+    p.description {
+        margin: 0;
+        padding-bottom: 1em;
+        border-bottom: 1px solid #ececec;
+        span.larger {
+            font-size: 1.2em;
+        }
+        span.block {
+            display: block;
+            margin-bottom: 5px;
+        }
+    }
+    p > a:first-child button {
+        margin-right: 1em;
+    }
+}
+p.parInfo {
+    background-color: lightyellow;
+    border: 1px solid desaturate(darken(lightyellow, 10%), 50%);
+    color: #555;
+    cursor: default;
+    font-size: 1.1em;
+    line-height: 1em;
+    padding: 16px;
+}

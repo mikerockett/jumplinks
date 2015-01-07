@@ -1,0 +1,61 @@
+<script type="text/javascript">
+    $(function(){
+        $('#<selector>').bind('pageSelected',function(a,b){b.id>0 && $('#<path-input-field>').val('page:'+b.id)});
+        $('button#<save-button>').on('click', function(e) {
+            var $values = {
+                name: $('input#<redirect-name>').val(),
+                sourcePath: $('input#<source-path>').val(),
+                destinationPath: $('input#<destination-path>').val(),
+                dateStart: $('#<date-start>').val(),
+                dateEnd: $('#<date-end>').val(),
+            }, errors = [], errorString = '';
+            if ($values.name && $values.name.trim().length < 4)
+                errors.push('If used, the Redirect Name should not be less than four (4) characters.');
+            if ($values.sourcePath.trim().length === 0)
+                errors.push("Source Path can't be empty...");
+            else {
+                var isAbsolute = new RegExp('^(?:[a-z]+:)?//', 'i');
+                if (isAbsolute.test($values.sourcePath))
+                    errors.push('Source Path cannot be an absolute URL. It needs to be relative to the root of your installation, without the leading forward-slash.');
+                if ($values.sourcePath[0] === '/' && $values.sourcePath[1] !== '/')
+                    errors.push('Source Path should not contain a leading forward-slash.');
+            }
+            if ($values.destinationPath.trim().length === 0)
+                errors.push("Destination Path can't be empty...");
+            else {
+                if ($values.destinationPath[0] === '/' && $values.destinationPath[1] !== '/')
+                    errors.push('Destination Path should not contain a leading forward-slash.');
+            }
+            if ($values.dateStart && $values.dateEnd)
+                if (new Date($values.dateStart).getTime() >= new Date($values.dateEnd).getTime())
+                    errors.push("End Date/Time cannot occur on or before Start Date/Time. Unless you're some sort of awesome time-traveller. I would really like to meet you.");
+            if (errors.length) {
+                errors.map(function(message) {
+                    errorString += '<li style="padding: 9px 24px; border-bottom: 1px solid #ececec">' + message + '</li>';
+                });
+                $('body').css('overflow', 'hidden');
+                var $dialog = $('<div id="validationMessage"></div>')
+                    .html('<ol>'+errorString+'</ol>')
+                    .appendTo('body')
+                    .dialog({
+                        draggable: false,
+                        modal: true,
+                        position:['middle', 125],
+                        resizable: false,
+                        title: 'Errors',
+                        width: 550,
+                        buttons: {
+                            Close: function() {
+                                $(this).dialog('close');
+                            }
+                        },
+                        close: function() {
+                            $(this).dialog('destroy').remove();
+                            $('body').css('overflow', 'auto');
+                        }
+                    });
+                return false;
+            }
+        })
+    });
+</script>

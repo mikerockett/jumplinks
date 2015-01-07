@@ -1,0 +1,22 @@
+{
+    "title": "Advanced Redirects [ALPHA]",
+    "version": "0.1.1",
+    "author": "Mike Anthony",
+    "summary": "Manage 301 redirects. Supports wildcards.",
+    "requires": "ProcessWire>=2.5.2",
+    "href": "http://pw.foundrybusiness.co.za/advanced-redirects",
+    "autoload": true,
+    "icon": "paper-plane",
+    "permanent": false,
+    "singular": true,
+    "permission": "advanced-redirects-admin",
+    "permissions": {
+        "advanced-redirects-admin": "Administer Advanced Redirects"
+    },
+    "page": {
+        "name": "advanced-redirects",
+        "parent": "setup",
+        "title": "Redirects [A]"
+    },
+    "useNavJSON": true
+}
