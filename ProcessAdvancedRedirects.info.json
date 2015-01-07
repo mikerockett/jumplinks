@@ -2,7 +2,7 @@
     "title": "Advanced Redirects [ALPHA]",
     "version": "0.1.1",
     "author": "Mike Anthony",
-    "summary": "Manage permanent and temporay redirects. Supports wildcards.",
+    "summary": "Manage permanent and temporary redirects. Supports wildcards.",
     "requires": "ProcessWire>=2.5.2",
     "href": "http://pw.foundrybusiness.co.za/advanced-redirects",
     "autoload": true,
