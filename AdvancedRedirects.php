@@ -16,7 +16,7 @@
 
 require_once __DIR__ . '/Blueprint.php';
 
-class UtilityProcess extends Process {
+class AdvancedRedirects extends Process {
 
     /**
      * Config Defaults

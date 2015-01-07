@@ -14,9 +14,9 @@
  *
  */
 
-require_once __DIR__ . '/UtilityProcess.php';
+require_once __DIR__ . '/AdvancedRedirects.php';
 
-class ProcessAdvancedRedirects extends UtilityProcess implements ConfigurableModule {
+class ProcessAdvancedRedirects extends AdvancedRedirects implements ConfigurableModule {
 
     protected $headerSet = false;
 
