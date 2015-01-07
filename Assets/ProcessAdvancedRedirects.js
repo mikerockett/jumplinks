@@ -60,6 +60,7 @@ $(function() {
                 idParam == rows[key] &&
                 (key++, $("table.advanced-redirects.redirects tr:nth-child(k)".replace("k", key)).addClass("affected"));
         }();
+
     }(config.parRowAssociations);
 
     // Detect if we're on the module's config page

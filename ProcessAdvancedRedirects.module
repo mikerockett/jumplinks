@@ -213,17 +213,17 @@ class ProcessAdvancedRedirects extends UtilityProcess implements ConfigurableMod
         $variableIndexTab->id = 'variables';
 
             $variableIndexTableContainer = $this->modules->get('InputfieldMarkup');
-            $variableIndexTableContainer->value = 'Not implemented yet.';
+            $variableIndexTableContainer->value = 'Variables not implemented yet.';
 
         $variableIndexTab->append($variableIndexTableContainer);
 
         $replacementsTab = new InputfieldWrapper();
-        $replacementsTab->attr('title', 'Pre-Jump Replacements');
+        $replacementsTab->attr('title', 'JIT Replacements');
         $replacementsTab->id = 'replacements';
 
 
             $replacementsTableContainer = $this->modules->get('InputfieldMarkup');
-            $replacementsTableContainer->value = 'Not implemented yet.';
+            $replacementsTableContainer->value = 'JIT Replacements not implemented yet.';
 
         $replacementsTab->append($replacementsTableContainer);
 
@@ -232,7 +232,7 @@ class ProcessAdvancedRedirects extends UtilityProcess implements ConfigurableMod
         $historyTab->id = 'history';
 
             $historyTableContainer = $this->modules->get('InputfieldMarkup');
-            $historyTableContainer->value = 'Not implemented yet.';
+            $historyTableContainer->value = 'History not implemented yet.';
 
         $historyTab->append($historyTableContainer);
 
