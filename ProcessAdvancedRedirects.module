@@ -105,7 +105,10 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$redirectsTable->action(array(
 			$registerRedirectButtonLabel => "entity/",
 			$this->_('Configuration') => $this->getModuleConfigUri(),
-			$this->_('Documentation') => $this->moduleInfo['href'],
+			//$this->_('Documentation') => $this->moduleInfo['href'],
+			$this->_('Dev Discussion') => 'https://processwire.com/talk/topic/8697-alpha-processadvancedredirects/',
+			$this->_('Issues on GitHub') => 'https://github.com/mike-anthony/ProcessAdvancedRedirects/issues',
+			$this->_('Master Task List') => 'https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/1',
 		));
 
         $head = $this->_n('You have one redirect registered.', 'Your redirects are listed below.', $redirects->num_rows);
@@ -168,7 +171,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$installMappingCollectionButtonLabel = ($mappingCollections->num_rows === 1) ? $this->_('Install Another Mapping Collection') : $this->_('Install New Mapping Collection');
 		$mappingCollectionsTable->action(array(
 			$installMappingCollectionButtonLabel => "mapping-collection/",
-			$this->_("What's this?") => "{$this->moduleInfo['href']}/mapping-collections",
+			//$this->_("What's this?") => "{$this->moduleInfo['href']}/mapping-collections",
 		));
 
 		if ($mappingCollections->num_rows === 0)
@@ -416,6 +419,18 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 					'updated-at' => $updatedAt,
 					'updated-at-relative' => $relativeTimes['updated'],
 				)),
+			)));
+
+			// Add Delete button
+			$field = $this->modules->get('InputfieldCheckbox');
+			$form->add($this->buildField($field, array(
+				//'name+id' => 'permanent',
+				'label' => $this->_('Make Permanent'),
+				'icon' => 'lock',
+				'description' => $this->_("To lock this redirect to future changes/deletion, check the box below."),
+				'label2' => $this->_('Make this redirect permanent'),
+				'notes' => $this->_('**Dev Note:** Not implemented yet. See [this issue](https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/3) for more information.'),
+				"collapsed" => Inputfield::collapsedYes,
 			)));
 
 			// Add Delete button

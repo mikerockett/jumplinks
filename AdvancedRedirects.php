@@ -154,7 +154,7 @@ class AdvancedRedirects extends Process {
 			// Otherwise, return the full destination.
 			return ($renderForOutput)
 			? $this->truncate($destination, 35)
-			: "{$prefix}{$destination}";
+			: $prefix . $destination;
 		}
 
 		// If we're using a page identifier, fetch it
@@ -168,7 +168,7 @@ class AdvancedRedirects extends Process {
 
 			// If we're rendering for output, make it pretty.
 			$destination = ($renderForOutput)
-			? "<abbr title=\"$pagePath\">{$page->get('headline|title|name')}<abbr>"
+			? "<abbr title=\"{$pagePath}\">{$page->get('headline|title|name')}<abbr>"
 			: $pagePath;
 		}
 
@@ -320,7 +320,7 @@ class AdvancedRedirects extends Process {
 
 		// Do some logging
 		$this->log('Checked at: '.date('r'), true);
-		$this->log("Requested URL: $requestedUrlFirstPart/$request", true);
+		$this->log("Requested URL: {$requestedUrlFirstPart}/{$request}", true);
 		$this->log("PW Version: {$this->config->version}", true, true);
 
 		$rootUrl = $this->config->urls->root;
@@ -374,14 +374,14 @@ class AdvancedRedirects extends Process {
 				$this->log(sprintf("Timed Activation:             %s to %s {$message}", date('r', $starts), date('r', $ends)), true);
 			}
 
-			$this->log("Source Path (Unescaped):      $redirect->source", true);
+			$this->log("Source Path (Unescaped):      {$redirect->source}", true);
 
 			// Prepare the Source Path for matching:
 			// First, escape ? & :, and rename index.php so we can make use of such requests.
 			// Then, convert '[character]' to 'character?' for matching.
 			$source = preg_replace('~\[([a-z0-9\/])\]~i', "\\1?", str_replace(
-				array('?', '&', ':', 'index.php'),
-				array('\?', '\&', '\:', 'index.php.pw-par'),
+				array('?', '&', ':', '+', 'index.php'),
+				array('\?', '\&', '\:', '+', 'index.php.pw-par'),
 				$redirect->source));
 
 			// Reverse ? escaping for wildcards
@@ -392,7 +392,7 @@ class AdvancedRedirects extends Process {
 
 			if ($source !== $redirect->source)
 			{
-				$this->log("Source Path (Escaped):        $source", true);
+				$this->log("Source Path (Escaped):        {$source}", true);
 			}
 
 			// Setup capture prevention
@@ -409,7 +409,7 @@ class AdvancedRedirects extends Process {
 				$smartWildcardMatcher = "~\{($wildcard)\}~i";
 				if (preg_match($smartWildcardMatcher, $source))
 				{
-					$source = preg_replace($smartWildcardMatcher, "{\\1:$wildcardType}", $source);
+					$source = preg_replace($smartWildcardMatcher, "{\\1:{$wildcardType}}", $source);
 				}
 			}
 
@@ -419,12 +419,12 @@ class AdvancedRedirects extends Process {
 			$computedWildcards = preg_replace_callback($pattern, function ($captures) use (&$computedReplacements)
 			{
 				$computedReplacements[] = $captures[1];
-				return '('.$this->wildcards[$captures[2]].')';
+				return "({$this->wildcards[$captures[2]]})";
 			}, $source);
 
 			// Some more logging
-			$this->log("Source Path (Stage 1):        $source", true);
-			$this->log("Source Path (Stage 2):        $computedWildcards", true);
+			$this->log("Source Path (Stage 1):        {$source}", true);
+			$this->log("Source Path (Stage 2):        {$computedWildcards}", true);
 
 			// If the request matches the source currently being checked:
 			if (preg_match("~^$computedWildcards$~i", $request))
@@ -516,7 +516,7 @@ class AdvancedRedirects extends Process {
 				}
 
 				// Otherwise, continue logging
-				$this->log("Destination Path (Converted): $convertedWildcards", true, true);
+				$this->log("Destination Path (Converted): {$convertedWildcards}", true, true);
 				$type = ($starts) ? '302, temporary' : '301, permanent';
 				$this->log("Match found! We'll do the following redirect ({$type}) when Debug Mode has been turned off:", false, true);
 				$this->log("From URL:   {$requestedUrlFirstPart}/{$request}", true);
