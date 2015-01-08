@@ -107,6 +107,8 @@ class AdvancedRedirects extends Process {
 	/**
 	 * Create a blueprint from file and give it some variables.
 	 * @caller multiple
+	 * @param  string $name
+	 * @param  array  $data
 	 * @return string
 	 */
 	protected function blueprint($name, $data = array()) {
@@ -120,12 +122,15 @@ class AdvancedRedirects extends Process {
 
 		$blueprint->hydrate($data);
 
-		return $blueprint->build();
+		return (string) $blueprint->build();
 	}
 
 	/**
 	 * Compile destination URL, keeping page refs, HTTPS, and subdirectories considered.
 	 * @caller multiple
+	 * @param  string $destination
+	 * @param  bool   $renderForOutput
+	 * @param  bool   $http
 	 * @return string
 	 */
 	protected function compileDestinationUrl($destination, $renderForOutput = false, $http = true) {
@@ -167,7 +172,7 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Fetch the URI to the module's config page
-	 * @caller ___execute
+	 * @caller multiple
 	 * @return string
 	 */
 	protected function getModuleConfigUri() {
@@ -178,6 +183,8 @@ class AdvancedRedirects extends Process {
 	/**
 	 * Fetch the URI to the module's config page
 	 * @caller scanAndRedirect
+	 * @param  string $input
+	 * @param  bool   $noLower
 	 * @return string
 	 */
 	public function cleanPath($input, $noLower = false) {
@@ -211,6 +218,8 @@ class AdvancedRedirects extends Process {
 	/**
 	 * Truncate string, and append ellipses with tooltip
 	 * @caller multiple
+	 * @param  string $string
+	 * @param  int    $length
 	 * @return string
 	 */
 	protected function truncate($string, $length = 55) {
@@ -221,7 +230,7 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Given a an Inputfield, add props and return
-	 * @param  string $fieldNameId
+	 * @param  string $field
 	 * @param  array  $meta
 	 * @return Inputfield
 	 */
@@ -239,6 +248,7 @@ class AdvancedRedirects extends Process {
 	/**
 	 * Get response code of remote request
 	 * @caller scanAndRedirect
+	 * @param  $request
 	 * @return string
 	 */
 	protected function getResponseCode($request) {
@@ -256,6 +266,10 @@ class AdvancedRedirects extends Process {
 	/**
 	 * Log something. Will set plain text header if not already set.
 	 * @caller scanAndRedirect
+	 * @param  string $message
+	 * @param  bool   $indent
+	 * @param  bool   $break
+	 * @param  bool   $die
 	 */
 	protected function log($message, $indent = false, $break = false, $die = false) {
 		if ($this->{Config::MODULE_DEBUG}) {
