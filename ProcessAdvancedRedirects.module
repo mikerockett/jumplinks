@@ -318,7 +318,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			'name+id' => 'sourcePath',
 			'label' => $this->_('Source Path'),
 			'description' => $this->_("Enter a path that's relative to the root of this installation, without the leading slash."),
-			'notes' => sprintf($this->_('Learn more about **[wildcards](%s/wildcards)**.'), $this->moduleInfo['href']),
+			'notes' => sprintf($this->_('Learn how to use **[wildcards](%s/wildcards)**.'), $this->moduleInfo['href']),
 			'placeholder' => $this->_('Examples:') . " 'example/', 'example', 'content/pages/{path}', 'page.php?name=example', 'list.aspx?category={category:segment}'",
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
