@@ -408,16 +408,16 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				)),
 			)));
 
-			// Add Delete button
+			// Add Make Permanent button
 			$field = $this->modules->get('InputfieldCheckbox');
 			$form->add($this->buildField($field, array(
-				//'name+id' => 'permanent',
+				'name' => 'isPermanent',
 				'label' => $this->_('Make Permanent'),
 				'icon' => 'lock',
 				'description' => $this->_("To lock this redirect to future changes/deletion, check the box below."),
 				'label2' => $this->_('Make this redirect permanent'),
 				'notes' => $this->_('**Dev Note:** Not implemented yet. See [this issue](https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/3) for more information.'),
-				"collapsed" => Inputfield::collapsedYes,
+				'collapsed' => Inputfield::collapsedYes,
 			)));
 
 			// Add Delete button
@@ -428,7 +428,8 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				'icon' => 'times-circle',
 				'description' => $this->_("If you'd like to delete this redirect, check the box below."),
 				'label2' => $this->_('Delete this redirect'),
-				"collapsed" => Inputfield::collapsedYes,
+				'collapsed' => Inputfield::collapsedYes,
+				'showIf' => 'isPermanent=0',
 			)));
 		}
 
@@ -619,7 +620,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				'icon' => 'times-circle',
 				'description' => $this->_("If you'd like to uninstall this collection, check the box below."),
 				'label2' => $this->_('Uninstall this collection'),
-				"collapsed" => Inputfield::collapsedYes,
+				'collapsed' => Inputfield::collapsedYes,
 			)));
 		}
 

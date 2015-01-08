@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * ProcessAdvancedRedirects - a ProcessWire Module by Mike Anthony
+ * Manage permanent and temporary redirects. Supports wildcards.
+ *
+ * Intended for: ProcessWire 2.6-dev
+ * Developed in: ProcessWire 2.5.13
+ *
+ * Copyright (c) 2015, Mike Anthony. All Rights Reserved.
+ * Licence: MIT License - http://mikeanthony.mit-license.org/
+ *
+ * http://pw.foundrybusiness.co.za/advanced-redirects
+ *
+ */
+
 class Blueprint {
 
 	protected $file;
