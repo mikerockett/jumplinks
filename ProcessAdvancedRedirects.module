@@ -145,22 +145,13 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			$this->_("What's this?") => "{$this->moduleInfo['href']}/mapping-collections",
 		));
 
-		switch ($mappingCollections->num_rows)
+		if ($mappingCollections->num_rows === 0)
 		{
-			case 0:
-				$pronoun = "one";
-				$head = $this->_("You don't have any collections installed.");
-				break;
-
-			case 1:
-				$pronoun = "it";
-				$head = $this->_("You have one collection installed.");
-				break;
-
-			default:
-				$pronoun = "one";
-				$head = $this->_("Your collections are listed below.");
-				break;
+			$pronoun = 'one';
+			$head = $this->_("You don't have any collections installed.");
+		} else {
+			$head = $this->_n('You have one collection installed.', 'Your collections are listed below.', $mappingCollections->num_rows);
+        	$pronoun = $this->_n('it', 'one', $mappingCollections->num_rows);
 		}
 
 		$more = ($mappingCollections->num_rows === 0) ? '' : sprintf($this->_("To edit/delete %s, simply click on its name. To add another, click on '%s' at the bottom."), $pronoun, $installMappingCollectionButtonLabel);
