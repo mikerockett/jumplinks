@@ -25,6 +25,7 @@ class AdvancedRedirects extends Process {
 	 * Set the wildcard types.
 	 * A wildcard type is the second fragment of a wildcard/
 	 * Ex: {name:type}
+	 * @var array
 	 */
 	protected $wildcards = array(
 		'all' => '.*',
@@ -40,6 +41,7 @@ class AdvancedRedirects extends Process {
 	 * Set smart wildcards.
 	 * These are like shortcuts for declaring wildcards.
 	 * See the docs for more info.
+	 * @var array
 	 */
 	public $smartWildcards = array(
 		'all' => 'all',
@@ -51,6 +53,7 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Module initialisation
+	 * @hook ProcessPageView::pageNotFound to scanAndRedirect
 	 */
 	public function init()
 	{
@@ -88,7 +91,6 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Prepare backend assets.
-	 *
 	 * @caller init
 	 */
 	protected function prepareAssets()
@@ -109,7 +111,6 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Create a blueprint from file and give it some variables.
-	 *
 	 * @caller multiple
 	 * @return string
 	 */
@@ -131,7 +132,6 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Compile destination URL, keeping page refs, HTTPS, and subdirectories considered.
-	 *
 	 * @caller multiple
 	 * @return string
 	 */
@@ -177,7 +177,6 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Fetch the URI to the module's config page
-	 *
 	 * @caller ___execute
 	 * @return string
 	 */
@@ -189,7 +188,6 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Fetch the URI to the module's config page
-	 *
 	 * @caller scanAndRedirect
 	 * @return string
 	 */
@@ -228,7 +226,6 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Truncate string, and append ellipses with tooltip
-	 *
 	 * @caller multiple
 	 * @return string
 	 */
@@ -240,9 +237,10 @@ class AdvancedRedirects extends Process {
 	}
 
 	/**
-	 * Utility to quickly set properties on fields
-	 *
-	 * @return core/Field
+	 * Given a an Inputfield, add props and return
+	 * @param  string $fieldNameId
+	 * @param  array  $meta
+	 * @return Inputfield
 	 */
 	protected function buildField($field, $meta)
 	{
@@ -260,7 +258,6 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Get response code of remote request
-	 *
 	 * @caller scanAndRedirect
 	 * @return string
 	 */
@@ -279,7 +276,6 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * Log something. Will set plain text header if not already set.
-	 *
 	 * @caller scanAndRedirect
 	 */
 	protected function log($message, $indent = false, $break = false, $die = false)
@@ -306,7 +302,6 @@ class AdvancedRedirects extends Process {
 
 	/**
 	 * The fun part.
-	 *
 	 * @caller Hook: ProcessPageView::pageNotFound
 	 */
 	protected function scanAndRedirect()

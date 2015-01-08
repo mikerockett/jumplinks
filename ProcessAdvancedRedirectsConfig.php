@@ -25,6 +25,10 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	const EXPERIMENT_EPC = "experimentEnhancedPathCleaning";
 	const MODULE_DEBUG = "moduleDebug";
 
+	/**
+	 * Get the default configuration details
+	 * @return array
+	 */
 	public function getDefaults()
 	{
 		return array(
@@ -36,6 +40,12 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		);
 	}
 
+	/**
+	 * Given a fieldtype, create, fill, and return an Inputfield
+	 * @param  string $fieldNameId
+	 * @param  array  $meta
+	 * @return Inputfield
+	 */
 	protected function buildField($fieldNameId, $meta)
 	{
 		$field = wire('modules')->get($fieldNameId);
@@ -51,7 +61,10 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		return $field;
 	}
 
-	// I would use the array method, but I prefer this.
+	/**
+	 * Compile Inputfields for module config (admin)
+	 * @return InputfieldWrapper
+	 */
 	public function getInputfields()
 	{
 		$inputfields = parent::getInputfields();

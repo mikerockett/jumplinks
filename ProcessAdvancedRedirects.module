@@ -20,14 +20,41 @@ use ProcessAdvancedRedirectsConfig as Config;
 
 class ProcessAdvancedRedirects extends AdvancedRedirects {
 
+	/**
+	 * Determine if the tex/plain header is set
+	 * @var boolean
+	 */
 	protected $headerSet = false;
 
+	/**
+	 * Object (Array) that holds SQL statements
+	 * @var stClass
+	 */
 	protected $sql;
 
+	/**
+	 * Hold module information
+	 * @var array
+	 */
 	protected $moduleInfo;
+
+	/**
+	 * The base table name
+	 * @rfc Should we make this constant?
+	 * @var string
+	 */
 	protected $tableName = 'process_advanced_redirects';
+
+	/**
+	 * Path to form (___executeEntity())
+	 * @var string
+	 */
 	protected $formPath = 'entity/';
 
+	/**
+	 * Class constructor
+	 * Init moduleInfo, sql
+	 */
 	public function __construct()
 	{
 		$this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
@@ -51,7 +78,6 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 	/**
 	 * Admin Page: Module Root
-	 *
 	 * @return string
 	 */
 	public function ___execute()
@@ -149,7 +175,9 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		{
 			$pronoun = 'one';
 			$head = $this->_("You don't have any collections installed.");
-		} else {
+		}
+		else
+		{
 			$head = $this->_n('You have one collection installed.', 'Your collections are listed below.', $mappingCollections->num_rows);
         	$pronoun = $this->_n('it', 'one', $mappingCollections->num_rows);
 		}
@@ -229,7 +257,6 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 	/**
 	 * Admin Page: Add/Edit Entity (Redirect)
-	 *
 	 * @return string
 	 */
 	public function ___executeEntity()
@@ -508,7 +535,6 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 	/**
 	 * Admin Page: Install/Uninstall Mapping Collections
-	 *
 	 * @return string
 	 */
 	public function ___executeMappingCollection()
@@ -698,26 +724,11 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		$this->message(sprintf($this->_("Mapping Collection '%s' saved."), $collectionName));
 
-		// Get the ID of the entity we just created/updated
-		// And send it off to the admin page to highlight it in the table
-		if (!$isUpdating)
-		{
-			$theEntity = $this->db->query(sprintf($this->sql->mappingCollectionsSelectIdFromName, $name));
-			while ($redirect = $theEntity->fetch_object())
-			{
-				$id = $redirect->id;
-			}
-
-			$theEntity->close();
-		}
-		$id = (string) $id;
-
 		$this->session->redirect("../");
 	}
 
 	/**
 	 * Render JSON Nav list - last five edited entities
-	 *
 	 * @return string rendered JSON string
 	 */
 	public function ___executeNavJSON(array $options = array())
