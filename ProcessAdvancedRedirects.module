@@ -14,7 +14,7 @@
  *
  */
 
-require_once __DIR__.'/AdvancedRedirects.php';
+require_once __DIR__ . '/AdvancedRedirects.php';
 
 use ProcessAdvancedRedirectsConfig as Config;
 
@@ -55,8 +55,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 	 * Class constructor
 	 * Init moduleInfo, sql
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		$this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
 		$this->sql = (object) array(
 			'entitySelectAll' => "SELECT * FROM {$this->tableName} ORDER BY name",
@@ -80,14 +79,12 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 	 * Admin Page: Module Root
 	 * @return string
 	 */
-	public function ___execute()
-	{
+	public function ___execute() {
 		$redirects = $this->db->query($this->sql->entitySelectAll);
 		$this->setFuel('processHeadline', $this->moduleInfo['title']);
 
 		// If we don't have any redirects defined, then we should start be creating one
-		if ($redirects->num_rows == 0)
-		{
+		if ($redirects->num_rows == 0) {
 			$this->session->redirect("{$this->formPath}?first");
 		}
 
@@ -111,8 +108,8 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			$this->_('Master Task List') => 'https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/1',
 		));
 
-        $head = $this->_n('You have one redirect registered.', 'Your redirects are listed below.', $redirects->num_rows);
-        $pronoun = $this->_n('it', 'one', $redirects->num_rows);
+		$head = $this->_n('You have one redirect registered.', 'Your redirects are listed below.', $redirects->num_rows);
+		$pronoun = $this->_n('it', 'one', $redirects->num_rows);
 		$more = sprintf($this->_("To edit/delete %s, simply click on its name. To add another, click on '%s' at the bottom."), $pronoun, $registerRedirectButtonLabel);
 		$description = $this->blueprint('manage-description', array(
 			'head' => $head,
@@ -121,8 +118,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		$rowAssociations = array();
 
-		while ($redirect = $redirects->fetch_object())
-		{
+		while ($redirect = $redirects->fetch_object()) {
 			$redirect->source = htmlentities($redirect->source);
 			$redirect->destination = $this->compileDestinationUrl($redirect->destination, true);
 			$relativeStartTime = str_replace('Never', '', wireRelativeTimeStr($redirect->date_start, true));
@@ -152,7 +148,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$redirects->close();
 
 		$redirectsTableContainer = $this->modules->get('InputfieldMarkup');
-		$redirectsTableContainer->value = $description.$redirectsTable->render();
+		$redirectsTableContainer->value = $description . $redirectsTable->render();
 
 		$redirectsTab->append($redirectsTableContainer);
 
@@ -174,15 +170,12 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			//$this->_("What's this?") => "{$this->moduleInfo['href']}/mapping-collections",
 		));
 
-		if ($mappingCollections->num_rows === 0)
-		{
+		if ($mappingCollections->num_rows === 0) {
 			$pronoun = 'one';
 			$head = $this->_("You don't have any collections installed.");
-		}
-		else
-		{
+		} else {
 			$head = $this->_n('You have one collection installed.', 'Your collections are listed below.', $mappingCollections->num_rows);
-        	$pronoun = $this->_n('it', 'one', $mappingCollections->num_rows);
+			$pronoun = $this->_n('it', 'one', $mappingCollections->num_rows);
 		}
 
 		$more = ($mappingCollections->num_rows === 0) ? '' : sprintf($this->_("To edit/delete %s, simply click on its name. To add another, click on '%s' at the bottom."), $pronoun, $installMappingCollectionButtonLabel);
@@ -191,16 +184,14 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			'more' => $more,
 		));
 
-		while ($mappingCollection = $mappingCollections->fetch_object())
-		{
+		while ($mappingCollection = $mappingCollections->fetch_object()) {
 			$userCreated = $this->users->get($mappingCollection->user_created)->name;
 			$userUpdated = $this->users->get($mappingCollection->user_updated)->name;
 
-			$created = wireRelativeTimeStr($mappingCollection->created_at)." by {$userCreated}";
-			$updated = wireRelativeTimeStr($mappingCollection->updated_at)." by {$userUpdated}";
+			$created = wireRelativeTimeStr($mappingCollection->created_at) . " by {$userCreated}";
+			$updated = wireRelativeTimeStr($mappingCollection->updated_at) . " by {$userUpdated}";
 
-			if ($mappingCollection->created_at === $mappingCollection->updated_at)
-			{
+			if ($mappingCollection->created_at === $mappingCollection->updated_at) {
 				$updated = '';
 			}
 
@@ -213,7 +204,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		}
 
 		$mappingCollectionsTableContainer = $this->modules->get('InputfieldMarkup');
-		$mappingCollectionsTableContainer->value = $description.$mappingCollectionsTable->render();
+		$mappingCollectionsTableContainer->value = $description . $mappingCollectionsTable->render();
 
 		$mappingCollectionsTab->append($mappingCollectionsTableContainer);
 
@@ -262,15 +253,13 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 	 * Admin Page: Add/Edit Entity (Redirect)
 	 * @return string
 	 */
-	public function ___executeEntity()
-	{
+	public function ___executeEntity() {
 		$this->setFuel('processHeadline', $this->_('Register New Redirect'));
 
 		// Get the ID if we're editing
 		$editingId = (isset($this->input->get->id)) ? $this->input->get->id : 0;
 
-		if ($editingId)
-		{
+		if ($editingId) {
 			// Fetch the details and list vars
 			$result = $this->db->query(sprintf($this->sql->entitySelectSingle, $editingId));
 			list($id, $redirectName, $sourcePath, $destinationPath,
@@ -286,8 +275,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// Check if this is or first redirect
 		$message = '';
-		if (isset($this->input->get->first))
-		{
+		if (isset($this->input->get->first)) {
 			$message = $this->_("You don't have any redirects registered. Let's create a new one now.");
 			$message = "<p class=\"description parInfo\">{$message}</p>";
 			$this->setFuel('processHeadline', $this->_('Register First Redirect'));
@@ -313,13 +301,13 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$exampleSuffixes = array($this->_('Promotion'), $this->_('Promo'), $this->_('Specials'), $this->_('Competition'));
 		$exampleMigrations = array($this->_('Blog'), $this->_('Site'));
 		shuffle($exampleSuffixes);
-		$exampleSuffix = $exampleSuffixes[array_rand($exampleSuffixes)].' '.date('Y');
+		$exampleSuffix = $exampleSuffixes[array_rand($exampleSuffixes)] . ' ' . date('Y');
 		$exampleMigration = $exampleMigrations[array_rand($exampleMigrations)];
 		$form->add($this->buildField($field, array(
 			'name+id' => 'redirectName',
 			'label' => $this->_('Redirect Name'),
 			'description' => $this->_('Enter a name for this redirect, so that it can be identified easily. If you leave this out, a name will be created for you.'),
-			'placeholder' => $this->_('Examples:')." '{$thisSeason} {$exampleSuffix}' or '{$exampleMigration} ".$this->_("Migration")."'",
+			'placeholder' => $this->_('Examples:') . " '{$thisSeason} {$exampleSuffix}' or '{$exampleMigration} " . $this->_("Migration") . "'",
 			'collapsed' => Inputfield::collapsedNever,
 			'value' => isset($redirectName) ? $redirectName : '',
 		)));
@@ -331,7 +319,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			'label' => $this->_('Source Path'),
 			'description' => $this->_("Enter a path that's relative to the root of this installation, without the leading slash."),
 			'notes' => sprintf($this->_('Learn more about **[wildcards](%s/wildcards)**.'), $this->moduleInfo['href']),
-			'placeholder' => $this->_('Examples:')." 'example/', 'example', 'content/pages/{path}', 'page.php?name=example', 'list.aspx?category={category:segment}'",
+			'placeholder' => $this->_('Examples:') . " 'example/', 'example', 'content/pages/{path}', 'page.php?name=example', 'list.aspx?category={category:segment}'",
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
 			'value' => isset($sourcePath) ? $sourcePath : '',
@@ -354,7 +342,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			'name+id' => 'destinationPath',
 			'label' => $this->_('Destination Path'),
 			'description' => $this->_('Enter a URI relative to the root of this installation, without the leading slash, or an absolute URL.'),
-			'placeholder' => $this->_('Examples:')." 'path/', '{path}/', 'category/{category}/', 'http://www.domain.com/{path}'",
+			'placeholder' => $this->_('Examples:') . " 'path/', '{path}/', 'category/{category}/', 'http://www.domain.com/{path}'",
 			'notes' => $this->_("Here, you can also make use of **[variables](../variable-index/)**, if you'd like to import common data.\nIf you select a page from the Page Selector above, its identifier will be added here."),
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
@@ -395,13 +383,12 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$form->add($fieldSet);
 
 		// If we're editing:
-		if ($editingId > 0)
-		{
+		if ($editingId > 0) {
 			// Get and ddd info markup
 			$field = $this->modules->get('InputfieldMarkup');
 			$userCreated = $this->users->get($userCreated);
 			$userUpdated = $this->users->get($userUpdated);
-			$userUrl = wire('config')->urls->admin.'access/users/edit/?id=';
+			$userUrl = wire('config')->urls->admin . 'access/users/edit/?id=';
 			$relativeTimes = array(
 				'created' => wireRelativeTimeStr($createdAt),
 				'updated' => wireRelativeTimeStr($updatedAt),
@@ -412,8 +399,8 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				'value' => $this->blueprint('entity-info', array(
 					'user-created-name' => $userCreated->name,
 					'user-updated-name' => $userUpdated->name,
-					'user-created-url' => $userUrl.$userCreated->id,
-					'user-updated-url' => $userUrl.$userUpdated->id,
+					'user-created-url' => $userUrl . $userCreated->id,
+					'user-updated-url' => $userUrl . $userUpdated->id,
 					'created-at' => $createdAt,
 					'created-at-relative' => $relativeTimes['created'],
 					'updated-at' => $updatedAt,
@@ -467,17 +454,15 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		));
 
 		// Return the rendered page
-		return $message.$form->render().$script;
+		return $message . $form->render() . $script;
 	}
 
 	/**
 	 * Admin Route: Commit new redirect or update existing
 	 */
-	public function ___executeCommit()
-	{
+	public function ___executeCommit() {
 		// Just to be on the safe side...
-		if ($this->input->post->id == null)
-		{
+		if ($this->input->post->id == null) {
 			$this->session->redirect("../");
 		}
 
@@ -488,8 +473,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$isUpdating = ($id !== 0);
 
 		// If we're updating, check if we should delete
-		if ($isUpdating && $input->delete)
-		{
+		if ($isUpdating && $input->delete) {
 			$this->db->query(sprintf($this->sql->entityDropById, $id));
 			$this->message($this->_('Redirect deleted.'));
 			$this->session->redirect("../");
@@ -511,13 +495,12 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// Prepare dates (times) for database entry
 		$start = empty($input->dateStart) ? 'null'
-		: "'".date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart)))."'";
+		: "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart))) . "'";
 		$end = empty($input->dateEnd) ? 'null'
-		: "'".date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd)))."'";
+		: "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd))) . "'";
 
 		// Set the user creating/updating
-		if (!$isUpdating)
-		{
+		if (!$isUpdating) {
 			$userCreated = $this->user->id;
 		}
 
@@ -533,11 +516,9 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// Get the ID of the entity we just created/updated
 		// And send it off to the admin page to highlight it in the table
-		if (!$isUpdating)
-		{
+		if (!$isUpdating) {
 			$theEntity = $this->db->query(sprintf($this->sql->entitySelectIdFromName, $name));
-			while ($redirect = $theEntity->fetch_object())
-			{
+			while ($redirect = $theEntity->fetch_object()) {
 				$id = $redirect->id;
 			}
 
@@ -552,15 +533,13 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 	 * Admin Page: Install/Uninstall Mapping Collections
 	 * @return string
 	 */
-	public function ___executeMappingCollection()
-	{
+	public function ___executeMappingCollection() {
 		$this->setFuel('processHeadline', $this->_('Install New Mapping Collection'));
 
 		// Get the ID if we're editing
 		$editingId = (isset($this->input->get->id)) ? $this->input->get->id : 0;
 
-		if ($editingId)
-		{
+		if ($editingId) {
 			// Fetch the details and list vars
 			$result = $this->db->query(sprintf($this->sql->mappingCollectionsSelectSingle, $editingId));
 			list($id, $collectionName, $collectionData, $userCreated, $userUpdated, $createdAt, $updatedAt) = $result->fetch_array();
@@ -587,7 +566,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			'name+id' => 'collectionName',
 			'label' => $this->_('Name of Collection'),
 			'notes' => $this->_('Only use alpha characters (a-z). Name will be sanitised upon submission. This name is the identifier to be used in mapping wildcards.'),
-			'placeholder' => $this->_('Examples:')." 'blogmigration' or 'magento'",
+			'placeholder' => $this->_('Examples:') . " 'blogmigration' or 'magento'",
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
 			'value' => isset($collectionName) ? $collectionName : '',
@@ -607,13 +586,12 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		)));
 
 		// If we're editing:
-		if ($editingId > 0)
-		{
+		if ($editingId > 0) {
 			// Get and ddd info markup
 			$field = $this->modules->get('InputfieldMarkup');
 			$userCreated = $this->users->get($userCreated);
 			$userUpdated = $this->users->get($userUpdated);
-			$userUrl = wire('config')->urls->admin.'access/users/edit/?id=';
+			$userUrl = wire('config')->urls->admin . 'access/users/edit/?id=';
 			$relativeTimes = array(
 				'created' => wireRelativeTimeStr($createdAt),
 				'updated' => wireRelativeTimeStr($updatedAt),
@@ -624,8 +602,8 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				'value' => $this->blueprint('entity-info', array(
 					'user-created-name' => $userCreated->name,
 					'user-updated-name' => $userUpdated->name,
-					'user-created-url' => $userUrl.$userCreated->id,
-					'user-updated-url' => $userUrl.$userUpdated->id,
+					'user-created-url' => $userUrl . $userCreated->id,
+					'user-updated-url' => $userUrl . $userUpdated->id,
 					'created-at' => $createdAt,
 					'created-at-relative' => $relativeTimes['created'],
 					'updated-at' => $updatedAt,
@@ -662,17 +640,15 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		));
 
 		// Return the rendered page
-		return $form->render().$script;
+		return $form->render() . $script;
 	}
 
 	/**
 	 * Admin Route: Commit new mapping collection or update existing
 	 */
-	public function ___executeCommitMappingCollection()
-	{
+	public function ___executeCommitMappingCollection() {
 		// Just to be on the safe side...
-		if ($this->input->post->id == null)
-		{
+		if ($this->input->post->id == null) {
 			$this->session->redirect("../");
 		}
 
@@ -683,8 +659,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$isUpdating = ($id !== 0);
 
 		// If we're updating, check if we should delete
-		if ($isUpdating && $input->uninstallCollection)
-		{
+		if ($isUpdating && $input->uninstallCollection) {
 			$this->db->query(sprintf($this->sql->mappingCollectionsDropById, $id));
 			$this->message($this->_('Collection deleted.'));
 			$this->session->redirect("../");
@@ -700,13 +675,11 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$compiledMappings = array();
 
 		// Split up the key/value pairs and clean
-		foreach ($mappings as $mapping)
-		{
+		foreach ($mappings as $mapping) {
 			$mapping = explode('=', $mapping);
 
-            $cleanPath = $this->{Config::CLEAN_PATH};
-			if ($cleanPath === 'fullClean' || $cleanPath === 'semiClean')
-			{
+			$cleanPath = $this->{Config::CLEAN_PATH};
+			if ($cleanPath === 'fullClean' || $cleanPath === 'semiClean') {
 				$mapping[1] = $this->cleanPath($mapping[1], ($cleanPath === 'fullClean') ? false : true);
 			}
 
@@ -715,8 +688,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		$dbInput = '';
 
-		foreach ($compiledMappings as $key => $value)
-		{
+		foreach ($compiledMappings as $key => $value) {
 			$dbInput .= "$key=$value\n";
 		}
 
@@ -725,8 +697,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		//var_dump($dbInput);die;
 
 		// Set the user creating/updating
-		if (!$isUpdating)
-		{
+		if (!$isUpdating) {
 			$userCreated = $this->user->id;
 		}
 		$userUpdated = $this->user->id;
@@ -746,13 +717,11 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 	 * Render JSON Nav list - last five edited entities
 	 * @return string rendered JSON string
 	 */
-	public function ___executeNavJSON(array $options = array())
-	{
+	public function ___executeNavJSON(array $options = array()) {
 		$options['items'] = array();
 		$redirects = $this->db->query($this->sql->entitySelectAllNav);
 
-		while ($redirect = $redirects->fetch_object())
-		{
+		while ($redirect = $redirects->fetch_object()) {
 			$redirect->updated_at = wireRelativeTimeStr($redirect->updated_at, true);
 			$options['items'][] = $redirect;
 		}
@@ -770,13 +739,11 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 	/**
 	 * Install the module
 	 */
-	public function ___install()
-	{
-		// Install tables (we're sticking to Blueprints here)
+	public function ___install() {
+		// Install tables
 		$schemas = array('main', 'logs', 'vi', 'pjr', 'mc');
 
-		foreach ($schemas as $schema)
-		{
+		foreach ($schemas as $schema) {
 			$this->db->query($this->blueprint("schema-create-{$schema}"));
 		}
 
@@ -786,9 +753,8 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 	/**
 	 * Uninstall the module
 	 */
-	public function ___uninstall()
-	{
-		// Uninstall tables (we're sticking to a Blueprint here)
+	public function ___uninstall() {
+		// Uninstall tables
 		$this->db->query($this->blueprint('schema-drop'));
 		parent::___uninstall();
 	}

@@ -14,8 +14,8 @@
  *
  */
 
-require_once __DIR__.'/Blueprint.php';
-require_once __DIR__.'/ProcessAdvancedRedirectsConfig.php';
+require_once __DIR__ . '/Blueprint.php';
+require_once __DIR__ . '/ProcessAdvancedRedirectsConfig.php';
 
 use ProcessAdvancedRedirectsConfig as Config;
 
@@ -55,8 +55,7 @@ class AdvancedRedirects extends Process {
 	 * Module initialisation
 	 * @hook ProcessPageView::pageNotFound to scanAndRedirect
 	 */
-	public function init()
-	{
+	public function init() {
 		parent::init();
 		$this->prepareAssets();
 
@@ -70,14 +69,12 @@ class AdvancedRedirects extends Process {
 		// Magic ahead: Replace index.php with a dummy do we can scan such requests.
 		// But first, redirect requests to index.php/ so we don't have any legacy domain false positives,
 		// such as remote 301s used to trim trailing slashes.
-		if ($this->request === 'index.php/')
-		{
+		if ($this->request === 'index.php/') {
 			$this->session->redirect($this->config->urls->root);
 		}
 
 		$indexExpression = "~^index.php(\?|\/)~";
-		if (preg_match($indexExpression, $this->request))
-		{
+		if (preg_match($indexExpression, $this->request)) {
 			$this->session->redirect(preg_replace(
 				$indexExpression,
 				"{$this->config->urls->root}index.php.pw-par\\1",
@@ -93,8 +90,7 @@ class AdvancedRedirects extends Process {
 	 * Prepare backend assets.
 	 * @caller init
 	 */
-	protected function prepareAssets()
-	{
+	protected function prepareAssets() {
 		// Set the admin page URL for JS
 		$this->config->js("parAdminPageUrl", $this->pages->get('name=advanced-redirects')->url);
 
@@ -102,10 +98,9 @@ class AdvancedRedirects extends Process {
 		$this->modules->get('JqueryWireTabs');
 
 		// Inject CSS and JS
-		foreach (array('styles', 'scripts') as $assetType)
-		{
+		foreach (array('styles', 'scripts') as $assetType) {
 			$extension = ($assetType == 'styles') ? 'css' : 'min.js';
-			$this->config->$assetType->add("{$this->config->urls->ProcessAdvancedRedirects}Assets/".get_class($this).".{$extension}?v={$this->moduleInfo['version']}");
+			$this->config->$assetType->add("{$this->config->urls->ProcessAdvancedRedirects}Assets/" . get_class($this) . ".{$extension}?v={$this->moduleInfo['version']}");
 		}
 	}
 
@@ -114,12 +109,10 @@ class AdvancedRedirects extends Process {
 	 * @caller multiple
 	 * @return string
 	 */
-	protected function blueprint($name, $data = array())
-	{
+	protected function blueprint($name, $data = array()) {
 		$blueprint = new Blueprint($name);
 
-		if (empty(array_filter($data)))
-		{
+		if (empty(array_filter($data))) {
 			// Should we rather just always include tableName?
 			// It's used quite often...
 			$data = array('table-name' => $this->tableName);
@@ -135,13 +128,11 @@ class AdvancedRedirects extends Process {
 	 * @caller multiple
 	 * @return string
 	 */
-	protected function compileDestinationUrl($destination, $renderForOutput = false, $http = true)
-	{
+	protected function compileDestinationUrl($destination, $renderForOutput = false, $http = true) {
 		$pageIdentifier = 'page:';
 
 		// Check if we're using a page identifier
-		if (substr($destination, 0, 5) !== $pageIdentifier)
-		{
+		if (substr($destination, 0, 5) !== $pageIdentifier) {
 			// Check to see if we're working with an absolute URL
 			// and if we're currently using HTTPS
 			$hasScheme = (bool) parse_url($destination, PHP_URL_SCHEME);
@@ -162,8 +153,7 @@ class AdvancedRedirects extends Process {
 		$page = $this->pages->get((int) $pageId);
 
 		// If it's a valid page, then get its URL
-		if ($page->id)
-		{
+		if ($page->id) {
 			$pagePath = $page->get($http ? "httpUrl" : "path");
 
 			// If we're rendering for output, make it pretty.
@@ -180,8 +170,7 @@ class AdvancedRedirects extends Process {
 	 * @caller ___execute
 	 * @return string
 	 */
-	protected function getModuleConfigUri()
-	{
+	protected function getModuleConfigUri() {
 		return "{$this->config->urls->admin}module/edit?name={$this->moduleInfo['name']}";
 		// ^ Better way to get this URI?
 	}
@@ -191,14 +180,11 @@ class AdvancedRedirects extends Process {
 	 * @caller scanAndRedirect
 	 * @return string
 	 */
-	public function cleanPath($input, $noLower = false)
-	{
-		if ($this->{Config::EXPERIMENT_EPC})
-		{
+	public function cleanPath($input, $noLower = false) {
+		if ($this->{Config::EXPERIMENT_EPC}) {
 			// Courtesy @sln on StackOverflow
-			$input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures)
-			{
-				return $captures[1].strtolower($captures[2]);
+			$input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures) {
+				return $captures[1] . strtolower($captures[2]);
 			}, $input);
 			$input = preg_replace("~(?<=\\w)(?=[A-Z])~", "-\\1\\2", $input);
 		}
@@ -207,8 +193,7 @@ class AdvancedRedirects extends Process {
 		$input = preg_replace("~[^\\pL\d\/]+~u", '-', $input);
 		$input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
-		if ($this->{Config::EXPERIMENT_EPC})
-		{
+		if ($this->{Config::EXPERIMENT_EPC}) {
 			// Merge these two?
 			$input = preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input);
 			$input = preg_replace("~(\d)([a-z])~i", "\\1-\\2", $input);
@@ -216,8 +201,7 @@ class AdvancedRedirects extends Process {
 
 		$input = trim($input, '-');
 		$input = preg_replace('~[^-\w\/]+~', '', $input);
-		if (!$noLower)
-		{
+		if (!$noLower) {
 			$input = strtolower($input);
 		}
 
@@ -229,10 +213,9 @@ class AdvancedRedirects extends Process {
 	 * @caller multiple
 	 * @return string
 	 */
-	protected function truncate($string, $length = 55)
-	{
+	protected function truncate($string, $length = 55) {
 		return (strlen($string) > $length)
-		? substr($string, 0, $length)." <span class=\"ellipses\" title=\"{$string}\">...</span>"
+		? substr($string, 0, $length) . " <span class=\"ellipses\" title=\"{$string}\">...</span>"
 		: $string;
 	}
 
@@ -242,13 +225,10 @@ class AdvancedRedirects extends Process {
 	 * @param  array  $meta
 	 * @return Inputfield
 	 */
-	protected function buildField($field, $meta)
-	{
-		foreach ($meta as $metaNames => $metaInfo)
-		{
+	protected function buildField($field, $meta) {
+		foreach ($meta as $metaNames => $metaInfo) {
 			$metaNames = explode('+', $metaNames);
-			foreach ($metaNames as $metaName)
-			{
+			foreach ($metaNames as $metaName) {
 				$field->$metaName = $metaInfo;
 			}
 		}
@@ -261,8 +241,7 @@ class AdvancedRedirects extends Process {
 	 * @caller scanAndRedirect
 	 * @return string
 	 */
-	protected function getResponseCode($request)
-	{
+	protected function getResponseCode($request) {
 		stream_context_set_default(array(
 			'http' => array(
 				'method' => 'HEAD',
@@ -278,12 +257,9 @@ class AdvancedRedirects extends Process {
 	 * Log something. Will set plain text header if not already set.
 	 * @caller scanAndRedirect
 	 */
-	protected function log($message, $indent = false, $break = false, $die = false)
-	{
-		if ($this->{Config::MODULE_DEBUG})
-		{
-			if (!$this->headerSet)
-			{
+	protected function log($message, $indent = false, $break = false, $die = false) {
+		if ($this->{Config::MODULE_DEBUG}) {
+			if (!$this->headerSet) {
 				header("Content-Type: text/plain");
 				$this->headerSet = true;
 			}
@@ -293,8 +269,7 @@ class AdvancedRedirects extends Process {
 
 			print str_replace('.pw-par', '', "{$indent}{$message}\n{$break}");
 
-			if ($die)
-			{
+			if ($die) {
 				die();
 			}
 		}
@@ -304,46 +279,41 @@ class AdvancedRedirects extends Process {
 	 * The fun part.
 	 * @caller Hook: ProcessPageView::pageNotFound
 	 */
-	protected function scanAndRedirect()
-	{
+	protected function scanAndRedirect() {
 		$redirects = $this->db->query($this->sql->entitySelectAll);
 
-		if ($redirects->num_rows === 0)
-		{
+		if ($redirects->num_rows === 0) {
 			return false;
 		}
 
 		$this->log("Page not found; scanning for redirects...");
 
 		$request = $this->request;
-		$requestedUrlFirstPart = "http".((@$_SERVER['HTTPS'] == 'on') ? "s" : "")."://{$_SERVER['HTTP_HOST']}";
+		$requestedUrlFirstPart = "http" . ((@$_SERVER['HTTPS'] == 'on') ? "s" : "") . "://{$_SERVER['HTTP_HOST']}";
 
 		// Do some logging
-		$this->log('Checked at: '.date('r'), true);
+		$this->log('Checked at: ' . date('r'), true);
 		$this->log("Requested URL: {$requestedUrlFirstPart}/{$request}", true);
 		$this->log("PW Version: {$this->config->version}", true, true);
 
 		$rootUrl = $this->config->urls->root;
 
-		if ($rootUrl !== '/')
-		{
+		if ($rootUrl !== '/') {
 			$request = substr($request, strlen($rootUrl) - 1);
 		}
 
 		// Get the available wildcards, prepare for pattern match
 		$availableWildcards = '';
-		foreach ($this->wildcards as $wildcard => $expression)
-		{
+		foreach ($this->wildcards as $wildcard => $expression) {
 			$availableWildcards .= "$wildcard|";
 		}
 		$availableWildcards = rtrim($availableWildcards, '|');
 
 		// Assign the wildcard pattern check
-		$pattern = '~\{!?([a-z]+):('.$availableWildcards.')\}~';
+		$pattern = '~\{!?([a-z]+):(' . $availableWildcards . ')\}~';
 
 		// Begin the loop
-		while ($redirect = $redirects->fetch_object())
-		{
+		while ($redirect = $redirects->fetch_object()) {
 			$this->log("[{$redirect->name}]", false, true);
 
 			$starts = strtotime($redirect->date_start);
@@ -351,26 +321,21 @@ class AdvancedRedirects extends Process {
 
 			// Timed Activation:
 			// If it ends, but doesn't start, then make it start now
-			if ($ends && !$starts)
-			{
+			if ($ends && !$starts) {
 				$starts = time();
 			}
 
 			// If it starts (which it will always do), but doesn't end,
 			// then set a dummy timestamp that is always in the future.
-			if ($starts && !$ends)
-			{
+			if ($starts && !$ends) {
 				$ends = time() + (60 * 60);
 				$message = '(has no ending, using dummy timestamp)';
-			}
-			else
-			{
+			} else {
 				$message = '';
 			}
 
 			// Log the activation periods for debugging
-			if ($starts || $ends)
-			{
+			if ($starts || $ends) {
 				$this->log(sprintf("Timed Activation:             %s to %s {$message}", date('r', $starts), date('r', $ends)), true);
 			}
 
@@ -390,25 +355,21 @@ class AdvancedRedirects extends Process {
 			// Compile the destination URL
 			$destination = $this->compileDestinationUrl($redirect->destination);
 
-			if ($source !== $redirect->source)
-			{
+			if ($source !== $redirect->source) {
 				$this->log("Source Path (Escaped):        {$source}", true);
 			}
 
 			// Setup capture prevention
 			// Perhaps we should use different delimters, such as "(!something)"?
 			$nonCaptureMatcher = "~<(.*?)>~";
-			if (preg_match($nonCaptureMatcher, $source))
-			{
+			if (preg_match($nonCaptureMatcher, $source)) {
 				$source = preg_replace($nonCaptureMatcher, "(?:\\1)", $source);
 			}
 
 			// Prepare Smart Wildcards - replace them with their equivalent standard ones.
-			foreach ($this->smartWildcards as $wildcard => $wildcardType)
-			{
+			foreach ($this->smartWildcards as $wildcard => $wildcardType) {
 				$smartWildcardMatcher = "~\{($wildcard)\}~i";
-				if (preg_match($smartWildcardMatcher, $source))
-				{
+				if (preg_match($smartWildcardMatcher, $source)) {
 					$source = preg_replace($smartWildcardMatcher, "{\\1:{$wildcardType}}", $source);
 				}
 			}
@@ -416,8 +377,7 @@ class AdvancedRedirects extends Process {
 			$computedReplacements = array();
 
 			// Convert wildcards into expressions for replacement
-			$computedWildcards = preg_replace_callback($pattern, function ($captures) use (&$computedReplacements)
-			{
+			$computedWildcards = preg_replace_callback($pattern, function ($captures) use (&$computedReplacements) {
 				$computedReplacements[] = $captures[1];
 				return "({$this->wildcards[$captures[2]]})";
 			}, $source);
@@ -427,17 +387,14 @@ class AdvancedRedirects extends Process {
 			$this->log("Source Path (Stage 2):        {$computedWildcards}", true);
 
 			// If the request matches the source currently being checked:
-			if (preg_match("~^$computedWildcards$~i", $request))
-			{
+			if (preg_match("~^$computedWildcards$~i", $request)) {
 				// For the purposes of mapping, fetch all the collections and compile them
 				$collections = $this->db->query($this->sql->mappingCollectionsSelectAll);
 				$compiledCollections = new StdClass();
-				while ($collection = $collections->fetch_object())
-				{
+				while ($collection = $collections->fetch_object()) {
 					$collectionData = explode("\n", $collection->collection_mappings);
 					$compiledCollectionData = array();
-					foreach ($collectionData as $mapping)
-					{
+					foreach ($collectionData as $mapping) {
 						$mapping = explode('=', $mapping);
 						$compiledCollectionData[$mapping[0]] = $mapping[1];
 					}
@@ -446,27 +403,23 @@ class AdvancedRedirects extends Process {
 				}
 
 				// Iterate through each source wildcard:
-				$convertedWildcards = preg_replace_callback("~$computedWildcards~i", function ($captures) use ($destination, $computedReplacements)
-				{
+				$convertedWildcards = preg_replace_callback("~$computedWildcards~i", function ($captures) use ($destination, $computedReplacements) {
 					$result = $destination;
 
-					for ($c = 1, $n = count($captures); $c < $n; ++$c)
-					{
+					for ($c = 1, $n = count($captures); $c < $n; ++$c) {
 						$value = array_shift($computedReplacements);
 
 						// Check for destination wildcards that don't need to be cleaned
 						$paramSkipCleanCheck = "~\{!$value\}~i";
 						$uncleanedCapture = $captures[$c];
-						if (!preg_match($paramSkipCleanCheck, $result))
-						{
+						if (!preg_match($paramSkipCleanCheck, $result)) {
 							$cleanPath = $this->{Config::CLEAN_PATH};
-							if ($cleanPath === 'fullClean' || $cleanPath === 'semiClean')
-							{
+							if ($cleanPath === 'fullClean' || $cleanPath === 'semiClean') {
 								$captures[$c] = $this->cleanPath($captures[$c], ($cleanPath === 'fullClean') ? false : true);
 							}
 						}
 						$openingTag = (preg_match($paramSkipCleanCheck, $result)) ? '{!' : '{';
-						$result = str_replace($openingTag.$value.'}', $captures[$c], $result);
+						$result = str_replace($openingTag . $value . '}', $captures[$c], $result);
 
 						// In preparation for wildcard mapping,
 						// Swap out any mapping wildcards with their uncleaned values
@@ -477,8 +430,7 @@ class AdvancedRedirects extends Process {
 					// Trim the result of trailing slashes, and
 					// add one again if the Destination Path asked for it.
 					$result = rtrim($result, '/');
-					if (substr($destination, -1) === '/')
-					{
+					if (substr($destination, -1) === '/') {
 						$result .= '/';
 					}
 
@@ -486,15 +438,11 @@ class AdvancedRedirects extends Process {
 				}, $request);
 
 				// Perform any mappings
-				$convertedWildcards = preg_replace_callback("~\(([\w-_\/]+)\|([a-z]+)\)~i", function ($mapCaptures) use ($compiledCollections)
-				{
-					if (isset($compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]]))
-					{
+				$convertedWildcards = preg_replace_callback("~\(([\w-_\/]+)\|([a-z]+)\)~i", function ($mapCaptures) use ($compiledCollections) {
+					if (isset($compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]])) {
 						// If we have a match, bring it in
 						return $compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]];
-					}
-					else
-					{
+					} else {
 						// Otherwise, fill the mapping wildcard with the original data
 						return $mapCaptures[1];
 					}
@@ -510,8 +458,7 @@ class AdvancedRedirects extends Process {
 				: true;
 
 				// If we're not debugging, and we're Time-activated, then do the redirect
-				if (!$this->{Config::MODULE_DEBUG} && $activated)
-				{
+				if (!$this->{Config::MODULE_DEBUG} && $activated) {
 					$this->session->redirect($convertedWildcards, !$activated);
 				}
 
@@ -523,23 +470,18 @@ class AdvancedRedirects extends Process {
 				$this->log("To URL:     {$convertedWildcards}", true);
 
 				// If we're in the period specified:
-				if (!$activated)
-				{
+				if (!$activated) {
 					// If it ends before it starts, then show the time it starts.
 					// Otherwise, show the period.
-					if ($ends < $starts)
-					{
+					if ($ends < $starts) {
 						$this->log(sprintf("Timed:      From %s onwards", date('r', $starts)), true);
-					}
-					else
-					{
+					} else {
 						$this->log(sprintf("Timed:      From %s to %s", date('r', $starts), date('r', $ends)), true);
 					}
 				}
 
 				// We can exit at this point.
-				if ($this->{Config::MODULE_DEBUG})
-				{
+				if ($this->{Config::MODULE_DEBUG}) {
 					die();
 				}
 			}
@@ -551,20 +493,18 @@ class AdvancedRedirects extends Process {
 
 		// Considering we don't have one available, let's check to see if the Source Path
 		// exists on the Legacy Domain, if defined.
-		if (!empty(trim($this->{Config::LEGACY_DOMAIN})))
-		{
+		if (!empty(trim($this->{Config::LEGACY_DOMAIN}))) {
 			// Fetch the accepted codes
 			$okCodes = trim(!empty($this->{Config::STATUS_CODES}))
 			? array_map('trim', explode(' ', $this->{Config::STATUS_CODES}))
 			: explode(',', $this->statusCodes);
 
 			// Prepare and do the request
-			$domainRequest = $this->{Config::LEGACY_DOMAIN}.$request;
+			$domainRequest = $this->{Config::LEGACY_DOMAIN} . $request;
 			$status = $this->getResponseCode($domainRequest);
 
 			// If the response has an accepted code, then redirect (or log)
-			if (in_array($status, $okCodes))
-			{
+			if (in_array($status, $okCodes)) {
 				$this->log("Found Source Path on Legacy Domain (with status code {$status}); redirect allowed to:");
 				$this->log($domainRequest, true, false, true);
 				$this->session->redirect($domainRequest, false);
@@ -573,8 +513,7 @@ class AdvancedRedirects extends Process {
 
 		// If all fails, say so.
 		$this->log("No matches, sorry...");
-		if ($this->{Config::MODULE_DEBUG})
-		{
+		if ($this->{Config::MODULE_DEBUG}) {
 			die();
 		}
 

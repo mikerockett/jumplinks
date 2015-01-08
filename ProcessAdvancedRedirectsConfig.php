@@ -29,8 +29,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	 * Get the default configuration details
 	 * @return array
 	 */
-	public function getDefaults()
-	{
+	public function getDefaults() {
 		return array(
 			'moduleDebug' => false,
 			'defaultExtensions' => 'aspx asp cfm cgi fcgi dll html htm shtml shtm jhtml phtml xhtm xhtml rbml jspx jsp phps php4 php',
@@ -46,14 +45,11 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	 * @param  array  $meta
 	 * @return Inputfield
 	 */
-	protected function buildField($fieldNameId, $meta)
-	{
+	protected function buildField($fieldNameId, $meta) {
 		$field = wire('modules')->get($fieldNameId);
-		foreach ($meta as $metaNames => $metaInfo)
-		{
+		foreach ($meta as $metaNames => $metaInfo) {
 			$metaNames = explode('+', $metaNames);
-			foreach ($metaNames as $metaName)
-			{
+			foreach ($metaNames as $metaName) {
 				$field->$metaName = $metaInfo;
 			}
 		}
@@ -65,8 +61,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	 * Compile Inputfields for module config (admin)
 	 * @return InputfieldWrapper
 	 */
-	public function getInputfields()
-	{
+	public function getInputfields() {
 		$inputfields = parent::getInputfields();
 
 		// Default File Extensions
