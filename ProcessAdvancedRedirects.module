@@ -409,7 +409,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				)),
 			)));
 
-			// Add Make Permanent button
+			// Add Lock Redirect button
 			$field = $this->modules->get('InputfieldCheckbox');
 			$form->add($this->buildField($field, array(
 				'name' => 'lockRedirect',
@@ -419,7 +419,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				'label2' => $this->_('Lock this redirect now'),
 				'notes' => $this->_("Once locked, redirects will be made with a 301 status coode.\n**Dev Note:** Not implemented yet. See [this issue](https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/3) for more information."),
 				'collapsed' => Inputfield::collapsedYes,
-				'showIf' => 'dateStart="", dateEnd=""'
+				'showIf' => 'dateStart="", dateEnd=""',
 			)));
 
 			// Add Delete button
