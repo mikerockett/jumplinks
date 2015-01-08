@@ -355,6 +355,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$fieldSet->collapsed = Inputfield::collapsedYes;
 		$fieldSet->description = $this->_("If you'd like this redirect to only function during a specific time-range, then select the start and end dates and times below.");
 		$fieldSet->notes = $this->_("You don't have to specify both. If you only specify a start time , you're simply delaying activation. If you only specify an end time, then you're simply telling it when to stop.\nIf an End Date/Time is specified, a temporary redirect will be made (302 status code, as opposed to 301).");
+		$fieldSet->showIf = 'lockRedirect=0';
 
 		$datetimeFieldDefaults = array(
 			'datepicker' => 1,
@@ -367,7 +368,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		// Start field
 		$field = $this->modules->get('InputfieldDatetime');
 		$fieldSet->add($this->buildField($field, array_merge(array(
-			'name+id' => 'dateStart',
+			'name' => 'dateStart',
 			'label' => $this->_('Start Date/Time'),
 			'value' => (isset($dateStart)) ? $dateStart : '',
 		), $datetimeFieldDefaults)));
@@ -375,7 +376,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		// End field
 		$field = $this->modules->get('InputfieldDatetime');
 		$fieldSet->add($this->buildField($field, array_merge(array(
-			'name+id' => 'dateEnd',
+			'name' => 'dateEnd',
 			'label' => $this->_('End Date/Time'),
 			'value' => (isset($dateEnd)) ? $dateEnd : '',
 		), $datetimeFieldDefaults)));
@@ -411,19 +412,20 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			// Add Make Permanent button
 			$field = $this->modules->get('InputfieldCheckbox');
 			$form->add($this->buildField($field, array(
-				'name' => 'isPermanent',
-				'label' => $this->_('Make Permanent'),
+				'name' => 'lockRedirect',
+				'label' => $this->_('Lock Redirect'),
 				'icon' => 'lock',
-				'description' => $this->_("To lock this redirect to future changes/deletion, check the box below."),
-				'label2' => $this->_('Make this redirect permanent'),
-				'notes' => $this->_('**Dev Note:** Not implemented yet. See [this issue](https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/3) for more information.'),
+				'description' => $this->_("To lock this redirect, preventing future changes/deletion, check the box below."),
+				'label2' => $this->_('Lock this redirect now'),
+				'notes' => $this->_("Once locked, redirects will be made with a 301 status coode.\n**Dev Note:** Not implemented yet. See [this issue](https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/3) for more information."),
 				'collapsed' => Inputfield::collapsedYes,
+				'showIf' => 'dateStart="", dateEnd=""'
 			)));
 
 			// Add Delete button
 			$field = $this->modules->get('InputfieldCheckbox');
 			$form->add($this->buildField($field, array(
-				'name+id' => 'delete',
+				'name' => 'delete',
 				'label' => $this->_('Delete'),
 				'icon' => 'times-circle',
 				'description' => $this->_("If you'd like to delete this redirect, check the box below."),
