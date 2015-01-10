@@ -238,13 +238,13 @@ class AdvancedRedirects extends Process {
 	}
 
 	/**
-	 * Fetch the URI to the module's config page
+	 * Clean a passed wildcard value
 	 * @caller scanAndRedirect
 	 * @param  string $input
 	 * @param  bool   $noLower
 	 * @return string
 	 */
-	public function cleanPath($input, $noLower = false) {
+	public function cleanWildcard($input, $noLower = false) {
 		if ($this->{Config::ENHANCED_WILDCARD_CLEANING}) {
 			// Courtesy @sln on StackOverflow
 			$input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures) {
@@ -482,9 +482,9 @@ class AdvancedRedirects extends Process {
 						$paramSkipCleanCheck = "~\{!$value\}~i";
 						$uncleanedCapture = $captures[$c];
 						if (!preg_match($paramSkipCleanCheck, $result)) {
-							$cleanPath = $this->{Config::WILDCARD_CLEANING};
-							if ($cleanPath === 'fullClean' || $cleanPath === 'semiClean') {
-								$captures[$c] = $this->cleanPath($captures[$c], ($cleanPath === 'fullClean') ? false : true);
+							$wildcardCleaning = $this->{Config::WILDCARD_CLEANING};
+							if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
+								$captures[$c] = $this->cleanWildcard($captures[$c], ($wildcardCleaning === 'fullClean') ? false : true);
 							}
 						}
 						$openingTag = (preg_match($paramSkipCleanCheck, $result)) ? '{!' : '{';

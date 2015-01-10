@@ -467,7 +467,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			'name+id' => 'collectionData',
 			'label' => $this->_('Collection Data'),
 			'description' => $this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names. To learn more about how this feature works, please read through the documentation.'),
-			'notes' => sprintf($this->_("To make things easier, you'll probably want to export your data from your old platform/framework in this format.\n**Note:** All **values** will be cleaned according to the 'Clean Paths' setting in the [module's configuration](%s)."), $this->getModuleConfigUri()),
+			'notes' => sprintf($this->_("To make things easier, you'll probably want to export your data from your old platform/framework in this format.\n**Note:** All **values** will be cleaned according to the 'Wildcard Cleaning' setting in the [module's configuration](%s)."), $this->getModuleConfigUri()),
 			'required' => 1,
 			'rows' => 10,
 			'collapsed' => Inputfield::collapsedNever,
@@ -562,9 +562,9 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		foreach ($mappings as $mapping) {
 			$mapping = explode('=', $mapping);
 
-			$cleanPath = $this->{Config::CLEAN_PATH};
-			if ($cleanPath === 'fullClean' || $cleanPath === 'semiClean') {
-				$mapping[1] = $this->cleanPath($mapping[1], ($cleanPath === 'fullClean') ? false : true);
+			$wildcardCleaning = $this->{Config::WILDCARD_CLEANING};
+			if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
+				$mapping[1] = $this->cleanWildcard($mapping[1], ($wildcardCleaning === 'fullClean') ? false : true);
 			}
 
 			$compiledMappings[trim($mapping[0])] = $mapping[1];
