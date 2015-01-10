@@ -30,7 +30,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// If we don't have any redirects defined, then we should start be creating one
 		if ($redirects->num_rows == 0) {
-			$this->session->redirect("{$this->formPath}?first");
+			$this->session->redirect("{$this->entityFormPath}?first");
 		}
 
 		$tabContainer = new InputfieldWrapper();
@@ -67,7 +67,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			: "<abbr title=\"{$redirect->date_end}\">{$relativeEndTime}</abbr>";
 
 			$redirectsTable->row(array(
-				$this->truncate($redirect->source) => "entity/?id={$redirect->id}",
+				$this->truncate($redirect->source) => "{$this->entityFormPath}?id={$redirect->id}",
 				$redirect->destination,
 				$relativeStartTime,
 				$relativeEndTime,
@@ -81,7 +81,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		$registerRedirectButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
 			'id' => 'registerRedirect',
-			'href' => 'entity/',
+			'href' => $this->entityFormPath,
 			'value' => $registerRedirectButtonLabel,
 			'icon' => 'plus-circle',
 		))->addClass('head_button_clone');
@@ -142,7 +142,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			}
 
 			$mappingCollectionsTable->row(array(
-				$mappingCollection->collection_name => "mapping-collection/?id={$mappingCollection->id}",
+				$mappingCollection->collection_name => "{$this->mappingCollectionFormPath}?id={$mappingCollection->id}",
 				count(explode("\n", trim($mappingCollection->collection_mappings))),
 				$created,
 				$updated,
@@ -151,7 +151,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		$installMappingCollectionButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
 			'id' => 'installMappingCollection',
-			'href' => "mapping-collection/",
+			'href' => $this->mappingCollectionFormPath,
 			'value' => $installMappingCollectionButtonLabel,
 			'icon' => 'plus-circle',
 		));

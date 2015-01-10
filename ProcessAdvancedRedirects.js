@@ -149,8 +149,6 @@ $(function() {
         var classInputfieldTask = "InputfieldTask";
         var defaults = {
             statusCodes: "200 301 302",
-            extensions: "aspx asp cfm cgi fcgi dll html htm shtml shtm jhtml phtml xhtm xhtml rbml jspx jsp phps php4 php",
-            extensionRegex: "aspx?|cfm|f?cgi|dll|s?html?|[jp]html|xhtml?|rbml|jspx?|php[s4]?"
         }
 
         // Set action for 'HTTP Status Codes for Legacy Domain' Restore Defaults link-button
@@ -160,22 +158,6 @@ $(function() {
             .on("click", function(event) {
                 $("input#statusCodes").val(defaults.statusCodes), event.preventDefault();
             });
-
-        // Set action for 'Default Extensions' Restore Defaults link-button
-        $("a[href=#resetDefaultExtensions]")
-            .removeAttr("target")
-            .addClass(classInputfieldTask)
-            .on("click", function(event) {
-                $("input#defaultExtensions").val(defaults.extensions), event.preventDefault();
-            });
-
-        // Set action for 'Default Extensions' Use Default Regex link-button
-        $("a[href=#regexDefaultExtensions]")
-            .removeAttr("target")
-            .addClass(classInputfieldTask)
-            .on("click", function(event) {
-                $("input#defaultExtensions").val(defaults.extensionRegex), event.preventDefault();
-            })
 
         // Set button vars for module's config page
         var buttonTag = "<button/>";

@@ -47,10 +47,11 @@ class AdvancedRedirects extends Process {
 	protected $tableName = 'process_advanced_redirects';
 
 	/**
-	 * Path to form (___executeEntity())
+	 * Paths to forms
 	 * @var string
 	 */
-	protected $formPath = 'entity/';
+	protected $entityFormPath = 'entity/';
+	protected $mappingCollectionFormPath = 'mapping-collection/';
 
 	/**
 	 * Set the wildcard types.
@@ -63,6 +64,7 @@ class AdvancedRedirects extends Process {
 		'alpha' => '[a-z]+',
 		'alphanum' => '\w+',
 		'any' => '[\w.-_%\=\s]+',
+		'ext' => 'aspx|asp|cfm|cgi|fcgi|dll|html|htm|shtml|shtm|jhtml|phtml|xhtm|xhtml|rbml|jspx|jsp|phps|php4|php',
 		'num' => '\d+',
 		'segment' => '[\w_-]+',
 		'segments' => '[\w/_-]+',
@@ -124,9 +126,6 @@ class AdvancedRedirects extends Process {
 		if ($this->schemaVersion < ProcessAdvancedRedirectsConfig::SCHEMA_VERSION) {
 			$this->updateDatabaseSchemas();
 		}
-
-		// Get the default extensions list, and regex it
-		$this->wildcards['ext'] = implode(explode(' ', $this->{Config::DEFAULT_EXTENSIONS}), '|');
 
 		// Set the request (URI), and trim off the leading slash,
 		// as we won't be needing it for comparison.
@@ -246,7 +245,7 @@ class AdvancedRedirects extends Process {
 	 * @return string
 	 */
 	public function cleanPath($input, $noLower = false) {
-		if ($this->{Config::ENHANCED_PATH_CLEANING}) {
+		if ($this->{Config::ENHANCED_WILDCARD_CLEANING}) {
 			// Courtesy @sln on StackOverflow
 			$input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures) {
 				return $captures[1] . strtolower($captures[2]);
@@ -258,7 +257,7 @@ class AdvancedRedirects extends Process {
 		$input = preg_replace("~[^\\pL\d\/]+~u", '-', $input);
 		$input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
-		if ($this->{Config::ENHANCED_PATH_CLEANING}) {
+		if ($this->{Config::ENHANCED_WILDCARD_CLEANING}) {
 			// Merge these two?
 			$input = preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input);
 			$input = preg_replace("~(\d)([a-z])~i", "\\1-\\2", $input);
@@ -483,7 +482,7 @@ class AdvancedRedirects extends Process {
 						$paramSkipCleanCheck = "~\{!$value\}~i";
 						$uncleanedCapture = $captures[$c];
 						if (!preg_match($paramSkipCleanCheck, $result)) {
-							$cleanPath = $this->{Config::CLEAN_PATH};
+							$cleanPath = $this->{Config::WILDCARD_CLEANING};
 							if ($cleanPath === 'fullClean' || $cleanPath === 'semiClean') {
 								$captures[$c] = $this->cleanPath($captures[$c], ($cleanPath === 'fullClean') ? false : true);
 							}

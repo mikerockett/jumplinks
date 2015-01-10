@@ -21,11 +21,10 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 
 	const HREF = "http://pw.foundrybusiness.co.za/advanced-redirects";
 
-	const DEFAULT_EXTENSIONS = "defaultExtensions";
-	const CLEAN_PATH = "cleanPath";
+	const WILDCARD_CLEANING = "wildcardCleaning";
 	const LEGACY_DOMAIN = "legacyDomain";
 	const STATUS_CODES = "statusCodes";
-	const ENHANCED_PATH_CLEANING = "enhancedPathCleaning";
+	const ENHANCED_WILDCARD_CLEANING = "enhancedWildcardCleaning";
 	const MODULE_DEBUG = "moduleDebug";
 
 	/**
@@ -35,11 +34,10 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	public function getDefaults() {
 		return array(
 			'schemaVersion' => 1,
-			'moduleDebug' => false,
-			'defaultExtensions' => 'aspx asp cfm cgi fcgi dll html htm shtml shtm jhtml phtml xhtm xhtml rbml jspx jsp phps php4 php',
-			'cleanPath' => 'fullClean',
-			'statusCodes' => '200 301 302',
-			'experimentEnhancedPathCleaning' => false,
+			self::MODULE_DEBUG => false,
+			self::WILDCARD_CLEANING => 'fullClean',
+			self::STATUS_CODES => '200 301 302',
+			self::ENHANCED_WILDCARD_CLEANING => false,
 		);
 	}
 
@@ -70,32 +68,40 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		$this->config->js('parModuleAdmin', true);
 		$inputfields = parent::getInputfields();
 
-		// Default File Extensions
-		$inputfields->add($this->buildInputField('InputfieldText', array(
-			'name+id' => self::DEFAULT_EXTENSIONS,
-			'label' => $this->_('Default File Extensions'),
-			'description' => $this->_("The file extensions below (each separated by a space) will be checked when an extension wilcard type is used in the Source Path of a redirect definition.\nWe've already provided a handy set of defaults (which will also be used of you empty this field), but feel free to tinker."),
-			'notes' => sprintf($this->_("Regex permitted, e.g.: %s\n**Important Note:** If you use them, avoid using literal spaces. Use **\s** instead.\n**[Use Default](#resetDefaultExtensions)** • **[Use Default Regex](#regexDefaultExtensions)** • [Learn more about Default Extensions](%s/config#default-extensions)"), 'aspx?|cfm|f?cgi|dll|s?html?|[jp]html|xhtml?|rbml|jspx?|php[s4]?', self::HREF),
-			'columnWidth' => 50,
+		// Wildcard Cleaning Fieldset
+		$fieldset = $this->buildInputField('InputfieldFieldset', array(
+			'label' => $this->_('Wildcard Cleaning'),
 			'collapsed' => Inputfield::collapsedNever,
-			'spellcheck' => 'false',
-		)));
+		));
 
-		// Path Cleaning
-		$inputfields->add($this->buildInputField('InputfieldRadios', array(
-			'name+id' => self::CLEAN_PATH,
-			'label' => $this->_('Path Cleaning'),
+		// Wildcard Cleaning
+		$fieldset->add($this->buildInputField('InputfieldRadios', array(
+			'name+id' => self::WILDCARD_CLEANING,
 			'description' => $this->_("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
 			'notes' => sprintf($this->_("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Path Cleaning](%s/config#path-cleaning)"), self::HREF),
 			'options' => array(
-				//'completeClean' => $this->_('Complete Clean (cleans entire Destination Path) [don\'t use yet]'),
 				'fullClean' => $this->_('Full Clean (default, recommended)'),
 				'semiClean' => $this->_("Clean, but don't change case"),
 				'noClean' => $this->_("Don't clean at all (not recommended)"),
 			),
 			'columnWidth' => 50,
 			'collapsed' => Inputfield::collapsedNever,
+			'skipLabel' => Inputfield::skipLabelHeader,
 		)));
+
+		// Enhanced Wildcard Cleaning
+		$fieldset->add($this->buildInputField('InputfieldCheckbox', array(
+			'name+id' => self::ENHANCED_WILDCARD_CLEANING,
+			'label' => $this->_('Enhanced Widcard Cleaning'),
+			'description' => $this->_("The following experiment enhances wildcard cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
+			'label2' => $this->_('Use Enhanced Wildcard Cleaning'),
+			'notes' => $this->_("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'\n**Note:** This is only an experiment, and may not work with some paths. It may be removed from the final 1.0.0 release."),
+			'columnWidth' => 50,
+			'collapsed' => Inputfield::collapsedNever,
+			'autocheck' => true,
+		)));
+
+		$inputfields->add($fieldset);
 
 		// Legacy Domain Fieldset
 		$fieldset = $this->buildInputField('InputfieldFieldset', array(
@@ -127,17 +133,6 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		)));
 
 		$inputfields->add($fieldset);
-
-		// Enhanced Path Cleaning
-		$inputfields->add($this->buildInputField('InputfieldCheckbox', array(
-			'name+id' => self::ENHANCED_PATH_CLEANING,
-			'label' => $this->_('Enhanced Path Cleaning'),
-			'description' => $this->_("To make things a little easier, the following experiment enhances path cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
-			'label2' => $this->_('Use Enhanced Path Cleaning'),
-			'notes' => $this->_("**Note:** This is an experiment, and may not work with some paths.\n**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'"),
-			'collapsed' => Inputfield::collapsedYes,
-			'autocheck' => true,
-		)));
 
 		// Debug Mode
 		$inputfields->add($this->buildInputField('InputfieldCheckbox', array(
