@@ -10,62 +10,13 @@
  *
  *  Crunched: Yip
  */
-
-@-webkit-keyframes affected {
-    0% {
-        background-color: none;
-    }
-    80% {
-        background-color: darken(lightyellow, 10%);
-    }
-    100% {
-        background-color: lightyellow;
-    }
-}
-@-moz-keyframes affected {
-    0% {
-        background-color: none;
-    }
-    80% {
-        background-color: darken(lightyellow, 10%);
-    }
-    100% {
-        background-color: lightyellow;
-    }
-}
-@-o-keyframes affected {
-    0% {
-        background-color: none;
-    }
-    80% {
-        background-color: darken(lightyellow, 10%);
-    }
-    100% {
-        background-color: lightyellow;
-    }
-}
-@keyframes affected {
-    0% {
-        background-color: none;
-    }
-    80% {
-        background-color: darken(lightyellow, 10%);
-    }
-    100% {
-        background-color: lightyellow;
-    }
-}
 #parInputForm {
-    p.notes {
-        background: none !important;
-    }
     textarea#collectionData {
         font-family: "Consolas", "Courier New", monospace;
     }
 }
 #ModuleEditForm[action$=ProcessAdvancedRedirects] {
     p.notes {
-        background: none !important;
         a.InputfieldTask {
             color: #69b7ef;
             &:hover {
@@ -76,14 +27,8 @@
 }
 #parTabs .InputfieldContent, #parTabs .Inputfields {
     margin-top: 0;
-    .InputfieldContent {
-        p.description + p {
-            margin-bottom: 0;
-        }
-    }
     table.advanced-redirects {
         font-size: 13px;
-        margin-bottom: 0;
         &.redirects {
             td:last-child, td:nth-last-child(2) {
                 width: 7em;
@@ -132,7 +77,6 @@
         thead {
             tr {
                 & > th {
-                    cursor: default;
                     padding: 8px 8px !important;
                 }
             }
@@ -152,9 +96,10 @@
                 }
             }
         }
-        + p {
-            margin-bottom: 0;
-        }
+    }
+    button.ui-button-float-right {
+        float: right;
+        margin-left: .3em;
     }
     p.description {
         margin: 0;
@@ -167,10 +112,16 @@
             display: block;
             margin-bottom: 5px;
         }
+        &.count-0 {
+            margin-bottom: 1em;
+        }
     }
-    p > a:first-child button {
-        margin-right: 1em;
-    }
+}
+a.helpLink {
+    display: inline-block;
+    float: right;
+    margin-top: 1em;
+    font-size: 1em;
 }
 p.parInfo {
     background-color: lightyellow;

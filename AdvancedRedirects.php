@@ -22,6 +22,37 @@ use ProcessAdvancedRedirectsConfig as Config;
 class AdvancedRedirects extends Process {
 
 	/**
+	 * Determine if the tex/plain header is set
+	 * @var boolean
+	 */
+	protected $headerSet = false;
+
+	/**
+	 * Object (Array) that holds SQL statements
+	 * @var stClass
+	 */
+	protected $sql;
+
+	/**
+	 * Hold module information
+	 * @var array
+	 */
+	protected $moduleInfo;
+
+	/**
+	 * The base table name
+	 * @rfc Should we make this constant?
+	 * @var string
+	 */
+	protected $tableName = 'process_advanced_redirects';
+
+	/**
+	 * Path to form (___executeEntity())
+	 * @var string
+	 */
+	protected $formPath = 'entity/';
+
+	/**
 	 * Set the wildcard types.
 	 * A wildcard type is the second fragment of a wildcard/
 	 * Ex: {name:type}
@@ -52,12 +83,47 @@ class AdvancedRedirects extends Process {
 	);
 
 	/**
+	 * Class constructor
+	 * Init moduleInfo, sql
+	 */
+	public function __construct() {
+		$this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
+		$this->sql = (object) array(
+			'entitySelectAll' => "SELECT * FROM {$this->tableName} ORDER BY source",
+			'entitySelectAllJsonNav' => "SELECT * FROM {$this->tableName} ORDER BY updated_at DESC LIMIT 5",
+			'entitySelectSingle' => "SELECT * FROM {$this->tableName} WHERE id=%s",
+			'entityDropById' => "DELETE FROM {$this->tableName} WHERE id=%s",
+			'entityInsert' => "INSERT INTO {$this->tableName} SET source = '%s', destination = '%s', date_start = %s, date_end = %s, user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
+			'entityUpdate' => "UPDATE {$this->tableName} SET source = '%s', destination = '%s', date_start = %s, date_end = %s, user_updated = %s WHERE id = %s",
+			'mappingCollectionsSelectAll' => "SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
+			'mappingCollectionsSelectSingle' => "SELECT * FROM {$this->tableName}_mc WHERE id=%s",
+			'mappingCollectionsSelectAllFromName' => "SELECT * FROM {$this->tableName}_mc WHERE collection_name='%s'",
+			'mappingCollectionsDropById' => "DELETE FROM {$this->tableName}_mc WHERE id=%s",
+			'mappingCollectionsInsert' => "INSERT INTO {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
+			'mappingCollectionsUpdate' => "UPDATE {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_updated = %s WHERE id = %s",
+		);
+	}
+
+	/**
 	 * Module initialisation
 	 * @hook ProcessPageView::pageNotFound to scanAndRedirect
 	 */
 	public function init() {
 		parent::init();
-		$this->prepareAssets();
+
+		// Set the admin page URL for JS
+		$this->config->js("parAdminPageUrl", $this->pages->get('name=advanced-redirects')->url);
+
+		// Set the helpLink
+		$this->helpLink = "<a class=\"helpLink\" target=\"_blank\" href=\"{$this->moduleInfo['href']}\">Need help?</a>";
+
+		// Include WireTabs
+		$this->modules->get('JqueryWireTabs');
+
+		// Make sure schemas are up to date
+		if ($this->schemaVersion < ProcessAdvancedRedirectsConfig::SCHEMA_VERSION) {
+			$this->updateDatabaseSchemas();
+		}
 
 		// Get the default extensions list, and regex it
 		$this->wildcards['ext'] = implode(explode(' ', $this->{Config::DEFAULT_EXTENSIONS}), '|');
@@ -66,13 +132,15 @@ class AdvancedRedirects extends Process {
 		// as we won't be needing it for comparison.
 		$this->request = ltrim($_SERVER['REQUEST_URI'], '/');
 
-		// Magic ahead: Replace index.php with a dummy do we can scan such requests.
-		// But first, redirect requests to index.php/ so we don't have any legacy domain false positives,
-		// such as remote 301s used to trim trailing slashes.
-		if ($this->request === 'index.php/') {
+		// If a request is made to the index.php file, with a slash,
+		// then redirect to root (mod_rewrite is a PW requirement)
+		if ($this->request === 'index.php/' || $this->request === 'index.php') {
 			$this->session->redirect($this->config->urls->root);
 		}
 
+		// Magic ahead: Replace index.php with a dummy do we can scan such requests.
+		// But first, redirect requests to index.php/ so we don't have any legacy domain false positives,
+		// such as remote 301s used to trim trailing slashes.
 		$indexExpression = "~^index.php(\?|\/)~";
 		if (preg_match($indexExpression, $this->request)) {
 			$this->session->redirect(preg_replace(
@@ -87,22 +155,12 @@ class AdvancedRedirects extends Process {
 	}
 
 	/**
-	 * Prepare backend assets.
-	 * @caller init
+	 * Update database schema
+	 * This method applies incremental updates until latest schema version is
+	 * reached, while also keeping schemaVersion config setting up to date.
+	 * @state    Will be populated on first schema change
 	 */
-	protected function prepareAssets() {
-		// Set the admin page URL for JS
-		$this->config->js("parAdminPageUrl", $this->pages->get('name=advanced-redirects')->url);
-
-		// Include WireTabs
-		$this->modules->get('JqueryWireTabs');
-
-		// Inject CSS and JS
-		foreach (array('styles', 'scripts') as $assetType) {
-			$extension = ($assetType == 'styles') ? 'css' : 'min.js';
-			$this->config->$assetType->add("{$this->config->urls->ProcessAdvancedRedirects}Assets/" . get_class($this) . ".{$extension}?v={$this->moduleInfo['version']}");
-		}
-	}
+	private function updateDatabaseSchemas() {}
 
 	/**
 	 * Create a blueprint from file and give it some variables.
@@ -188,7 +246,7 @@ class AdvancedRedirects extends Process {
 	 * @return string
 	 */
 	public function cleanPath($input, $noLower = false) {
-		if ($this->{Config::EXPERIMENT_EPC}) {
+		if ($this->{Config::ENHANCED_PATH_CLEANING}) {
 			// Courtesy @sln on StackOverflow
 			$input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures) {
 				return $captures[1] . strtolower($captures[2]);
@@ -200,7 +258,7 @@ class AdvancedRedirects extends Process {
 		$input = preg_replace("~[^\\pL\d\/]+~u", '-', $input);
 		$input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
-		if ($this->{Config::EXPERIMENT_EPC}) {
+		if ($this->{Config::ENHANCED_PATH_CLEANING}) {
 			// Merge these two?
 			$input = preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input);
 			$input = preg_replace("~(\d)([a-z])~i", "\\1-\\2", $input);
@@ -234,7 +292,7 @@ class AdvancedRedirects extends Process {
 	 * @param  array  $meta
 	 * @return Inputfield
 	 */
-	protected function buildField($field, $meta) {
+	protected function populateInputField($field, $meta) {
 		foreach ($meta as $metaNames => $metaInfo) {
 			$metaNames = explode('+', $metaNames);
 			foreach ($metaNames as $metaName) {
@@ -272,13 +330,13 @@ class AdvancedRedirects extends Process {
 	 * @param  bool   $die
 	 */
 	protected function log($message, $indent = false, $break = false, $die = false) {
-		if ($this->{Config::MODULE_DEBUG}) {
+		if ($this->{Config::MODULE_DEBUG} && $this->user->hasPermission('advanced-redirects-admin')) {
 			if (!$this->headerSet) {
 				header("Content-Type: text/plain");
 				$this->headerSet = true;
 			}
 
-			$indent = ($indent) ? "\t- " : '';
+			$indent = ($indent) ? "- " : '';
 			$break = ($break) ? "\n" : '';
 
 			print str_replace('.pw-par', '', "{$indent}{$message}\n{$break}");
@@ -328,8 +386,6 @@ class AdvancedRedirects extends Process {
 
 		// Begin the loop
 		while ($redirect = $redirects->fetch_object()) {
-			$this->log("[{$redirect->name}]", false, true);
-
 			$starts = strtotime($redirect->date_start);
 			$ends = strtotime($redirect->date_end);
 

@@ -1,12 +1,10 @@
 ## ProcessAdvancedRedirects
 
-**Current Development Phase:** 0.1.2-alpha
+**Current Development Phase:** 0.9-beta
 
 **Intended for:** ProcessWire 2.6-dev
 
 **Developed in:** ProcessWire 2.5.12-13
-
-Module is in alpha phase, and **should not** be used for production.
 
 For information about the module, [see this forum thread](https://processwire.com/talk/topic/8697-alpha-processadvancedredirects/).
 

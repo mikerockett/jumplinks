@@ -16,13 +16,16 @@
 
 class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 
+	/** Schema version for this release */
+	const SCHEMA_VERSION = 1;
+
 	const HREF = "http://pw.foundrybusiness.co.za/advanced-redirects";
 
 	const DEFAULT_EXTENSIONS = "defaultExtensions";
 	const CLEAN_PATH = "cleanPath";
 	const LEGACY_DOMAIN = "legacyDomain";
 	const STATUS_CODES = "statusCodes";
-	const EXPERIMENT_EPC = "experimentEnhancedPathCleaning";
+	const ENHANCED_PATH_CLEANING = "enhancedPathCleaning";
 	const MODULE_DEBUG = "moduleDebug";
 
 	/**
@@ -31,6 +34,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	 */
 	public function getDefaults() {
 		return array(
+			'schemaVersion' => 1,
 			'moduleDebug' => false,
 			'defaultExtensions' => 'aspx asp cfm cgi fcgi dll html htm shtml shtm jhtml phtml xhtm xhtml rbml jspx jsp phps php4 php',
 			'cleanPath' => 'fullClean',
@@ -45,8 +49,9 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	 * @param  array  $meta
 	 * @return Inputfield
 	 */
-	protected function buildField($fieldNameId, $meta) {
+	protected function buildInputField($fieldNameId, $meta) {
 		$field = wire('modules')->get($fieldNameId);
+
 		foreach ($meta as $metaNames => $metaInfo) {
 			$metaNames = explode('+', $metaNames);
 			foreach ($metaNames as $metaName) {
@@ -62,10 +67,11 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	 * @return InputfieldWrapper
 	 */
 	public function getInputfields() {
+		$this->config->js('parModuleAdmin', true);
 		$inputfields = parent::getInputfields();
 
 		// Default File Extensions
-		$inputfields->add($this->buildField('InputfieldText', array(
+		$inputfields->add($this->buildInputField('InputfieldText', array(
 			'name+id' => self::DEFAULT_EXTENSIONS,
 			'label' => $this->_('Default File Extensions'),
 			'description' => $this->_("The file extensions below (each separated by a space) will be checked when an extension wilcard type is used in the Source Path of a redirect definition.\nWe've already provided a handy set of defaults (which will also be used of you empty this field), but feel free to tinker."),
@@ -76,7 +82,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		)));
 
 		// Path Cleaning
-		$inputfields->add($this->buildField('InputfieldRadios', array(
+		$inputfields->add($this->buildInputField('InputfieldRadios', array(
 			'name+id' => self::CLEAN_PATH,
 			'label' => $this->_('Path Cleaning'),
 			'description' => $this->_("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
@@ -92,14 +98,13 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		)));
 
 		// Legacy Domain Fieldset
-		$fieldset = $this->buildField('InputfieldFieldset', array(
+		$fieldset = $this->buildInputField('InputfieldFieldset', array(
 			'label' => $this->_('Legacy Domain'),
-			'icon' => 'globe',
 			'collapsed' => Inputfield::collapsedYes,
 		));
 
 		// Legacy Domain Name
-		$fieldset->add($this->buildField('InputfieldText', array(
+		$fieldset->add($this->buildInputField('InputfieldText', array(
 			'name+id' => self::LEGACY_DOMAIN,
 			'columnWidth' => 50,
 			'description' => $this->_('Attempt any requested, unresolved Source Paths on a legacy domain/URL.'),
@@ -111,7 +116,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 		)));
 
 		// Legacy Domain Status Codes
-		$fieldset->add($this->buildField('InputfieldText', array(
+		$fieldset->add($this->buildInputField('InputfieldText', array(
 			'name+id' => self::STATUS_CODES,
 			'columnWidth' => 50,
 			'description' => $this->_('Only redirect if a request to it yields one of these HTTP status codes:'),
@@ -123,29 +128,19 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 
 		$inputfields->add($fieldset);
 
-		// Experiments Fieldset
-		$fieldset = $this->buildField('InputfieldFieldset', array(
-			'label' => $this->_('Experiments'),
-			'icon' => 'flag',
-			'description' => $this->_('Any experiments listed below are only experiments, and may not make it to the final v1.0 release. They may not be perfect, so your input on the forums is welcome.'),
-			'collapsed' => Inputfield::collapsedYes,
-		));
-
 		// Enhanced Path Cleaning
-		$fieldset->add($this->buildField('InputfieldCheckbox', array(
-			'name+id' => self::EXPERIMENT_EPC,
+		$inputfields->add($this->buildInputField('InputfieldCheckbox', array(
+			'name+id' => self::ENHANCED_PATH_CLEANING,
 			'label' => $this->_('Enhanced Path Cleaning'),
 			'description' => $this->_("To make things a little easier, the following experiment enhances path cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
 			'label2' => $this->_('Use Enhanced Path Cleaning'),
-			'notes' => $this->_("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'"),
-			'collapsed' => Inputfield::collapsedNever,
+			'notes' => $this->_("**Note:** This is an experiment, and may not work with some paths.\n**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'"),
+			'collapsed' => Inputfield::collapsedYes,
 			'autocheck' => true,
 		)));
 
-		$inputfields->add($fieldset);
-
 		// Debug Mode
-		$inputfields->add($this->buildField('InputfieldCheckbox', array(
+		$inputfields->add($this->buildInputField('InputfieldCheckbox', array(
 			'name+id' => self::MODULE_DEBUG,
 			'label' => $this->_('Debug Mode'),
 			'icon' => 'bug',

@@ -21,61 +21,6 @@ use ProcessAdvancedRedirectsConfig as Config;
 class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 	/**
-	 * Determine if the tex/plain header is set
-	 * @var boolean
-	 */
-	protected $headerSet = false;
-
-	/**
-	 * Object (Array) that holds SQL statements
-	 * @var stClass
-	 */
-	protected $sql;
-
-	/**
-	 * Hold module information
-	 * @var array
-	 */
-	protected $moduleInfo;
-
-	/**
-	 * The base table name
-	 * @rfc Should we make this constant?
-	 * @var string
-	 */
-	protected $tableName = 'process_advanced_redirects';
-
-	/**
-	 * Path to form (___executeEntity())
-	 * @var string
-	 */
-	protected $formPath = 'entity/';
-
-	/**
-	 * Class constructor
-	 * Init moduleInfo, sql
-	 */
-	public function __construct() {
-		$this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
-		$this->sql = (object) array(
-			'entitySelectAll' => "SELECT * FROM {$this->tableName} ORDER BY name",
-			'entitySelectAllNav' => "SELECT * FROM {$this->tableName} ORDER BY updated_at DESC LIMIT 5",
-			'entitySelectSingle' => "SELECT * FROM {$this->tableName} WHERE id=%s",
-			'entitySelectIdFromName' => "SELECT id FROM {$this->tableName} WHERE name='%s'",
-			'entityDropById' => "DELETE FROM {$this->tableName} WHERE id=%s",
-			'entityInsert' => "INSERT INTO {$this->tableName} SET name = '%s', source = '%s', destination = '%s', date_start = %s, date_end = %s, user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
-			'entityUpdate' => "UPDATE {$this->tableName} SET name = '%s', source = '%s', destination = '%s', date_start = %s, date_end = %s, user_updated = %s WHERE id = %s",
-			'mappingCollectionsSelectAll' => "SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
-			'mappingCollectionsSelectSingle' => "SELECT * FROM {$this->tableName}_mc WHERE id=%s",
-			'mappingCollectionsSelectIdFromName' => "SELECT id FROM {$this->tableName}_mc WHERE collection_name='%s'",
-			'mappingCollectionsSelectAllFromName' => "SELECT * FROM {$this->tableName}_mc WHERE collection_name='%s'",
-			'mappingCollectionsDropById' => "DELETE FROM {$this->tableName}_mc WHERE id=%s",
-			'mappingCollectionsInsert' => "INSERT INTO {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
-			'mappingCollectionsUpdate' => "UPDATE {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_updated = %s WHERE id = %s",
-		);
-	}
-
-	/**
 	 * Admin Page: Module Root
 	 * @return string
 	 */
@@ -96,27 +41,17 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$redirectsTable = $this->modules->get('MarkupAdminDataTable');
 		$redirectsTable->setEncodeEntities(false);
 		$redirectsTable->setClass('advanced-redirects redirects');
-		$redirectsTable->setSortable(false);
-		$redirectsTable->headerRow(array($this->_('Name'), $this->_('Source'), $this->_('Destination'), $this->_('Start'), $this->_('End')));
+		$redirectsTable->headerRow(array($this->_('Source'), $this->_('Destination'), $this->_('Start'), $this->_('End')));
 		$registerRedirectButtonLabel = ($redirects->num_rows === 1) ? $this->_('Register Another Redirect') : $this->_('Register New Redirect');
-		$redirectsTable->action(array(
-			$registerRedirectButtonLabel => "entity/",
-			$this->_('Configuration') => $this->getModuleConfigUri(),
-			//$this->_('Documentation') => $this->moduleInfo['href'],
-			$this->_('Dev Discussion') => 'https://processwire.com/talk/topic/8697-alpha-processadvancedredirects/',
-			$this->_('Issues on GitHub') => 'https://github.com/mike-anthony/ProcessAdvancedRedirects/issues',
-			$this->_('Master Task List') => 'https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/1',
-		));
 
 		$head = $this->_n('You have one redirect registered.', 'Your redirects are listed below.', $redirects->num_rows);
 		$pronoun = $this->_n('it', 'one', $redirects->num_rows);
-		$more = sprintf($this->_("To edit/delete %s, simply click on its name. To add another, click on '%s' at the bottom."), $pronoun, $registerRedirectButtonLabel);
+		$more = sprintf($this->_("To edit/delete %s, simply click on its Source. To add another, click on '%s' at the bottom."), $pronoun, $registerRedirectButtonLabel);
 		$description = $this->blueprint('manage-description', array(
 			'head' => $head,
 			'more' => $more,
+			'class' => "count-{$redirects->num_rows}",
 		));
-
-		$rowAssociations = array();
 
 		while ($redirect = $redirects->fetch_object()) {
 			$redirect->source = htmlentities($redirect->source);
@@ -132,23 +67,37 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			: "<abbr title=\"{$redirect->date_end}\">{$relativeEndTime}</abbr>";
 
 			$redirectsTable->row(array(
-				$redirect->name => "entity/?id={$redirect->id}",
-				$this->truncate($redirect->source),
+				$this->truncate($redirect->source) => "entity/?id={$redirect->id}",
 				$redirect->destination,
 				$relativeStartTime,
 				$relativeEndTime,
 			));
-
-			$rowAssociations[] = (int) $redirect->id;
 		}
 
 		$wordLinks = ($redirects->num_rows === 1) ? 'redirect' : 'redirects';
-		$redirectsTable->footerRow(array("{$redirects->num_rows} {$wordLinks}", '', '', '', ''));
+		$redirectsTable->footerRow(array("{$redirects->num_rows} {$wordLinks}", '', '', ''));
 
 		$redirects->close();
 
+		$registerRedirectButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
+			'id' => 'registerRedirect',
+			'href' => 'entity/',
+			'value' => $registerRedirectButtonLabel,
+			'icon' => 'plus-circle',
+		))->addClass('head_button_clone');
+
+		$moduleConfigLinkButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
+			'id' => 'moduleConfigLink',
+			'href' => $this->getModuleConfigUri(),
+			'value' => $this->_('Configuration'),
+			'icon' => 'cog',
+		))->addClass('ui-priority-secondary ui-button-float-right');
+
+		$buttons = $registerRedirectButton->render() .
+		$moduleConfigLinkButton->render();
+
 		$redirectsTableContainer = $this->modules->get('InputfieldMarkup');
-		$redirectsTableContainer->value = $description . $redirectsTable->render();
+		$redirectsTableContainer->value = $description . $redirectsTable->render() . $buttons;
 
 		$redirectsTab->append($redirectsTableContainer);
 
@@ -165,10 +114,6 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$mappingCollectionsTable->headerRow(array($this->_('Collection Name'), $this->_('Mappings'), $this->_('Created'), $this->_('Last Modified')));
 
 		$installMappingCollectionButtonLabel = ($mappingCollections->num_rows === 1) ? $this->_('Install Another Mapping Collection') : $this->_('Install New Mapping Collection');
-		$mappingCollectionsTable->action(array(
-			$installMappingCollectionButtonLabel => "mapping-collection/",
-			//$this->_("What's this?") => "{$this->moduleInfo['href']}/mapping-collections",
-		));
 
 		if ($mappingCollections->num_rows === 0) {
 			$pronoun = 'one';
@@ -182,6 +127,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$description = $this->blueprint('manage-description', array(
 			'head' => $head,
 			'more' => $more,
+			'class' => "count-{$mappingCollections->num_rows}",
 		));
 
 		while ($mappingCollection = $mappingCollections->fetch_object()) {
@@ -197,56 +143,45 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 			$mappingCollectionsTable->row(array(
 				$mappingCollection->collection_name => "mapping-collection/?id={$mappingCollection->id}",
-				count(explode(PHP_EOL, trim($mappingCollection->collection_mappings))),
+				count(explode("\n", trim($mappingCollection->collection_mappings))),
 				$created,
 				$updated,
 			));
 		}
 
+		$installMappingCollectionButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
+			'id' => 'installMappingCollection',
+			'href' => "mapping-collection/",
+			'value' => $installMappingCollectionButtonLabel,
+			'icon' => 'plus-circle',
+		));
+
+		$buttons = $installMappingCollectionButton->render();
+
 		$mappingCollectionsTableContainer = $this->modules->get('InputfieldMarkup');
-		$mappingCollectionsTableContainer->value = $description . $mappingCollectionsTable->render();
+		$mappingCollectionsTableContainer->value = $description . $mappingCollectionsTable->render() . $buttons;
 
 		$mappingCollectionsTab->append($mappingCollectionsTableContainer);
 
-		$variableIndexTab = new InputfieldWrapper();
-		$variableIndexTab->attr('title', 'Variables');
-		$variableIndexTab->id = 'variables';
+		// $logTab = new InputfieldWrapper();
+		// $logTab->attr('title', 'Log');
+		// $logTab->id = 'log';
 
-		$variableIndexTableContainer = $this->modules->get('InputfieldMarkup');
-		$variableIndexTableContainer->value = 'Variables not implemented yet.';
+		// $logTableContainer = $this->modules->get('InputfieldMarkup');
+		// $logTableContainer->value = 'Log not implemented yet.';
 
-		$variableIndexTab->append($variableIndexTableContainer);
-
-		$replacementsTab = new InputfieldWrapper();
-		$replacementsTab->attr('title', 'JIT Replacements');
-		$replacementsTab->id = 'replacements';
-
-		$replacementsTableContainer = $this->modules->get('InputfieldMarkup');
-		$replacementsTableContainer->value = 'JIT Replacements not implemented yet.';
-
-		$replacementsTab->append($replacementsTableContainer);
-
-		$historyTab = new InputfieldWrapper();
-		$historyTab->attr('title', 'History');
-		$historyTab->id = 'history';
-
-		$historyTableContainer = $this->modules->get('InputfieldMarkup');
-		$historyTableContainer->value = 'History not implemented yet.';
-
-		$historyTab->append($historyTableContainer);
+		// $logTab->append($logTableContainer);
 
 		$tabContainer
 			->append($redirectsTab)
-			->append($mappingCollectionsTab)
-			->append($variableIndexTab)
-			->append($replacementsTab)
-			->append($historyTab);
+			->append($mappingCollectionsTab);
+		//->append($logTab);
 
-		$this->config->js("parRowAssociations", (object) $rowAssociations);
+		$this->config->js("parAdmin", true);
 
 		// Unfortunately, we have to wrap it in a form to prevent spacing underneath
 		// the tabs. This goes hand in hand with a rule in the stylesheet
-		return "<form id=\"parTabs\">{$tabContainer->render()}</form>";
+		return "<form id=\"parTabs\">{$tabContainer->render()}</form>{$this->helpLink}";
 	}
 
 	/**
@@ -262,11 +197,11 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		if ($editingId) {
 			// Fetch the details and list vars
 			$result = $this->db->query(sprintf($this->sql->entitySelectSingle, $editingId));
-			list($id, $redirectName, $sourcePath, $destinationPath,
+			list($id, $sourcePath, $destinationUriUrl,
 				$userCreated, $userUpdated, $dateStart, $dateEnd,
 				$createdAt, $updatedAt) = $result->fetch_array();
 
-			$this->setFuel('processHeadline', $this->_("Editing Redirect: $redirectName"));
+			$this->setFuel('processHeadline', $this->_('Editing Redirect'));
 
 			// Format dates (times)
 			$dateStart = ($dateStart != null) ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
@@ -289,64 +224,57 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// ID field
 		$field = $this->modules->get('InputfieldHidden');
-		$form->add($this->buildField($field, array(
+		$form->add($this->populateInputField($field, array(
 			'name' => 'id',
 			'value' => $editingId,
 		)));
 
-		// Name field (with dynamic placeholders)
-		$field = $this->modules->get('InputfieldText');
-		$seasons = array($this->_('Winter'), $this->_('Spring'), $this->_('Summer'), $this->_('Autumn'), $this->_('Winter'));
-		$thisSeason = $seasons[intval(date('m')) / 3];
-		$exampleSuffixes = array($this->_('Promotion'), $this->_('Promo'), $this->_('Specials'), $this->_('Competition'));
-		$exampleMigrations = array($this->_('Blog'), $this->_('Site'));
-		shuffle($exampleSuffixes);
-		$exampleSuffix = $exampleSuffixes[array_rand($exampleSuffixes)] . ' ' . date('Y');
-		$exampleMigration = $exampleMigrations[array_rand($exampleMigrations)];
-		$form->add($this->buildField($field, array(
-			'name+id' => 'redirectName',
-			'label' => $this->_('Redirect Name'),
-			'description' => $this->_('Enter a name for this redirect, so that it can be identified easily. If you leave this out, a name will be created for you.'),
-			'placeholder' => $this->_('Examples:') . " '{$thisSeason} {$exampleSuffix}' or '{$exampleMigration} " . $this->_("Migration") . "'",
-			'collapsed' => Inputfield::collapsedNever,
-			'value' => isset($redirectName) ? $redirectName : '',
-		)));
-
 		// Source Path field
 		$field = $this->modules->get('InputfieldText');
-		$form->add($this->buildField($field, array(
+		$form->add($this->populateInputField($field, array(
 			'name+id' => 'sourcePath',
-			'label' => $this->_('Source Path'),
+			'label' => $this->_('Source'),
 			'description' => $this->_("Enter a path that's relative to the root of this installation, without the leading slash."),
-			'notes' => sprintf($this->_('Learn how to use **[wildcards](%s/wildcards)**.'), $this->moduleInfo['href']),
-			'placeholder' => $this->_('Examples:') . " 'example/', 'example', 'content/pages/{path}', 'page.php?name=example', 'list.aspx?category={category:segment}'",
+			'notes' => sprintf($this->_("**Examples:** page.html, [{page:segment}](%1\$s/wildcards).html, page.php?name={page:segment}, [page.php?id={id}](%1\$s/mapping-collections)"), $this->moduleInfo['href']),
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
 			'value' => isset($sourcePath) ? $sourcePath : '',
 		)));
 
-		// Destination Page field
-		$field = $this->modules->get('InputfieldPageListSelect');
-		$form->add($this->buildField($field, array(
+		// Destination fields
+		$destinationPageField = $this->modules->get('InputfieldPageListSelect');
+		$destinationPathField = $this->modules->get('InputfieldURL');
+
+		// Check if the current destination is a page
+		if (isset($destinationUriUrl) && $page = $this->pages->get((int) str_replace('page:', '', $destinationUriUrl))) {
+			$isPage = (bool) $page->id;
+			if ($isPage) {
+				$destinationPageField->value = $page->id;
+				$destinationPathField->collapsed = Inputfield::collapsedYes;
+			} else {
+				$destinationPageField->collapsed = Inputfield::collapsedYes;
+				$destinationPathField->collapsed = Inputfield::collapsedBlank;
+			}
+		} else {
+			$destinationPathField->collapsed = Inputfield::collapsedBlank;
+		}
+
+		$form->add($this->populateInputField($destinationPageField, array(
 			'name+id' => 'destinationPage',
-			'label' => $this->_('Destination Page'),
-			'notes' => $this->_("If you leave this out, be sure to enter a valid URI/URL below.\n**Note:** If you need to see the details of a page in another language, you'll need to [switch to that language first](../../../profile)."),
+			'label' => $this->_('Select a Page'),
+			'notes' => $this->_("If you leave this out, be sure to enter a valid path below.\n**Note:** If you need to see the details of a page in another language, you'll need to [switch to that language first](../../../profile)."),
 			'parent_id' => 0,
 			'startLabel' => $this->_('Select Page'),
-			'collapsed' => Inputfield::collapsedBlank,
 		)));
 
 		// Destination Path field
-		$field = $this->modules->get('InputfieldURL');
-		$form->add($this->buildField($field, array(
-			'name+id' => 'destinationPath',
-			'label' => $this->_('Destination Path'),
+		$form->add($this->populateInputField($destinationPathField, array(
+			'name+id' => 'destinationUriUrl',
+			'label' => $this->_('or enter a URI/URL'),
 			'description' => $this->_('Enter a URI relative to the root of this installation, without the leading slash, or an absolute URL.'),
-			'placeholder' => $this->_('Examples:') . " 'path/', '{path}/', 'category/{category}/', 'http://www.domain.com/{path}'",
-			'notes' => $this->_("Here, you can also make use of **[variables](../variable-index/)**, if you'd like to import common data.\nIf you select a page from the Page Selector above, its identifier will be added here."),
+			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%s/mapping-collections) .\n**Note:** If you select a page from the Page Selector above, its identifier will be added here."), $this->moduleInfo['href']),
 			'required' => 1,
-			'collapsed' => Inputfield::collapsedNever,
-			'value' => isset($destinationPath) ? $destinationPath : '',
+			'value' => isset($destinationUriUrl) ? $destinationUriUrl : '',
 		)));
 
 		// Timed Activation fieldset
@@ -355,7 +283,6 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		$fieldSet->collapsed = Inputfield::collapsedYes;
 		$fieldSet->description = $this->_("If you'd like this redirect to only function during a specific time-range, then select the start and end dates and times below.");
 		$fieldSet->notes = $this->_("You don't have to specify both. If you only specify a start time , you're simply delaying activation. If you only specify an end time, then you're simply telling it when to stop.\nIf an End Date/Time is specified, a temporary redirect will be made (302 status code, as opposed to 301).");
-		$fieldSet->showIf = 'lockRedirect=0';
 
 		$datetimeFieldDefaults = array(
 			'datepicker' => 1,
@@ -367,7 +294,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// Start field
 		$field = $this->modules->get('InputfieldDatetime');
-		$fieldSet->add($this->buildField($field, array_merge(array(
+		$fieldSet->add($this->populateInputField($field, array_merge(array(
 			'name' => 'dateStart',
 			'label' => $this->_('Start Date/Time'),
 			'value' => (isset($dateStart)) ? $dateStart : '',
@@ -375,7 +302,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// End field
 		$field = $this->modules->get('InputfieldDatetime');
-		$fieldSet->add($this->buildField($field, array_merge(array(
+		$fieldSet->add($this->populateInputField($field, array_merge(array(
 			'name' => 'dateEnd',
 			'label' => $this->_('End Date/Time'),
 			'value' => (isset($dateEnd)) ? $dateEnd : '',
@@ -394,7 +321,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				'created' => wireRelativeTimeStr($createdAt),
 				'updated' => wireRelativeTimeStr($updatedAt),
 			);
-			$form->add($this->buildField($field, array(
+			$form->add($this->populateInputField($field, array(
 				'id' => 'info',
 				'label' => $this->_('Info'),
 				'value' => $this->blueprint('entity-info', array(
@@ -409,22 +336,9 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				)),
 			)));
 
-			// Add Lock Redirect button
-			$field = $this->modules->get('InputfieldCheckbox');
-			$form->add($this->buildField($field, array(
-				'name' => 'lockRedirect',
-				'label' => $this->_('Lock Redirect'),
-				'icon' => 'lock',
-				'description' => $this->_("To lock this redirect, preventing future changes/deletion, check the box below."),
-				'label2' => $this->_('Lock this redirect now'),
-				'notes' => $this->_("Once locked, redirects will be made with a 301 status coode.\n**Dev Note:** Not implemented yet. See [this issue](https://github.com/mike-anthony/ProcessAdvancedRedirects/issues/3) for more information."),
-				'collapsed' => Inputfield::collapsedYes,
-				'showIf' => 'dateStart="", dateEnd=""',
-			)));
-
 			// Add Delete button
 			$field = $this->modules->get('InputfieldCheckbox');
-			$form->add($this->buildField($field, array(
+			$form->add($this->populateInputField($field, array(
 				'name' => 'delete',
 				'label' => $this->_('Delete'),
 				'icon' => 'times-circle',
@@ -437,27 +351,17 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// Save/Update button
 		$field = $this->modules->get('InputfieldButton');
-		$form->add($this->buildField($field, array(
+		$form->add($this->populateInputField($field, array(
 			'name+id' => 'saveRedirect',
 			'value' => ($editingId) ? $this->_('Update & Return') : $this->_('Save & Return'),
 			'icon' => 'save',
 			'type' => 'submit',
-		)));
+		))->addClass('head_button_clone'));
 
-		// Add script (should we move this to global JS?)
-		$script = $this->blueprint('entity-scripts', array(
-			'selector' => 'destinationPage',
-			'path-input-field' => 'destinationPath',
-			'save-button' => 'saveRedirect',
-			'redirect-name' => 'redirectName',
-			'source-path' => 'sourcePath',
-			'destination-path' => 'destinationPath',
-			'date-start' => 'dateStart',
-			'date-end' => 'dateEnd',
-		));
+		$this->config->js('parEntity', true);
 
 		// Return the rendered page
-		return $message . $form->render() . $script;
+		return $message . $form->render() . $this->helpLink;
 	}
 
 	/**
@@ -482,25 +386,20 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 			$this->session->redirect("../");
 		}
 
+		// If the Destination Path's URI matches that of a page, use a page ID instead
+		if (false === strpos($input->destinationUriUrl, '{') && false === strpos($input->destinationUriUrl, '}')) {
+			if (($page = $this->pages->get('name=' . trim($input->destinationUriUrl, '/'))) && $page->id) {
+				$input->destinationUriUrl = "page:{$page->id}";
+			}
+		}
+
 		// Escape Source and Destination (Sanitised) Paths
-		$source = $this->db->escape_string($input->sourcePath);
-		$destination = $this->db->escape_string($this->sanitizer->url($input->destinationPath));
-
-		// Set a name if one wasn't given.
-		// This isn't the best solution - anyone got any better ideas?
-		// Or should we just remove this field altogether?
-		$name = (empty($input->redirectName))
-		? trim(ucwords(trim(str_replace('/', ' ', preg_replace('/\{.*\}/i', '', $source)), "/")))
-		: $input->redirectName;
-
-		// Then escape it
-		$name = $this->db->escape_string($name);
+		$source = ltrim($this->db->escape_string($input->sourcePath), '/');
+		$destination = ltrim($this->db->escape_string($this->sanitizer->url($input->destinationUriUrl)), '/');
 
 		// Prepare dates (times) for database entry
-		$start = empty($input->dateStart) ? 'null'
-		: "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart))) . "'";
-		$end = empty($input->dateEnd) ? 'null'
-		: "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd))) . "'";
+		$start = empty($input->dateStart) ? 'null' : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart))) . "'";
+		$end = empty($input->dateEnd) ? 'null' : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd))) . "'";
 
 		// Set the user creating/updating
 		if (!$isUpdating) {
@@ -511,25 +410,13 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// Insert/Update
 		$this->db->query(($isUpdating)
-			? sprintf($this->sql->entityUpdate, $name, $source, $destination, $start, $end, $userUpdated, $id)
-			: sprintf($this->sql->entityInsert, $name, $source, $destination, $start, $end, $userCreated, $userUpdated)
+			? sprintf($this->sql->entityUpdate, $source, $destination, $start, $end, $userUpdated, $id)
+			: sprintf($this->sql->entityInsert, $source, $destination, $start, $end, $userCreated, $userUpdated)
 		);
 
-		$this->message(sprintf($this->_("Redirect '%s' saved."), $name));
+		$this->message($this->_("Redirect saved."));
 
-		// Get the ID of the entity we just created/updated
-		// And send it off to the admin page to highlight it in the table
-		if (!$isUpdating) {
-			$theEntity = $this->db->query(sprintf($this->sql->entitySelectIdFromName, $name));
-			while ($redirect = $theEntity->fetch_object()) {
-				$id = $redirect->id;
-			}
-
-			$theEntity->close();
-		}
-		$id = (string) $id;
-
-		$this->session->redirect("../?id={$id}");
+		$this->session->redirect("../");
 	}
 
 	/**
@@ -558,18 +445,17 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// ID field
 		$field = $this->modules->get('InputfieldHidden');
-		$form->add($this->buildField($field, array(
+		$form->add($this->populateInputField($field, array(
 			'name' => 'id',
 			'value' => $editingId,
 		)));
 
 		// Mapping Name field
 		$field = $this->modules->get('InputfieldText');
-		$form->add($this->buildField($field, array(
+		$form->add($this->populateInputField($field, array(
 			'name+id' => 'collectionName',
 			'label' => $this->_('Name of Collection'),
 			'notes' => $this->_('Only use alpha characters (a-z). Name will be sanitised upon submission. This name is the identifier to be used in mapping wildcards.'),
-			'placeholder' => $this->_('Examples:') . " 'blogmigration' or 'magento'",
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
 			'value' => isset($collectionName) ? $collectionName : '',
@@ -577,7 +463,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// Mapping Data field
 		$field = $this->modules->get('InputfieldTextarea');
-		$form->add($this->buildField($field, array(
+		$form->add($this->populateInputField($field, array(
 			'name+id' => 'collectionData',
 			'label' => $this->_('Collection Data'),
 			'description' => $this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names. To learn more about how this feature works, please read through the documentation.'),
@@ -599,7 +485,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 				'created' => wireRelativeTimeStr($createdAt),
 				'updated' => wireRelativeTimeStr($updatedAt),
 			);
-			$form->add($this->buildField($field, array(
+			$form->add($this->populateInputField($field, array(
 				'id' => 'info',
 				'label' => $this->_('Info'),
 				'value' => $this->blueprint('entity-info', array(
@@ -616,7 +502,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 			// Add Uninstall button
 			$field = $this->modules->get('InputfieldCheckbox');
-			$form->add($this->buildField($field, array(
+			$form->add($this->populateInputField($field, array(
 				'name+id' => 'uninstallCollection',
 				'label' => $this->_('Uninstall'),
 				'icon' => 'times-circle',
@@ -628,22 +514,17 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 
 		// Install/Update & Return button
 		$field = $this->modules->get('InputfieldButton');
-		$form->add($this->buildField($field, array(
+		$form->add($this->populateInputField($field, array(
 			'name+id' => 'installMappingCollection',
 			'value' => ($editingId) ? $this->_('Update & Return') : $this->_('Install & Return'),
 			'icon' => 'save',
 			'type' => 'submit',
 		)));
 
-		// Add script (should we move this to global JS?)
-		$script = $this->blueprint('mapping-scripts', array(
-			'mapping-name' => 'collectionName',
-			'mapping-data' => 'collectionData',
-			'save-button' => 'installMappingCollection',
-		));
+		$this->config->js('parCollection', true);
 
 		// Return the rendered page
-		return $form->render() . $script;
+		return $form->render() . $this->helpLink;
 	}
 
 	/**
@@ -664,7 +545,7 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 		// If we're updating, check if we should delete
 		if ($isUpdating && $input->uninstallCollection) {
 			$this->db->query(sprintf($this->sql->mappingCollectionsDropById, $id));
-			$this->message($this->_('Collection deleted.'));
+			$this->message($this->_('Collection uninstalled.'));
 			$this->session->redirect("../");
 		}
 
@@ -717,36 +598,11 @@ class ProcessAdvancedRedirects extends AdvancedRedirects {
 	}
 
 	/**
-	 * Render JSON Nav list - last five edited entities
-	 * @return string rendered JSON string
-	 */
-	public function ___executeNavJSON(array $options = array()) {
-		$options['items'] = array();
-		$redirects = $this->db->query($this->sql->entitySelectAllNav);
-
-		while ($redirect = $redirects->fetch_object()) {
-			$redirect->updated_at = wireRelativeTimeStr($redirect->updated_at, true);
-			$options['items'][] = $redirect;
-		}
-
-		$options['itemLabel'] = 'name';
-		$options['itemLabel2'] = 'updated_at';
-		$options['edit'] = 'entity/?id={id}';
-		$options['add'] = 'entity/';
-		$options['addLabel'] = 'New Redirect';
-		$options['sort'] = false;
-
-		return parent::___executeNavJSON($options);
-	}
-
-	/**
 	 * Install the module
 	 */
 	public function ___install() {
-		// Install tables
-		$schemas = array('main', 'logs', 'vi', 'pjr', 'mc');
-
-		foreach ($schemas as $schema) {
+		// Install tables (their schemas may not remain the same as updateDatabaseSchemas() may change them)
+		foreach (array('main', 'logs', 'mc') as $schema) {
 			$this->db->query($this->blueprint("schema-create-{$schema}"));
 		}
 
