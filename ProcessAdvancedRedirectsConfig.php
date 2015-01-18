@@ -66,6 +66,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	 */
 	public function getInputfields() {
 		$this->config->js('parModuleAdmin', true);
+		$this->config->js('parOldRedirectsInstalled', $this->modules->isInstalled('ProcessRedirects'));
 		$inputfields = parent::getInputfields();
 
 		// Wildcard Cleaning Fieldset

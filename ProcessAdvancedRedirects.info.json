@@ -17,6 +17,5 @@
         "name": "advanced-redirects",
         "parent": "setup",
         "title": "Redirects"
-    },
-    "useNavJSON": true
+    }
 }

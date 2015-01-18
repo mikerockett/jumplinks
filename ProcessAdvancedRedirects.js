@@ -63,7 +63,7 @@ $(function() {
             items: $("#parTabs > .Inputfields > .InputfieldWrapper"),
             id: "ProcessAdvancedRedirectsTabs",
             rememberTabs: true,
-            skipRememberTabIDs: ['log'],
+            skipRememberTabIDs: ['log', 'import'],
         });
 
     }();
@@ -160,23 +160,26 @@ $(function() {
             });
 
         // Set button vars for module's config page
-        var buttonTag = "<button/>";
-        var buttonPlacement = ".Inputfield_submit_save_module .InputfieldContent";
-        var buttonClass = "ui-button ui-widget ui-state-default ui-priority-secondary";
-        var spanTag = "<span/>";
-        var spanClass = "ui-button-text";
+
+        var addButton = function(id, text, relHref) {
+            relHref = typeof relHref !== 'undefined' ? relHref : '';
+            var $button = $("<button/>").attr('id', id).addClass("ui-button ui-widget ui-state-default ui-priority-secondary")
+                .on('click', function(event) {
+                    event.preventDefault();
+                    window.location = config.parAdminPageUrl + relHref;
+                }).appendTo(".Inputfield_submit_save_module .InputfieldContent");
+            $("<span/>").addClass("ui-button-text").text(text).appendTo($button);
+        }
 
         // Add 'Manage Redirects' button
-        var $buttonManageRedirects = $(buttonTag).attr("id", "ButtonManageRedirects")
-            .addClass(buttonClass)
-            .on("click", function(event) {
-                event.preventDefault();
-                window.location = config.parAdminPageUrl;
-            })
-            .appendTo(buttonPlacement),
+        addButton('ButtonManageRedirects', 'Manage Redirects');
 
-            // Add span to 'Manage Redirects' button
-            $spanManageRedirects = $(spanTag).addClass(spanClass).text("Manage Redirects").appendTo($buttonManageRedirects);
+        // Add 'Import from CSV' button
+        addButton('ButtonImportCSV', 'Import from CSV', 'import/?type=csv');
+
+        // If ProcessRedirects is installed, show 'Import from Redirects module' button
+        if (config.parOldRedirectsInstalled)
+            addButton('ButtonImportRedirectsModule', 'Import from Redirects', 'import/?type=redirects');
     }();
 
 });

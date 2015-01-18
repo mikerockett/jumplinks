@@ -11,8 +11,21 @@
  *  Crunched: Yip
  */
 #parInputForm {
-    textarea#collectionData {
+    textarea {
         font-family: "Consolas", "Courier New", monospace;
+    }
+    p.notes {
+        string {
+            white-space: pre;
+        }
+    }
+    table.old-redirects {
+        td:first-child {
+            width: 2em;
+        }
+        tr > td:first-child {
+            padding-left: 1.5em;
+        }
     }
 }
 #ModuleEditForm[action$=ProcessAdvancedRedirects] {
@@ -45,6 +58,9 @@
         tbody {
             tr {
                 & > td {
+                    border-left: none;
+                    border-bottom-style: solid;
+                    border-bottom-color: lighten(#c8d4e1, 10%);
                     cursor: default;
                     padding: 4px 8px !important;
                     abbr {
@@ -77,6 +93,8 @@
         thead {
             tr {
                 & > th {
+                    border-left: none;
+                    border-bottom-style: solid;
                     padding: 8px 8px !important;
                 }
             }
@@ -101,27 +119,14 @@
         float: right;
         margin-left: .3em;
     }
-    p.description {
-        margin: 0;
-        padding-bottom: 1em;
-        border-bottom: 1px solid #ececec;
-        span.larger {
-            font-size: 1.2em;
-        }
-        span.block {
-            display: block;
-            margin-bottom: 5px;
-        }
-        &.count-0 {
-            margin-bottom: 1em;
-        }
-    }
 }
-a.helpLink {
-    display: inline-block;
-    float: right;
+div.parHelpLink {
     margin-top: 1em;
-    font-size: 1em;
+    overflow: hidden;
+    a {
+        font-size: 1em;
+        float: right;
+    }
 }
 p.parInfo {
     background-color: lightyellow;
