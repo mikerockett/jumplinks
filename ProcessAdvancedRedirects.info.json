@@ -1,6 +1,6 @@
 {
     "title": "Advanced Redirects",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "author": "Mike Anthony",
     "summary": "Manage permanent and temporary redirects. Supports wildcards.",
     "requires": "ProcessWire>=2.5.10",
