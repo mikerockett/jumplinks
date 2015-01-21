@@ -1,19 +1,19 @@
 /*! @preserve
  *
- *  ProcessAdvancedRedirects - Main Script
+ *  ProcessJumplinks - Main Script
  *
  *  Author: Mike Anthony
  *  Copyright (c) 2015, Mike Anthony. All Rights Reserved.
  *  Licence: MIT License - http://mikeanthony.mit-license.org/
  *
- *  http://pw.foundrybusiness.co.za/advanced-redirects
+ *  http://pw.foundrybusiness.co.za/jumplinks
  *
  */
 
 $(function() {
     'use strict';
 
-    var $t = $("form#parTabs");
+    var $t = $("form#pjTabs");
 
     // Function: Get URL arg/param
     var urlParam = function(param) {
@@ -55,13 +55,13 @@ $(function() {
     }
 
     // Check if we're on the module's admin page
-    config.parAdmin && function() {
+    config.pjAdmin && function() {
 
         // Setup WireTabs on the module's admin page
         $t.find("script").remove();
         $t.WireTabs({
-            items: $("#parTabs > .Inputfields > .InputfieldWrapper"),
-            id: "ProcessAdvancedRedirectsTabs",
+            items: $("#pjTabs > .Inputfields > .InputfieldWrapper"),
+            id: "ProcessJumplinksTabs",
             rememberTabs: true,
             skipRememberTabIDs: ['log', 'import'],
         });
@@ -69,7 +69,7 @@ $(function() {
     }();
 
     // Check if we're working with a redirect
-    config.parEntity && function() {
+    config.pjEntity && function() {
 
         $('#destinationPage').bind('pageSelected', function(a, b) {
             b.id > 0 && $('input#destinationUriUrl').val('page:' + b.id)
@@ -96,7 +96,7 @@ $(function() {
             }
 
             if ($values.destinationUriUrl.trim().length === 0)
-                errors.push("Destination Path can't be empty...");
+                errors.push("You need to select a destination...");
 
             if ($values.dateStart && $values.dateEnd)
                 if (new Date($values.dateStart).getTime() >= new Date($values.dateEnd).getTime())
@@ -111,7 +111,7 @@ $(function() {
     }();
 
     // Check if we're working with a collection
-    config.parCollection && function() {
+    config.pjCollection && function() {
 
         $('button#installMappingCollection').on('click', function() {
 
@@ -143,7 +143,7 @@ $(function() {
     }();
 
     // Detect if we're on the module's config page
-    config.parModuleAdmin && function() {
+    config.pjModuleAdmin && function() {
 
         // Set initial vars for module's config page
         var classInputfieldTask = "InputfieldTask";
@@ -166,20 +166,20 @@ $(function() {
             var $button = $("<button/>").attr('id', id).addClass("ui-button ui-widget ui-state-default ui-priority-secondary")
                 .on('click', function(event) {
                     event.preventDefault();
-                    window.location = config.parAdminPageUrl + relHref;
+                    window.location = config.pjAdminPageUrl + relHref;
                 }).appendTo(".Inputfield_submit_save_module .InputfieldContent");
             $("<span/>").addClass("ui-button-text").text(text).appendTo($button);
         }
 
-        // Add 'Manage Redirects' button
-        addButton('ButtonManageRedirects', 'Manage Redirects');
+        // Add 'Manage Jumplinks' button
+        addButton('ButtonManageRJumplinks', 'Manage Jumplinks');
 
         // Add 'Import from CSV' button
         addButton('ButtonImportCSV', 'Import from CSV', 'import/?type=csv');
 
         // If ProcessRedirects is installed, show 'Import from Redirects module' button
-        if (config.parOldRedirectsInstalled)
-            addButton('ButtonImportRedirectsModule', 'Import from Redirects', 'import/?type=redirects');
+        if (config.pjOldRedirectsInstalled)
+            addButton('ButtonImportRedirectsModule', 'Import from Redirects module', 'import/?type=redirects');
     }();
 
 });

@@ -1,0 +1,21 @@
+{
+    "title": "Jumplinks",
+    "version": "0.9.1",
+    "author": "Mike Anthony",
+    "summary": "Manage permanent and temporary redirects (jumplinks). Supports wildcards.",
+    "requires": "ProcessWire>=2.5.10",
+    "href": "http://pw.foundrybusiness.co.za/jumplinks",
+    "autoload": true,
+    "icon": "rocket",
+    "permanent": false,
+    "singular": true,
+    "permission": "jumplinks-admin",
+    "permissions": {
+        "jumplinks-admin": "Administer Jumplinks"
+    },
+    "page": {
+        "name": "jumplinks",
+        "parent": "setup",
+        "title": "Jumplinks"
+    }
+}

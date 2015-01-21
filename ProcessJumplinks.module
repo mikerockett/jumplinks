@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ProcessAdvancedRedirects - a ProcessWire Module by Mike Anthony
+ * ProcessJumplinks - a ProcessWire Module by Mike Anthony
  * Manage permanent and temporary redirects. Supports wildcards.
  *
  * Intended for: ProcessWire 2.6-dev
@@ -10,20 +10,20 @@
  * Copyright (c) 2015, Mike Anthony. All Rights Reserved.
  * Licence: MIT License - http://mikeanthony.mit-license.org/
  *
- * http://pw.foundrybusiness.co.za/advanced-redirects
+ * http://pw.foundrybusiness.co.za/jumplinks
  *
  */
 
-require_once __DIR__ . '/Blueprint.php';
-require_once __DIR__ . '/ParseCSV.php';
-require_once __DIR__ . '/ProcessAdvancedRedirectsConfig.php';
+require_once __DIR__ . '../Classes/Blueprint.php';
+require_once __DIR__ . '../Classes/ParseCSV.php';
+require_once __DIR__ . '/ProcessJumplinksConfig.php';
 
-use ProcessAdvancedRedirectsConfig as Config;
+use ProcessJumplinksConfig as Config;
 
-class ProcessAdvancedRedirects extends Process {
+class ProcessJumplinks extends Process {
 
 	/**
-	 * Determine if the tex/plain header is set
+	 * Determine if the text/plain header is set
 	 * @var boolean
 	 */
 	protected $headerSet = false;
@@ -45,7 +45,7 @@ class ProcessAdvancedRedirects extends Process {
 	 * @rfc Should we make this constant?
 	 * @var string
 	 */
-	protected $tableName = 'process_advanced_redirects';
+	protected $tableName = 'process_jumplinks';
 
 	/**
 	 * Paths to forms
@@ -99,6 +99,7 @@ class ProcessAdvancedRedirects extends Process {
 			'entityDropById' => "DELETE FROM {$this->tableName} WHERE id=%s",
 			'entityInsert' => "INSERT INTO {$this->tableName} SET source = '%s', destination = '%s', date_start = %s, date_end = %s, user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
 			'entityUpdate' => "UPDATE {$this->tableName} SET source = '%s', destination = '%s', date_start = %s, date_end = %s, user_updated = %s WHERE id = %s",
+			'entityUpdateHits' => "UPDATE {$this->tableName} SET hits = %s WHERE id = %s",
 			'mappingCollectionsSelectAll' => "SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
 			'mappingCollectionsSelectSingle' => "SELECT * FROM {$this->tableName}_mc WHERE id=%s",
 			'mappingCollectionsSelectAllFromName' => "SELECT * FROM {$this->tableName}_mc WHERE collection_name='%s'",
@@ -116,13 +117,13 @@ class ProcessAdvancedRedirects extends Process {
 		parent::init();
 
 		// Set the admin page URL for JS
-		$this->config->js("parAdminPageUrl", $this->pages->get('name=advanced-redirects')->url);
+		$this->config->js("pjAdminPageUrl", $this->pages->get('name=jumplinks')->url);
 
 		// Include WireTabs
 		$this->modules->get('JqueryWireTabs');
 
 		// Make sure schemas are up to date
-		if ($this->schemaVersion < ProcessAdvancedRedirectsConfig::SCHEMA_VERSION) {
+		if ($this->schemaVersion < ProcessJumplinksConfig::SCHEMA_VERSION) {
 			$this->updateDatabaseSchemas();
 		}
 
@@ -143,7 +144,7 @@ class ProcessAdvancedRedirects extends Process {
 		if (preg_match($indexExpression, $this->request)) {
 			$this->session->redirect(preg_replace(
 				$indexExpression,
-				"{$this->config->urls->root}index.php.pw-par\\1",
+				"{$this->config->urls->root}index.php.pw-pj\\1",
 				$this->request
 			));
 		}
@@ -168,7 +169,7 @@ class ProcessAdvancedRedirects extends Process {
 	protected function helpLink($uri = '') {
 		if (!empty($uri))
 			$uri = "/{$uri}";
-		return "<div class=\"parHelpLink\"><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Need help?</a></div>";
+		return "<div class=\"pjHelpLink\"><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Need help?</a></div>";
 	}
 
 	/**
@@ -216,7 +217,7 @@ class ProcessAdvancedRedirects extends Process {
 			// If we're rendering for backend output, truncate and return the destination.
 			// Otherwise, return the full destination.
 			return ($renderForOutput)
-			? $this->truncate($destination, 35)
+			? $this->truncate($destination, 45)
 			: $prefix . $destination;
 		}
 
@@ -339,7 +340,7 @@ class ProcessAdvancedRedirects extends Process {
 	 * @param  bool   $die
 	 */
 	protected function log($message, $indent = false, $break = false, $die = false) {
-		if ($this->{Config::MODULE_DEBUG} && $this->user->hasPermission('advanced-redirects-admin')) {
+		if ($this->{Config::MODULE_DEBUG} && $this->user->hasPermission('jumplinks-admin')) {
 			if (!$this->headerSet) {
 				header("Content-Type: text/plain");
 				$this->headerSet = true;
@@ -348,7 +349,7 @@ class ProcessAdvancedRedirects extends Process {
 			$indent = ($indent) ? "- " : '';
 			$break = ($break) ? "\n" : '';
 
-			print str_replace('.pw-par', '', "{$indent}{$message}\n{$break}");
+			print str_replace('.pw-pj', '', "{$indent}{$message}\n{$break}");
 
 			if ($die) {
 				die();
@@ -361,13 +362,13 @@ class ProcessAdvancedRedirects extends Process {
 	 * @caller Hook: ProcessPageView::pageNotFound
 	 */
 	protected function scanAndRedirect() {
-		$redirects = $this->db->query($this->sql->entitySelectAll);
+		$jumplinks = $this->db->query($this->sql->entitySelectAll);
 
-		if ($redirects->num_rows === 0) {
+		if ($jumplinks->num_rows === 0) {
 			return false;
 		}
 
-		$this->log("Page not found; scanning for redirects...");
+		$this->log("Page not found; scanning for jumplinks...");
 
 		$request = $this->request;
 		$requestedUrlFirstPart = "http" . ((@$_SERVER['HTTPS'] == 'on') ? "s" : "") . "://{$_SERVER['HTTP_HOST']}";
@@ -394,9 +395,9 @@ class ProcessAdvancedRedirects extends Process {
 		$pattern = '~\{!?([a-z]+):(' . $availableWildcards . ')\}~';
 
 		// Begin the loop
-		while ($redirect = $redirects->fetch_object()) {
-			$starts = strtotime($redirect->date_start);
-			$ends = strtotime($redirect->date_end);
+		while ($jumplink = $jumplinks->fetch_object()) {
+			$starts = strtotime($jumplink->date_start);
+			$ends = strtotime($jumplink->date_end);
 
 			// Timed Activation:
 			// If it ends, but doesn't start, then make it start now
@@ -418,24 +419,24 @@ class ProcessAdvancedRedirects extends Process {
 				$this->log(sprintf("Timed Activation:             %s to %s {$message}", date('r', $starts), date('r', $ends)), true);
 			}
 
-			$this->log("[Checking redirect #{$redirect->id}]");
-			$this->log("Original Source Path:         {$redirect->source}", true);
+			$this->log("[Checking jumplink #{$jumplink->id}]");
+			$this->log("Original Source Path:         {$jumplink->source}", true);
 
 			// Prepare the Source Path for matching:
 			// First, escape ? & :, and rename index.php so we can make use of such requests.
 			// Then, convert '[character]' to 'character?' for matching.
 			$source = preg_replace('~\[([a-z0-9\/])\]~i', "\\1?", str_replace(
 				array('?', '&', ':', '+', 'index.php'),
-				array('\?', '\&', '\:', '+', 'index.php.pw-par'),
-				$redirect->source));
+				array('\?', '\&', '\:', '+', 'index.php.pw-pj'),
+				$jumplink->source));
 
 			// Reverse ? escaping for wildcards
 			$source = preg_replace("~\{([a-z]+)\\\:([a-z]+)\}~i", "{\\1:\\2}", $source);
 
 			// Compile the destination URL
-			$destination = $this->compileDestinationUrl($redirect->destination);
+			$destination = $this->compileDestinationUrl($jumplink->destination);
 
-			if ($source !== $redirect->source) {
+			if ($source !== $jumplink->source) {
 				$this->log("Escaped Source Path:          {$source}", true);
 			}
 
@@ -532,7 +533,7 @@ class ProcessAdvancedRedirects extends Process {
 					}
 				}, $convertedWildcards);
 
-				$this->log("Original Destination Path:    $redirect->destination", true);
+				$this->log("Original Destination Path:    $jumplink->destination", true);
 				$this->log("Compiled Destination Path:    $destination", true, true);
 
 				// Check for Timed Activation and determine if we're in the period specified
@@ -543,6 +544,8 @@ class ProcessAdvancedRedirects extends Process {
 
 				// If we're not debugging, and we're Time-activated, then do the redirect
 				if (!$this->{Config::MODULE_DEBUG} && $activated) {
+					$hitsPlusOne = $jumplink->hits + 1;
+					$this->db->query(sprintf($this->sql->entityUpdateHits, $hitsPlusOne, $jumplink->id));
 					$this->session->redirect($convertedWildcards, !$activated);
 				}
 
@@ -607,64 +610,67 @@ class ProcessAdvancedRedirects extends Process {
 	 * @return string
 	 */
 	public function ___execute() {
-		$redirects = $this->db->query($this->sql->entitySelectAll);
-		$this->setFuel('processHeadline', $this->_('Manage Redirects'));
+		$jumplinks = $this->db->query($this->sql->entitySelectAll);
+		$this->setFuel('processHeadline', $this->_('Manage Jumplinks'));
 
-		// If we don't have any redirects defined, then we should start be creating one
-		if ($redirects->num_rows == 0) {
+		// If we don't have any jumplinks defined, then we should start be creating one
+		if ($jumplinks->num_rows == 0) {
 			$this->session->redirect("{$this->entityFormPath}?first");
 		}
 
 		$tabContainer = new InputfieldWrapper();
 
-		$redirectsTab = new InputfieldWrapper();
-		$redirectsTab->attr('title', 'Redirects');
+		$jumplinksTab = new InputfieldWrapper();
+		$jumplinksTab->attr('title', 'Jumplinks');
 
-		$redirectsTable = $this->modules->get('MarkupAdminDataTable');
-		$redirectsTable->setEncodeEntities(false);
-		$redirectsTable->setClass('advanced-redirects redirects');
-		$redirectsTable->headerRow(array($this->_('Source'), $this->_('Destination'), $this->_('Start'), $this->_('End')));
+		$jumplinksTable = $this->modules->get('MarkupAdminDataTable');
+		$jumplinksTable->setEncodeEntities(false);
+		$jumplinksTable->setClass('jumplinks redirects');
+		$jumplinksTable->headerRow(array($this->_('Source'), $this->_('Destination'), $this->_('Start'), $this->_('End'), $this->_('Hits')));
 
-		$pronoun = $this->_n('it', 'one', $redirects->num_rows);
-		$description = $this->_n('You have one redirect registered.', 'Your redirects are listed below.', $redirects->num_rows) . ' ' . sprintf($this->_("To edit/delete %s, simply click on its Source."), $pronoun);
+		$pronoun = $this->_n('it', 'one', $jumplinks->num_rows);
+		$description = $this->_n('You have one jumplink registered.', 'Your jumplinks are listed below.', $jumplinks->num_rows) . ' ' . sprintf($this->_("To edit/delete %s, simply click on its Source."), $pronoun);
 
-		$redirectsDescriptionMarkup = $this->modules->get('InputfieldMarkup');
-		$redirectsDescriptionMarkup->value = $description;
+		$jumplinksDescriptionMarkup = $this->modules->get('InputfieldMarkup');
+		$jumplinksDescriptionMarkup->value = $description;
 
-		$redirectsTab->append($redirectsDescriptionMarkup);
+		$jumplinksTab->append($jumplinksDescriptionMarkup);
 
-		while ($redirect = $redirects->fetch_object()) {
-			$redirect->source = htmlentities($redirect->source);
-			$redirect->destination = $this->compileDestinationUrl($redirect->destination, true);
-			$relativeStartTime = str_replace('Never', '', wireRelativeTimeStr($redirect->date_start, true));
-			$relativeEndTime = str_replace('Never', '', wireRelativeTimeStr($redirect->date_end, true));
+		$hits = 0;
+		while ($jumplink = $jumplinks->fetch_object()) {
+			$jumplink->source = htmlentities($jumplink->source);
+			$jumplink->destination = $this->compileDestinationUrl($jumplink->destination, true);
+			$relativeStartTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_start, true));
+			$relativeEndTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_end, true));
 
 			$relativeStartTime = ($relativeStartTime === '-')
 			? $relativeStartTime
-			: "<abbr title=\"{$redirect->date_start}\">{$relativeStartTime}</abbr>";
+			: "<abbr title=\"{$jumplink->date_start}\">{$relativeStartTime}</abbr>";
 			$relativeEndTime = ($relativeEndTime === '-')
 			? $relativeEndTime
-			: "<abbr title=\"{$redirect->date_end}\">{$relativeEndTime}</abbr>";
+			: "<abbr title=\"{$jumplink->date_end}\">{$relativeEndTime}</abbr>";
 
-			$redirectsTable->row(array(
-				$this->truncate($redirect->source, 70) => "{$this->entityFormPath}?id={$redirect->id}",
-				$redirect->destination,
+			$hits = $hits + $jumplink->hits;
+			$jumplinksTable->row(array(
+				$this->truncate($jumplink->source, 80) => "{$this->entityFormPath}?id={$jumplink->id}",
+				$jumplink->destination,
 				$relativeStartTime,
 				$relativeEndTime,
+				$jumplink->hits,
 			));
 		}
 
-		$wordLinks = ($redirects->num_rows === 1) ? 'redirect' : 'redirects';
-		$redirectsTable->footerRow(array("{$redirects->num_rows} {$wordLinks}", '', '', ''));
+		$wordLinks = ($jumplinks->num_rows === 1) ? 'jumplink' : 'jumplinks';
+		$jumplinksTable->footerRow(array("{$jumplinks->num_rows} {$wordLinks}", '', '', '', $hits));
 
-		$registerRedirectButtonLabel = ($redirects->num_rows === 1) ? $this->_('Register Another Redirect') : $this->_('Register New Redirect');
+		$registerJumplinkButtonLabel = ($jumplinks->num_rows === 1) ? $this->_('Register Another Jumplink') : $this->_('Register New Jumplink');
 
-		$redirects->close();
+		$jumplinks->close();
 
-		$registerRedirectButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
-			'id' => 'registerRedirect',
+		$registerJumplinkButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
+			'id' => 'registerJumplink',
 			'href' => $this->entityFormPath,
-			'value' => $registerRedirectButtonLabel,
+			'value' => $registerJumplinkButtonLabel,
 			'icon' => 'plus-circle',
 		))->addClass('head_button_clone');
 
@@ -675,13 +681,12 @@ class ProcessAdvancedRedirects extends Process {
 			'icon' => 'cog',
 		))->addClass('ui-priority-secondary ui-button-float-right');
 
-		$buttons = $registerRedirectButton->render() .
-		$moduleConfigLinkButton->render();
+		$buttons = $registerJumplinkButton->render() . $moduleConfigLinkButton->render();
 
-		$redirectsTableContainer = $this->modules->get('InputfieldMarkup');
-		$redirectsTableContainer->value = $redirectsTable->render() . $buttons;
+		$jumplinksTableContainer = $this->modules->get('InputfieldMarkup');
+		$jumplinksTableContainer->value = $jumplinksTable->render() . $buttons;
 
-		$redirectsTab->append($redirectsTableContainer);
+		$jumplinksTab->append($jumplinksTableContainer);
 
 		$mappingCollectionsTab = new InputfieldWrapper();
 		$mappingCollectionsTab->attr('title', 'Mapping Collections');
@@ -691,7 +696,7 @@ class ProcessAdvancedRedirects extends Process {
 
 		$mappingCollectionsTable = $this->modules->get('MarkupAdminDataTable');
 		$mappingCollectionsTable->setEncodeEntities(false);
-		$mappingCollectionsTable->setClass('advanced-redirects mapping-collections');
+		$mappingCollectionsTable->setClass('jumplinks mapping-collections');
 		$mappingCollectionsTable->setSortable(false);
 		$mappingCollectionsTable->headerRow(array($this->_('Collection Name'), $this->_('Mappings'), $this->_('Created'), $this->_('Last Modified')));
 
@@ -753,9 +758,9 @@ class ProcessAdvancedRedirects extends Process {
 
 		$infoContainer = $this->modules->get('InputfieldMarkup');
 		if ($this->modules->isInstalled('ProcessRedirects')) {
-			$infoContainer->value = $this->_('To import your redirects, select an option below:');
+			$infoContainer->value = $this->_('To import your jumplinks, select an option below:');
 		} else {
-			$infoContainer->value = $this->_('To import your redirects, click the button below:');
+			$infoContainer->value = $this->_('To import your jumplinks, click the button below:');
 		}
 
 		$importTab->append($infoContainer);
@@ -785,15 +790,15 @@ class ProcessAdvancedRedirects extends Process {
 		$importTab->append($importContainer);
 
 		$tabContainer
-			->append($redirectsTab)
+			->append($jumplinksTab)
 			->append($mappingCollectionsTab)
 			->append($importTab);
 
-		$this->config->js("parAdmin", true);
+		$this->config->js("pjAdmin", true);
 
 		// We have to wrap it in a form to prevent spacing underneath
 		// the tabs. This goes hand in hand with a rule in the stylesheet
-		return "<form id=\"parTabs\">{$tabContainer->render()}{$this->helpLink()}</form>";
+		return "<form id=\"pjTabs\">{$tabContainer->render()}{$this->helpLink()}</form>";
 	}
 
 	/**
@@ -820,17 +825,17 @@ class ProcessAdvancedRedirects extends Process {
 			$dateEnd = ($dateEnd != null) ? date('Y-m-d h:m A', strtotime($dateEnd)) : null;
 		}
 
-		// Check if this is or first redirect
+		// Check if this is our first jumplink
 		$message = '';
 		if (isset($this->input->get->first)) {
-			$message = $this->_("You don't have any redirects registered. Let's create a new one now.");
-			$message = "<p class=\"description parInfo\">{$message}</p>";
-			$this->setFuel('processHeadline', $this->_('Register First Redirect'));
+			$message = sprintf($this->_("You don't have any jumplinks registered. Let's create a new one now. Or, you can <a href=\"%s\">import them</a>."), $this->getModuleConfigUri() . '#Inputfield_submit_save_module');
+			$message = "<p class=\"description pjInfo\">{$message}</p>";
+			$this->setFuel('processHeadline', $this->_('Register First Jumplink'));
 		}
 
 		// Prep the form
 		$form = $this->modules->get('InputfieldForm');
-		$form->id = 'parInputForm';
+		$form->id = 'pjInputForm';
 		$form->method = 'POST';
 		$form->action = '../commit/';
 
@@ -893,7 +898,7 @@ class ProcessAdvancedRedirects extends Process {
 		$fieldSet = $this->modules->get('InputfieldFieldset');
 		$fieldSet->label = 'Timed Activation';
 		$fieldSet->collapsed = Inputfield::collapsedYes;
-		$fieldSet->description = $this->_("If you'd like this redirect to only function during a specific time-range, then select the start and end dates and times below.");
+		$fieldSet->description = $this->_("If you'd like this jumplink to only function during a specific time-range, then select the start and end dates and times below.");
 		$fieldSet->notes = $this->_("You don't have to specify both. If you only specify a start time , you're simply delaying activation. If you only specify an end time, then you're simply telling it when to stop.\nIf an End Date/Time is specified, a temporary redirect will be made (302 status code, as opposed to 301).");
 
 		$datetimeFieldDefaults = array(
@@ -954,8 +959,8 @@ class ProcessAdvancedRedirects extends Process {
 				'name' => 'delete',
 				'label' => $this->_('Delete'),
 				'icon' => 'times-circle',
-				'description' => $this->_("If you'd like to delete this redirect, check the box below."),
-				'label2' => $this->_('Delete this redirect'),
+				'description' => $this->_("If you'd like to delete this jumplink, check the box below."),
+				'label2' => $this->_('Delete this jumplink'),
 				'collapsed' => Inputfield::collapsedYes,
 				'showIf' => 'isPermanent=0',
 			)));
@@ -970,14 +975,14 @@ class ProcessAdvancedRedirects extends Process {
 			'type' => 'submit',
 		))->addClass('head_button_clone'));
 
-		$this->config->js('parEntity', true);
+		$this->config->js('pjEntity', true);
 
 		// Return the rendered page
-		return $message . $form->render() . $this->helpLink('registering-redirects');
+		return $message . $form->render() . $this->helpLink('registering-jumplinks');
 	}
 
 	/**
-	 * Admin Route: Commit new redirect or update existing
+	 * Admin Route: Commit new jumplink or update existing
 	 */
 	public function ___executeCommit() {
 		// Just to be on the safe side...
@@ -1051,7 +1056,7 @@ class ProcessAdvancedRedirects extends Process {
 
 		// Prep the form
 		$form = $this->modules->get('InputfieldForm');
-		$form->id = 'parInputForm';
+		$form->id = 'pjInputForm';
 		$form->method = 'POST';
 		$form->action = '../commit-mapping-collection/';
 
@@ -1133,7 +1138,7 @@ class ProcessAdvancedRedirects extends Process {
 			'type' => 'submit',
 		)));
 
-		$this->config->js('parCollection', true);
+		$this->config->js('pjCollection', true);
 
 		// Return the rendered page
 		return $form->render() . $this->helpLink('mapping-collections');
@@ -1214,11 +1219,11 @@ class ProcessAdvancedRedirects extends Process {
 	 * @return string
 	 */
 	public function ___executeImport() {
-		$this->setFuel('processHeadline', $this->_('Import Redirects'));
+		$this->setFuel('processHeadline', $this->_('Import Jumplinks'));
 
 		// Prep the form
 		$form = $this->modules->get('InputfieldForm');
-		$form->id = 'parInputForm';
+		$form->id = 'pjInputForm';
 		$form->method = 'POST';
 		$form->action = '../do-import/';
 
@@ -1238,34 +1243,34 @@ class ProcessAdvancedRedirects extends Process {
 				$field = $this->modules->get('InputfieldMarkup');
 				$form->add($this->populateInputField($field, array(
 					'label' => $this->_('Import from the Redirects module'),
-					'value' => $this->_("You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Advanced Redirects. If there are any redirects you wish to exclude, simply uncheck the box in the first column"),
+					'value' => $this->_("You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Jumplinks. If there are any redirects you wish to exclude, simply uncheck the box in the first column"),
 				)));
 
 				// Redirects
-				$redirectsMarkup = $this->modules->get('InputfieldMarkup');
+				$jumplinksMarkup = $this->modules->get('InputfieldMarkup');
 
-				$redirectsTable = $this->modules->get('MarkupAdminDataTable');
-				$redirectsTable->setClass('old-redirects');
-				$redirectsTable->setEncodeEntities(false);
-				$redirectsTable->setSortable(false);
-				$redirectsTable->headerRow(array($this->_('Import'), $this->_('Redirect From'), $this->_('Redirect To'), $this->_('Hits')));
+				$jumplinksTable = $this->modules->get('MarkupAdminDataTable');
+				$jumplinksTable->setClass('old-redirects');
+				$jumplinksTable->setEncodeEntities(false);
+				$jumplinksTable->setSortable(false);
+				$jumplinksTable->headerRow(array($this->_('Import'), $this->_('Redirect From'), $this->_('Redirect To'), $this->_('Hits')));
 
-				$redirects = $this->db->query("SELECT * FROM processredirects ORDER BY redirect_from");
+				$jumplinks = $this->db->query("SELECT * FROM processredirects ORDER BY redirect_from");
 
-				while ($redirect = $redirects->fetch_object()) {
+				while ($jumplink = $jumplinks->fetch_object()) {
 
-					$redirectsTable->row(array(
-						"<input type=\"checkbox\" name=\"importArray[]\" checked value=\"{$redirect->id}\">",
-						$redirect->redirect_from,
-						$redirect->redirect_to,
-						$redirect->counter,
+					$jumplinksTable->row(array(
+						"<input type=\"checkbox\" name=\"importArray[]\" checked value=\"{$jumplink->id}\">",
+						$jumplink->redirect_from,
+						$jumplink->redirect_to,
+						$jumplink->counter,
 					));
 
 				}
 
-				$redirectsMarkup->value = $redirectsTable->render();
+				$jumplinksMarkup->value = $jumplinksTable->render();
 
-				$form->add($redirectsMarkup);
+				$form->add($jumplinksMarkup);
 
 				break;
 
@@ -1276,9 +1281,9 @@ class ProcessAdvancedRedirects extends Process {
 				$form->add($this->populateInputField($field, array(
 					'name+id' => 'csvData',
 					'label' => $this->_('Import from CSV'),
-					'description' => $this->_("Paste in your redirects below, where each one is on its own line. You may use any standard delimeter you like (comma, colon, semi-colon, period, pipe, or tab), so long as it is consistent throughout. Any URI/URL that contains the delimter must be wrapped in double quotes.\n\n**Columns:** Source, Destination, Time Start, Time End. The last two columns are optional - when used, they should contain any valid date/time string. However, if they are used in one line, then all other lines should have blank entries for these columns."),
+					'description' => $this->_("Paste in your old redirects below, where each one is on its own line. You may use any standard delimeter you like (comma, colon, semi-colon, period, pipe, or tab), so long as it is consistent throughout. Any URI/URL that contains the delimter must be wrapped in double quotes.\n\n**Columns:** Source, Destination, Time Start, Time End. The last two columns are optional - when used, they should contain any valid date/time string. However, if they are used in one line, then all other lines should have blank entries for these columns."),
 					'placeholder' => $this->_("Example 1:\n\naboutus.html,about-us/\nservices.html,solutions/\n\nExample 2:\n\npromo1,promotions/jan-sales/,2015-01-01 00:00:00,2015-01-15 12:59:00\ncareers.html,careers-centre/,,"),
-					'notes' => $this->_("**Conversion Notes:**\n1. Any encoded ampersands (**&amp;amp;**) will be converted to **&amp;**.\n2. If the source or destination of a redirect contains leading slashes, they will be stripped.\n3. If a source is a full URL, anything preceding the URI will be stripped."),
+					'notes' => $this->_("**Conversion Notes:**\n1. Any encoded ampersands (**&amp;amp;**) will be converted to **&amp;**.\n2. If the source or destination of a redirect contains leading slashes, they will be stripped."),
 					'rows' => 15,
 				)));
 
@@ -1308,7 +1313,7 @@ class ProcessAdvancedRedirects extends Process {
 			'type' => 'submit',
 		))->addClass('head_button_clone'));
 
-		return $form->render() . $this->helpLink("importing/from-{$importType}");
+		return $form->render() . $this->helpLink("importing#{$importType}");
 	}
 
 	/**
@@ -1338,7 +1343,7 @@ class ProcessAdvancedRedirects extends Process {
 				// Loop through each row and column to cleanse
 				// data and insert into table
 				foreach ($csv->data as $key => $row) {
-					$redirect = array();
+					$jumplink = array();
 					$col = 0;
 					foreach ($row as $value) {
 						++$col;
@@ -1363,17 +1368,17 @@ class ProcessAdvancedRedirects extends Process {
 								break;
 						}
 
-						$redirect[$cols[$col-1]] = $this->db->escape_string($value);
+						$jumplink[$cols[$col-1]] = $this->db->escape_string($value);
 
 					}
 
 					if ($col === 2) {
-						$redirect[$cols[2]] = 'null';
-						$redirect[$cols[3]] = 'null';
+						$jumplink[$cols[2]] = 'null';
+						$jumplink[$cols[3]] = 'null';
 					}
 
 					$this->db->query(sprintf($this->sql->entityInsert,
-						$redirect['source'], $redirect['destination'], $redirect['date_start'], $redirect['date_end'],
+						$jumplink['source'], $jumplink['destination'], $jumplink['date_start'], $jumplink['date_end'],
 						$this->user->id, $this->user->id
 					));
 
@@ -1386,7 +1391,8 @@ class ProcessAdvancedRedirects extends Process {
 
 			case 'redirects':
 
-				return 'Feature not ready yet';
+				$this->setFuel('processHeadline', $this->_('Around the corner...'));
+				return 'Feature not ready yet.';
 
 				break;
 

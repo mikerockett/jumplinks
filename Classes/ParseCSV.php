@@ -4,7 +4,7 @@
  *  ParseCSV 0.4.3-beta
  *  https://github.com/parsecsv/parsecsv-for-php
  *
- *  [Mike Anthony] Removed un-necessary components for ProcessAdvancedRedirects
+ *  [Mike Anthony] Removed un-necessary components for ProcessJumplinks
  *
  *  @license MIT
  *

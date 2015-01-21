@@ -1,16 +1,16 @@
 /*! @preserve
  *
- *  ProcessAdvancedRedirects - Main Styles
+ *  ProcessJumplinks - Main Styles
  *
  *  Author: Mike Anthony
  *  Copyright (c) 2015, Mike Anthony. All Rights Reserved.
  *  Licence: MIT License - http://mikeanthony.mit-license.org/
  *
- *  http://pw.foundrybusiness.co.za/advanced-redirects
+ *  http://pw.foundrybusiness.co.za/jumplinks
  *
  *  Crunched: Yip
  */
-#parInputForm {
+#pjInputForm {
     textarea {
         font-family: "Consolas", "Courier New", monospace;
     }
@@ -28,7 +28,7 @@
         }
     }
 }
-#ModuleEditForm[action$=ProcessAdvancedRedirects] {
+#ModuleEditForm[action$=ProcessJumplinks] {
     p.notes {
         a.InputfieldTask {
             color: #69b7ef;
@@ -38,13 +38,21 @@
         }
     }
 }
-#parTabs .InputfieldContent, #parTabs .Inputfields {
+#pjTabs .InputfieldContent, #pjTabs .Inputfields {
     margin-top: 0;
-    table.advanced-redirects {
+    table.jumplinks {
         font-size: 13px;
         &.redirects {
-            td:last-child, td:nth-last-child(2) {
+            th:last-child, td:last-child {
+                text-align: right;
+            }
+            td:last-child {
+                width: 5em;
+                border-left: 1px solid fade(black, 5%);
+            }
+            td:nth-last-child(2), td:nth-last-child(3) {
                 width: 7em;
+                border-left: 1px solid fade(black, 5%);
             }
         }
         &.mapping-collections {
@@ -104,8 +112,9 @@
                 & > td {
                     background-color: rgba(0, 0, 0, 0.05);
                     border-top: 2px solid #bbb;
+                    border-bottom: 1px solid #bbb;
                     font-weight: bold;
-                    padding: 8px 8px !important;
+                    padding: 4px 8px !important;
                 }
             }
             tr:hover {
@@ -120,7 +129,7 @@
         margin-left: .3em;
     }
 }
-div.parHelpLink {
+div.pjHelpLink {
     margin-top: 1em;
     overflow: hidden;
     a {
@@ -128,7 +137,7 @@ div.parHelpLink {
         float: right;
     }
 }
-p.parInfo {
+p.pjInfo {
     background-color: lightyellow;
     border: 1px solid desaturate(darken(lightyellow, 10%), 50%);
     color: #555;

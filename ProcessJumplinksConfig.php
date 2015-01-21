@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ProcessAdvancedRedirects - a ProcessWire Module by Mike Anthony
+ * ProcessJumplinks - a ProcessWire Module by Mike Anthony
  * Manage permanent and temporary redirects. Supports wildcards.
  *
  * Intended for: ProcessWire 2.6-dev
@@ -10,16 +10,16 @@
  * Copyright (c) 2015, Mike Anthony. All Rights Reserved.
  * Licence: MIT License - http://mikeanthony.mit-license.org/
  *
- * http://pw.foundrybusiness.co.za/advanced-redirects
+ * http://pw.foundrybusiness.co.za/jumplinks
  *
  */
 
-class ProcessAdvancedRedirectsConfig extends ModuleConfig {
+class ProcessJumplinksConfig extends ModuleConfig {
 
 	/** Schema version for this release */
 	const SCHEMA_VERSION = 1;
 
-	const HREF = "http://pw.foundrybusiness.co.za/advanced-redirects";
+	const HREF = "http://pw.foundrybusiness.co.za/jumplinks";
 
 	const WILDCARD_CLEANING = "wildcardCleaning";
 	const LEGACY_DOMAIN = "legacyDomain";
@@ -33,7 +33,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	 */
 	public function getDefaults() {
 		return array(
-			'schemaVersion' => 1,
+			'schemaVersion' => self::SCHEMA_VERSION,
 			self::MODULE_DEBUG => false,
 			self::WILDCARD_CLEANING => 'fullClean',
 			self::STATUS_CODES => '200 301 302',
@@ -65,8 +65,8 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 	 * @return InputfieldWrapper
 	 */
 	public function getInputfields() {
-		$this->config->js('parModuleAdmin', true);
-		$this->config->js('parOldRedirectsInstalled', $this->modules->isInstalled('ProcessRedirects'));
+		$this->config->js('pjModuleAdmin', true);
+		$this->config->js('pjOldRedirectsInstalled', $this->modules->isInstalled('ProcessRedirects'));
 		$inputfields = parent::getInputfields();
 
 		// Wildcard Cleaning Fieldset
@@ -140,7 +140,7 @@ class ProcessAdvancedRedirectsConfig extends ModuleConfig {
 			'name+id' => self::MODULE_DEBUG,
 			'label' => $this->_('Debug Mode'),
 			'icon' => 'bug',
-			'description' => $this->_("If you run into any problems with your redirects, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
+			'description' => $this->_("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
 			'label2' => $this->_('Turn Debug Mode on'),
 			'collapsed' => Inputfield::collapsedYes,
 			'autocheck' => true,

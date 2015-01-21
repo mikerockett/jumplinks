@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ProcessAdvancedRedirects - a ProcessWire Module by Mike Anthony
+ * ProcessJumplinks - a ProcessWire Module by Mike Anthony
  * Manage permanent and temporary redirects. Supports wildcards.
  *
  * Intended for: ProcessWire 2.6-dev
@@ -10,7 +10,7 @@
  * Copyright (c) 2015, Mike Anthony. All Rights Reserved.
  * Licence: MIT License - http://mikeanthony.mit-license.org/
  *
- * http://pw.foundrybusiness.co.za/advanced-redirects
+ * http://pw.foundrybusiness.co.za/jumplinks
  *
  */
 
@@ -23,7 +23,7 @@ class Blueprint {
 	 * @param string $file
 	 */
 	public function __construct($file) {
-		$this->file = $this->findBlueprint("/Blueprints/$file");
+		$this->file = $this->findBlueprint("/../Blueprints/$file");
 	}
 
 	/**
