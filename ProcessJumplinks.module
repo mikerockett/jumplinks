@@ -566,7 +566,7 @@ class ProcessJumplinks extends Process {
 				$this->log("To URL:     {$convertedWildcards}", true);
 
 				// If we're in the period specified:
-				if (!$activated) {
+				if ($activated) {
 					// If it ends before it starts, then show the time it starts.
 					// Otherwise, show the period.
 					if ($ends < $starts) {
