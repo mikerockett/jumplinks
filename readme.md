@@ -1,10 +1,8 @@
 ## ProcessJumplinks
 
-**Current Development Phase:** 0.9.1-beta
+**Current Development Phase:** 0.9.2-beta
 
-**Intended for:** ProcessWire 2.6-dev
-
-**Developed in:** ProcessWire 2.5.12-13
+**Intended for (and developed in):** ProcessWire 2.6-dev (current 2.5.16)
 
 For information about the module, [see this forum thread](https://processwire.com/talk/topic/8697-alpha-processadvancedredirects/).
 
@@ -26,4 +24,6 @@ Usage Guides and Documentation to come soon.
 
 Module is released under the [MIT License](http://mikeanthony.mit-license.org/)
 
+```
 Copyright (c) 2015, Mike Anthony. All Rights Reserved.
+```
