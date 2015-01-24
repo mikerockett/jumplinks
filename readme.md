@@ -3,21 +3,27 @@
 **Current Development Phase:** 0.9.4-beta<br>
 **Requires ProcessWire 2.5.3** (works in 2.6-dev)
 
-For information about the module, [see this forum thread](https://processwire.com/talk/topic/8697-module-jumplinks/).
+---
 
-Usage Guides and Documentation to come soon.
+### What it is
 
-### Master Task List
+Jumplinks is a Process module intended for ProcessWire 2.5, and is an enhanced version of the original [ProcessRedirects](https://processwire.com/talk/topic/148-release-redirects/) by [Antti](https://twitter.com/apeisa).
 
-#### Feature Implementations
-- [x] Hit counter
-- [x] Import (from CSV or ProcessRedirects)
+### What it does
 
-#### Other stuff
-- [x] Debug Mode should only show logs to users that have the relevant permission
-- [x] Check if Destination Path is page. If so, swap it out with page reference.
-- [ ] Probation period for redirects ([info and discuss](https://github.com/mike-anthony/ProcessJumplinks/issues/3))
-- [x] Remove default extensions option (not needed - custom extensions can just be specified on a per-redirect basis)
+The module manages your permanent and temporary redirects (jumplinks) - useful for when you're migrating over to ProcessWire from another CMS. Each jumplink supports standard and smart wildcards, so that you need not create multiple redirects for articles or blog entries.
+
+---
+
+### Documentation
+
+You can view the documentation [here](https://github.com/mike-anthony/ProcessJumplinks/wiki).
+
+### Support
+
+Need help with something: [ask in the forums](https://processwire.com/talk/topic/8697-module-jumplinks/)
+
+---
 
 ### License
 
