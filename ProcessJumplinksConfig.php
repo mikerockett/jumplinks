@@ -142,7 +142,7 @@ class ProcessJumplinksConfig extends ModuleConfig {
 			'icon' => 'bug',
 			'description' => $this->_("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
 			'label2' => $this->_('Turn Debug Mode on'),
-			'collapsed' => Inputfield::collapsedYes,
+			'collapsed' => Inputfield::collapsedBlank,
 			'autocheck' => true,
 		)));
 
