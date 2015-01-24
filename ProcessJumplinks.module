@@ -990,7 +990,7 @@ class ProcessJumplinks extends Process {
 		$this->config->js('pjEntity', true);
 
 		// Return the rendered page
-		return $message . $form->render() . $this->helpLink('registering-jumplinks');
+		return $message . $form->render() . $this->helpLink('Working-with-Jumplinks');
 	}
 
 	protected function commitJumplink($input, $hits = 0, $updating = false, $id = 0) {
@@ -1158,7 +1158,7 @@ class ProcessJumplinks extends Process {
 		$this->config->js('pjCollection', true);
 
 		// Return the rendered page
-		return $form->render() . $this->helpLink('mapping-collections');
+		return $form->render() . $this->helpLink('Mapping-Collections');
 	}
 
 	/**
@@ -1338,7 +1338,11 @@ class ProcessJumplinks extends Process {
 			))->addClass('head_button_clone'));
 		}
 
-		return $form->render() . $this->helpLink("importing#{$importType}");
+		if ($importType === 'redirects') {
+			$importType = 'processredirects';
+		}
+
+		return $form->render() . $this->helpLink("Importing#importing-from-{$importType}");
 	}
 
 	/**

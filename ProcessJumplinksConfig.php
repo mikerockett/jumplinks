@@ -19,7 +19,7 @@ class ProcessJumplinksConfig extends ModuleConfig {
 	/** Schema version for this release */
 	const SCHEMA_VERSION = 1;
 
-	const HREF = "http://pw.foundrybusiness.co.za/jumplinks";
+	const HREF = "https://github.com/mike-anthony/ProcessJumplinks/wiki";
 
 	const ENHANCED_WILDCARD_CLEANING = "enhancedWildcardCleaning";
 	const LEGACY_DOMAIN = "legacyDomain";
@@ -81,7 +81,7 @@ class ProcessJumplinksConfig extends ModuleConfig {
 		$fieldset->add($this->buildInputField('InputfieldRadios', array(
 			'name+id' => self::WILDCARD_CLEANING,
 			'description' => $this->_("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
-			'notes' => sprintf($this->_("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Wildcard Cleaning](%s/config#wildcard-cleaning)"), self::HREF),
+			'notes' => sprintf($this->_("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)"), self::HREF),
 			'options' => array(
 				'fullClean' => $this->_('Full Clean (default, recommended)'),
 				'semiClean' => $this->_("Clean, but don't change case"),
