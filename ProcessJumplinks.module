@@ -553,7 +553,7 @@ class ProcessJumplinks extends Process {
 				: true;
 
 				// If we're not debugging, and we're Time-activated, then do the redirect
-				if (!$this->userHasDebugRights() && !$activated) {
+				if (!$this->userHasDebugRights() && $activated) {
 					$hitsPlusOne = $jumplink->hits + 1;
 					$this->db->query(sprintf($this->sql->entityUpdateHits, $hitsPlusOne, $jumplink->id));
 					$this->session->redirect($convertedWildcards, !$activated);
