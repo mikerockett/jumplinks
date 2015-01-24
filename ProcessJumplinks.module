@@ -814,7 +814,7 @@ class ProcessJumplinks extends Process {
 		if ($editingId) {
 			// Fetch the details and list vars
 			$result = $this->db->query(sprintf($this->sql->entitySelectSingle, $editingId));
-			list($id, $sourcePath, $destinationUriUrl,
+			list($id, $sourcePath, $destinationUriUrl, $hits,
 				$userCreated, $userUpdated, $dateStart, $dateEnd,
 				$createdAt, $updatedAt) = $result->fetch_array();
 
