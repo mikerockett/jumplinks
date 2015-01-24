@@ -4,23 +4,34 @@
  * ProcessJumplinks - a ProcessWire Module by Mike Anthony
  * Manage permanent and temporary redirects. Supports wildcards.
  *
- * Intended for: ProcessWire 2.6-dev
- * Developed in: ProcessWire 2.5.13
+ * Requires ProcessWire 2.5.3
  *
  * Copyright (c) 2015, Mike Anthony. All Rights Reserved.
  * Licence: MIT License - http://mikeanthony.mit-license.org/
  *
- * http://pw.foundrybusiness.co.za/jumplinks
+ * https://github.com/mike-anthony/ProcessJumplinks/wiki
  *
  */
 
 require_once __DIR__ . '../Classes/Blueprint.php';
 require_once __DIR__ . '../Classes/ParseCSV.php';
-require_once __DIR__ . '/ProcessJumplinksConfig.php';
 
-use ProcessJumplinksConfig as Config;
+class ProcessJumplinks extends Process implements ConfigurableModule {
 
-class ProcessJumplinks extends Process {
+	/** Schema version for this release */
+	const SCHEMA_VERSION = 1;
+
+	/** Module docs link */
+	const HREF = 'https://github.com/mike-anthony/ProcessJumplinks/wiki';
+
+	/** Config names */
+	const _SCHEMA_VERSION = "schemaVersion";
+	const ENHANCED_WILDCARD_CLEANING = "enhancedWildcardCleaning";
+	const LEGACY_DOMAIN = "legacyDomain";
+	const MODULE_DEBUG = "moduleDebug";
+	const REDIRECTS_IMPORTED = "redirectsImported";
+	const STATUS_CODES = "statusCodes";
+	const WILDCARD_CLEANING = "wildcardCleaning";
 
 	/**
 	 * Determine if the text/plain header is set
@@ -87,10 +98,137 @@ class ProcessJumplinks extends Process {
 	);
 
 	/**
+	 * Get the default configuration details
+	 * @return array
+	 */
+	public static function getConfigDefaultsArray() {
+		return array(
+			self::_SCHEMA_VERSION => self::SCHEMA_VERSION,
+			self::ENHANCED_WILDCARD_CLEANING => false,
+			self::MODULE_DEBUG => false,
+			self::REDIRECTS_IMPORTED => false,
+			self::STATUS_CODES => '200 301 302',
+			self::WILDCARD_CLEANING => 'fullClean',
+		);
+	}
+
+	public static function getModuleConfigInputfields(array $data) {
+		wire('config')->scripts->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.js');
+		wire('config')->styles->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
+		// Include WireTabs
+		wire('modules')->get('JqueryWireTabs');
+
+		wire('config')->js('pjModuleAdmin', true);
+		wire('config')->js('pjOldRedirectsInstalled', wire('modules')->isInstalled('ProcessRedirects'));
+
+		$inputfields = new InputfieldWrapper();
+		$data = array_merge(self::getConfigDefaultsArray(), $data);
+
+		// Wildcard Cleaning Fieldset
+		$fieldset = self::buildInputField('InputfieldFieldset', array(
+			'label' => _('Wildcard Cleaning'),
+			'collapsed' => Inputfield::collapsedNever,
+		));
+
+		// Wildcard Cleaning
+		$fieldset->add(self::buildInputField('InputfieldRadios', array(
+			'name+id' => self::WILDCARD_CLEANING,
+			'description' => _("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
+			'notes' => sprintf(_("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)"), self::HREF),
+			'options' => array(
+				'fullClean' => _('Full Clean (default, recommended)'),
+				'semiClean' => _("Clean, but don't change case"),
+				'noClean' => _("Don't clean at all (not recommended)"),
+			),
+			'columnWidth' => 50,
+			'collapsed' => Inputfield::collapsedNever,
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'value' => $data[self::WILDCARD_CLEANING],
+		)));
+
+		// Enhanced Wildcard Cleaning
+		$fieldset->add(self::buildInputField('InputfieldCheckbox', array(
+			'name+id' => self::ENHANCED_WILDCARD_CLEANING,
+			'label' => _('Enhanced Widcard Cleaning'),
+			'description' => _("The following experiment enhances wildcard cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
+			'label2' => _('Use Enhanced Wildcard Cleaning'),
+			'notes' => _("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'\n**Note:** This is only an experiment, and may not work with some paths. It may be removed from the final 1.0.0 release."),
+			'columnWidth' => 50,
+			'collapsed' => Inputfield::collapsedNever,
+			'autocheck' => true,
+			'value' => $data[self::ENHANCED_WILDCARD_CLEANING],
+		)));
+
+		$inputfields->add($fieldset);
+
+		// Legacy Domain Fieldset
+		$fieldset = self::buildInputField('InputfieldFieldset', array(
+			'label' => _('Legacy Domain'),
+			'collapsed' => Inputfield::collapsedYes,
+		));
+
+		// Legacy Domain Name
+		$fieldset->add(self::buildInputField('InputfieldText', array(
+			'name+id' => self::LEGACY_DOMAIN,
+			'columnWidth' => 50,
+			'description' => _('Attempt any requested, unresolved Source Paths on a legacy domain/URL.'),
+			'notes' => _("Enter a full, valid domain/URL. **Source Path won't be cleaned upon redirect**."),
+			'placeholder' => _('Examples: "http://legacy.domain.com/" or "http://domain.com/old/"'),
+			'collapsed' => Inputfield::collapsedNever,
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'spellcheck' => 'false',
+			'value' => $data[self::LEGACY_DOMAIN],
+		)));
+
+		// Legacy Domain Status Codes
+		$fieldset->add(self::buildInputField('InputfieldText', array(
+			'name+id' => self::STATUS_CODES,
+			'columnWidth' => 50,
+			'description' => _('Only redirect if a request to it yields one of these HTTP status codes:'),
+			'notes' => _("Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**"),
+			'collapsed' => Inputfield::collapsedNever,
+			'skipLabel' => Inputfield::skipLabelHeader,
+			'spellcheck' => 'false',
+			'value' => $data[self::STATUS_CODES],
+		)));
+
+		$inputfields->add($fieldset);
+
+		// Debug Mode
+		$inputfields->add(self::buildInputField('InputfieldCheckbox', array(
+			'name+id' => self::MODULE_DEBUG,
+			'label' => _('Debug Mode'),
+			'description' => _("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
+			'label2' => _('Turn debug mode on'),
+			'notes' => _("**Notes:** Hits won't be affected when debug mode is turned on. Also, only those that have permission to manage jumplinks will be shown the debug logs."),
+			'collapsed' => Inputfield::collapsedBlank,
+			'autocheck' => true,
+			'value' => $data[self::MODULE_DEBUG],
+		)));
+
+		return $inputfields;
+	}
+
+	/**
+	 * Inject assets (used as assets are automatically inserted when
+	 * using the same name as the module, but the get thrown in before
+	 * JS dependencies. WireTabs also gets thrown in.)
+	 * @return [type] [description]
+	 */
+	protected function injectAssets() {
+		// Inject script and style
+		$this->config->scripts->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.js');
+		$this->config->styles->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
+		// Include WireTabs
+		$this->modules->get('JqueryWireTabs');
+	}
+
+	/**
 	 * Class constructor
 	 * Init moduleInfo, sql
 	 */
 	public function __construct() {
+		$this->setArray(self::getConfigDefaultsArray());
 		$this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
 		$this->sql = (object) array(
 			'entitySelectAll' => "SELECT * FROM {$this->tableName} ORDER BY source",
@@ -119,11 +257,8 @@ class ProcessJumplinks extends Process {
 		// Set the admin page URL for JS
 		$this->config->js("pjAdminPageUrl", $this->pages->get('name=jumplinks')->url);
 
-		// Include WireTabs
-		$this->modules->get('JqueryWireTabs');
-
 		// Make sure schemas are up to date
-		if ($this->schemaVersion < ProcessJumplinksConfig::SCHEMA_VERSION) {
+		if ($this->schemaVersion < self::SCHEMA_VERSION) {
 			$this->updateDatabaseSchemas();
 		}
 
@@ -256,7 +391,7 @@ class ProcessJumplinks extends Process {
 	 * @return string
 	 */
 	public function cleanWildcard($input, $noLower = false) {
-		if ($this->{Config::ENHANCED_WILDCARD_CLEANING}) {
+		if ($this->{self::ENHANCED_WILDCARD_CLEANING}) {
 			// Courtesy @sln on StackOverflow
 			$input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures) {
 				return $captures[1] . strtolower($captures[2]);
@@ -268,7 +403,7 @@ class ProcessJumplinks extends Process {
 		$input = preg_replace("~[^\\pL\d\/]+~u", '-', $input);
 		$input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
-		if ($this->{Config::ENHANCED_WILDCARD_CLEANING}) {
+		if ($this->{self::ENHANCED_WILDCARD_CLEANING}) {
 			// Merge these two?
 			$input = preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input);
 			$input = preg_replace("~(\d)([a-z])~i", "\\1-\\2", $input);
@@ -294,6 +429,25 @@ class ProcessJumplinks extends Process {
 		return (strlen($string) > $length)
 		? substr($string, 0, $length) . " <span class=\"ellipses\" title=\"{$string}\">...</span>"
 		: $string;
+	}
+
+	/**
+	 * Given a fieldtype, create, populate, and return an Inputfield
+	 * @param  string $fieldNameId
+	 * @param  array  $meta
+	 * @return Inputfield
+	 */
+	protected static function buildInputField($fieldNameId, $meta) {
+		$field = wire('modules')->get($fieldNameId);
+
+		foreach ($meta as $metaNames => $metaInfo) {
+			$metaNames = explode('+', $metaNames);
+			foreach ($metaNames as $metaName) {
+				$field->$metaName = $metaInfo;
+			}
+		}
+
+		return $field;
 	}
 
 	/**
@@ -337,7 +491,7 @@ class ProcessJumplinks extends Process {
 	 * @return bool
 	 */
 	protected function userHasDebugRights() {
-		return ($this->{Config::MODULE_DEBUG} && $this->user->hasPermission('jumplinks-admin'));
+		return ($this->{self::MODULE_DEBUG} && $this->user->hasPermission('jumplinks-admin'));
 	}
 
 	/**
@@ -508,7 +662,7 @@ class ProcessJumplinks extends Process {
 						$paramSkipCleanCheck = "~\{!$value\}~i";
 						$uncleanedCapture = $captures[$c];
 						if (!preg_match($paramSkipCleanCheck, $result)) {
-							$wildcardCleaning = $this->{Config::WILDCARD_CLEANING};
+							$wildcardCleaning = $this->{self::WILDCARD_CLEANING};
 							if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
 								$captures[$c] = $this->cleanWildcard($captures[$c], ($wildcardCleaning === 'fullClean') ? false : true);
 							}
@@ -589,14 +743,14 @@ class ProcessJumplinks extends Process {
 
 		// Considering we don't have one available, let's check to see if the Source Path
 		// exists on the Legacy Domain, if defined.
-		if (!empty(trim($this->{Config::LEGACY_DOMAIN}))) {
+		if (!empty(trim($this->{self::LEGACY_DOMAIN}))) {
 			// Fetch the accepted codes
-			$okCodes = trim(!empty($this->{Config::STATUS_CODES}))
-			? array_map('trim', explode(' ', $this->{Config::STATUS_CODES}))
+			$okCodes = trim(!empty($this->{self::STATUS_CODES}))
+			? array_map('trim', explode(' ', $this->{self::STATUS_CODES}))
 			: explode(',', $this->statusCodes);
 
 			// Prepare and do the request
-			$domainRequest = $this->{Config::LEGACY_DOMAIN} . $request;
+			$domainRequest = $this->{self::LEGACY_DOMAIN} . $request;
 			$status = $this->getResponseCode($domainRequest);
 
 			// If the response has an accepted code, then 302 redirect (or log)
@@ -622,6 +776,8 @@ class ProcessJumplinks extends Process {
 	 * @return string
 	 */
 	public function ___execute() {
+		$this->injectAssets();
+
 		$jumplinks = $this->db->query($this->sql->entitySelectAll);
 		$this->setFuel('processHeadline', $this->_('Manage Jumplinks'));
 
@@ -818,6 +974,8 @@ class ProcessJumplinks extends Process {
 	 * @return string
 	 */
 	public function ___executeEntity() {
+		$this->injectAssets();
+
 		$this->setFuel('processHeadline', $this->_('Register New Redirect'));
 
 		// Get the ID if we're editing
@@ -1058,6 +1216,8 @@ class ProcessJumplinks extends Process {
 	 * @return string
 	 */
 	public function ___executeMappingCollection() {
+		$this->injectAssets();
+
 		$this->setFuel('processHeadline', $this->_('Install New Mapping Collection'));
 
 		// Get the ID if we're editing
@@ -1196,7 +1356,7 @@ class ProcessJumplinks extends Process {
 		foreach ($mappings as $mapping) {
 			$mapping = explode('=', $mapping);
 
-			$wildcardCleaning = $this->{Config::WILDCARD_CLEANING};
+			$wildcardCleaning = $this->{self::WILDCARD_CLEANING};
 			if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
 				$mapping[1] = $this->cleanWildcard($mapping[1], ($wildcardCleaning === 'fullClean') ? false : true);
 			}
@@ -1234,6 +1394,8 @@ class ProcessJumplinks extends Process {
 	 * @return string
 	 */
 	public function ___executeImport() {
+		$this->injectAssets();
+
 		$this->setFuel('processHeadline', $this->_('Import Jumplinks'));
 
 		// Prep the form

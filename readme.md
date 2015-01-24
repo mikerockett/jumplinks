@@ -1,8 +1,7 @@
 ## ProcessJumplinks
 
-**Current Development Phase:** 0.9.3-beta
-
-**Intended for (and developed in):** ProcessWire 2.6-dev (current 2.5.16)
+**Current Development Phase:** 0.9.4-beta<br>
+**Requires ProcessWire 2.5.3** (works in 2.6-dev)
 
 For information about the module, [see this forum thread](https://processwire.com/talk/topic/8697-module-jumplinks/).
 

@@ -6,7 +6,7 @@
  *  Copyright (c) 2015, Mike Anthony. All Rights Reserved.
  *  Licence: MIT License - http://mikeanthony.mit-license.org/
  *
- *  http://pw.foundrybusiness.co.za/jumplinks
+ *  https://github.com/mike-anthony/ProcessJumplinks/wiki
  *
  */
 

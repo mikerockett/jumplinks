@@ -1,9 +1,9 @@
 {
     "title": "Jumplinks",
-    "version": "0.9.3",
+    "version": "0.9.4",
     "author": "Mike Anthony",
     "summary": "Manage permanent and temporary redirects (jumplinks). Supports wildcards.",
-    "requires": "ProcessWire>=2.5.10",
+    "requires": "ProcessWire>=2.5.3",
     "href": "https://github.com/mike-anthony/ProcessJumplinks/wiki",
     "autoload": true,
     "icon": "rocket",
