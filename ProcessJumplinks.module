@@ -149,7 +149,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		// Enhanced Wildcard Cleaning
 		$fieldset->add(self::buildInputField('InputfieldCheckbox', array(
 			'name+id' => self::ENHANCED_WILDCARD_CLEANING,
-			'label' => _('Enhanced Widcard Cleaning'),
+			'label' => _('Enhanced Wildcard Cleaning'),
 			'description' => _("The following experiment enhances wildcard cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
 			'label2' => _('Use Enhanced Wildcard Cleaning'),
 			'notes' => _("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'\n**Note:** This is only an experiment, and may not work with some paths. It may be removed from the final 1.0.0 release."),
@@ -171,7 +171,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$fieldset->add(self::buildInputField('InputfieldText', array(
 			'name+id' => self::LEGACY_DOMAIN,
 			'columnWidth' => 50,
-			'description' => _('Attempt any requested, unresolved Source Paths on a legacy domain/URL.'),
+			'description' => _('Attempt any requested, unresolved Source paths on a legacy domain/URL.'),
 			'notes' => _("Enter a full, valid domain/URL. **Source Path won't be cleaned upon redirect**."),
 			'placeholder' => _('Examples: "http://legacy.domain.com/" or "http://domain.com/old/"'),
 			'collapsed' => Inputfield::collapsedNever,
