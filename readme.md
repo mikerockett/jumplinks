@@ -21,7 +21,7 @@ You can view the documentation [here](https://github.com/mike-anthony/ProcessJum
 
 ### Support
 
-Need help with something: [ask in the forums](https://processwire.com/talk/topic/8697-module-jumplinks/)
+Need help with something? [Ask in the forums](https://processwire.com/talk/topic/8697-module-jumplinks/).
 
 ---
 
