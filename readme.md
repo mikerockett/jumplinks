@@ -17,7 +17,7 @@ Usage Guides and Documentation to come soon.
 #### Other stuff
 - [x] Debug Mode should only show logs to users that have the relevant permission
 - [x] Check if Destination Path is page. If so, swap it out with page reference.
-- [ ] Probation period for redirects ([info and discuss](3))
+- [ ] Probation period for redirects ([info and discuss](/mike-anthony/ProcessJumplinks/issues/3))
 - [x] Remove default extensions option (not needed - custom extensions can just be specified on a per-redirect basis)
 
 ### License
