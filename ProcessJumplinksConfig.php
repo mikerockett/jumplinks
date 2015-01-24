@@ -21,11 +21,11 @@ class ProcessJumplinksConfig extends ModuleConfig {
 
 	const HREF = "http://pw.foundrybusiness.co.za/jumplinks";
 
-	const WILDCARD_CLEANING = "wildcardCleaning";
-	const LEGACY_DOMAIN = "legacyDomain";
-	const STATUS_CODES = "statusCodes";
 	const ENHANCED_WILDCARD_CLEANING = "enhancedWildcardCleaning";
+	const LEGACY_DOMAIN = "legacyDomain";
 	const MODULE_DEBUG = "moduleDebug";
+	const STATUS_CODES = "statusCodes";
+	const WILDCARD_CLEANING = "wildcardCleaning";
 
 	/**
 	 * Get the default configuration details
@@ -34,10 +34,10 @@ class ProcessJumplinksConfig extends ModuleConfig {
 	public function getDefaults() {
 		return array(
 			'schemaVersion' => self::SCHEMA_VERSION,
-			self::MODULE_DEBUG => false,
-			self::WILDCARD_CLEANING => 'fullClean',
-			self::STATUS_CODES => '200 301 302',
 			self::ENHANCED_WILDCARD_CLEANING => false,
+			self::MODULE_DEBUG => false,
+			self::STATUS_CODES => '200 301 302',
+			self::WILDCARD_CLEANING => 'fullClean',
 		);
 	}
 
@@ -139,9 +139,9 @@ class ProcessJumplinksConfig extends ModuleConfig {
 		$inputfields->add($this->buildInputField('InputfieldCheckbox', array(
 			'name+id' => self::MODULE_DEBUG,
 			'label' => $this->_('Debug Mode'),
-			'icon' => 'bug',
 			'description' => $this->_("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
-			'label2' => $this->_('Turn Debug Mode on'),
+			'label2' => $this->_('Turn debug mode on'),
+			'notes' => $this->_("**Notes:** Hits won't be affected when debug mode is turned on. Also, only those that have permission to manage jumplinks will be shown the debug logs."),
 			'collapsed' => Inputfield::collapsedBlank,
 			'autocheck' => true,
 		)));

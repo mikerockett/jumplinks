@@ -332,6 +332,15 @@ class ProcessJumplinks extends Process {
 	}
 
 	/**
+	 * Determine if the current user has debug rights.
+	 * Must have relevant permission, and debug mode must be turned on.
+	 * @return bool
+	 */
+	protected function userHasDebugRights() {
+		return ($this->{Config::MODULE_DEBUG} && $this->user->hasPermission('jumplinks-admin'));
+	}
+
+	/**
 	 * Log something. Will set plain text header if not already set.
 	 * @caller scanAndRedirect
 	 * @param  string $message
@@ -340,7 +349,7 @@ class ProcessJumplinks extends Process {
 	 * @param  bool   $die
 	 */
 	protected function log($message, $indent = false, $break = false, $die = false) {
-		if ($this->{Config::MODULE_DEBUG} && $this->user->hasPermission('jumplinks-admin')) {
+		if ($this->userHasDebugRights()) {
 			if (!$this->headerSet) {
 				header("Content-Type: text/plain");
 				$this->headerSet = true;
@@ -414,12 +423,13 @@ class ProcessJumplinks extends Process {
 				$message = '';
 			}
 
+			$this->log("[Checking jumplink #{$jumplink->id}]");
+
 			// Log the activation periods for debugging
 			if ($starts || $ends) {
 				$this->log(sprintf("Timed Activation:             %s to %s {$message}", date('r', $starts), date('r', $ends)), true);
 			}
 
-			$this->log("[Checking jumplink #{$jumplink->id}]");
 			$this->log("Original Source Path:         {$jumplink->source}", true);
 
 			// Prepare the Source Path for matching:
@@ -543,7 +553,7 @@ class ProcessJumplinks extends Process {
 				: true;
 
 				// If we're not debugging, and we're Time-activated, then do the redirect
-				if (!$this->{Config::MODULE_DEBUG} && $activated) {
+				if (!$this->userHasDebugRights() && !$activated) {
 					$hitsPlusOne = $jumplink->hits + 1;
 					$this->db->query(sprintf($this->sql->entityUpdateHits, $hitsPlusOne, $jumplink->id));
 					$this->session->redirect($convertedWildcards, !$activated);
@@ -567,7 +577,7 @@ class ProcessJumplinks extends Process {
 				}
 
 				// We can exit at this point.
-				if ($this->{Config::MODULE_DEBUG}) {
+				if ($this->userHasDebugRights()) {
 					die();
 				}
 			}
@@ -591,15 +601,17 @@ class ProcessJumplinks extends Process {
 
 			// If the response has an accepted code, then 302 redirect (or log)
 			if (in_array($status, $okCodes)) {
+				if (!$this->userHasDebugRights()) {
+					$this->session->redirect($domainRequest, false);
+				}
 				$this->log("Found Source Path on Legacy Domain (with status code {$status}); redirect allowed to:");
 				$this->log($domainRequest, true, false, true);
-				$this->session->redirect($domainRequest, false);
 			}
 		}
 
 		// If all fails, say so.
 		$this->log("No matches, sorry. We'll let the 404 error page take over when Debug Mode is turned off.");
-		if ($this->{Config::MODULE_DEBUG}) {
+		if ($this->userHasDebugRights()) {
 			die();
 		}
 
