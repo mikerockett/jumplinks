@@ -155,7 +155,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'label' => _('Enhanced Wildcard Cleaning'),
 			'description' => _("The following experiment enhances wildcard cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
 			'label2' => _('Use Enhanced Wildcard Cleaning'),
-			'notes' => _("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'\n**Note:** This is only an experiment, and may not work with some paths. It may be removed from the final 1.0.0 release."),
+			'notes' => _("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'."),
 			'columnWidth' => 50,
 			'collapsed' => Inputfield::collapsedNever,
 			'autocheck' => true,
