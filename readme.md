@@ -4,7 +4,7 @@
 
 **Intended for (and developed in):** ProcessWire 2.6-dev (current 2.5.16)
 
-For information about the module, [see this forum thread](https://processwire.com/talk/topic/8697-alpha-processadvancedredirects/).
+For information about the module, [see this forum thread](https://processwire.com/talk/topic/8697-module-jumplinks/).
 
 Usage Guides and Documentation to come soon.
 
