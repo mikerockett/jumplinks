@@ -1,6 +1,6 @@
 ## ProcessJumplinks
 
-**Current Development Phase:** 0.9.4-beta<br>
+**Current Version:** 1.0.0 (Stable)<br>
 **Requires ProcessWire 2.5.3** (works in 2.6-dev)
 
 ---
