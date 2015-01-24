@@ -1327,9 +1327,16 @@ class ProcessJumplinks extends Process {
 			'value' => $importType,
 		)));
 
+		// Import data/redirects button
+		$field = $this->modules->get('InputfieldButton');
 		if ($importType === 'redirects' && !$this->redirectsImported) {
-			// Import data button
-			$field = $this->modules->get('InputfieldButton');
+			$form->add($this->populateInputField($field, array(
+				'name+id' => 'doImport',
+				'value' => 'Import these Redirects',
+				'icon' => 'arrow-right',
+				'type' => 'submit',
+			))->addClass('head_button_clone'));
+		} else {
 			$form->add($this->populateInputField($field, array(
 				'name+id' => 'doImport',
 				'value' => 'Import Data',
@@ -1338,6 +1345,7 @@ class ProcessJumplinks extends Process {
 			))->addClass('head_button_clone'));
 		}
 
+		// Rename import type for docs
 		if ($importType === 'redirects') {
 			$importType = 'processredirects';
 		}
