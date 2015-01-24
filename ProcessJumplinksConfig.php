@@ -24,6 +24,7 @@ class ProcessJumplinksConfig extends ModuleConfig {
 	const ENHANCED_WILDCARD_CLEANING = "enhancedWildcardCleaning";
 	const LEGACY_DOMAIN = "legacyDomain";
 	const MODULE_DEBUG = "moduleDebug";
+	const REDIRECTS_IMPORTED = "redirectsImported";
 	const STATUS_CODES = "statusCodes";
 	const WILDCARD_CLEANING = "wildcardCleaning";
 
@@ -36,6 +37,7 @@ class ProcessJumplinksConfig extends ModuleConfig {
 			'schemaVersion' => self::SCHEMA_VERSION,
 			self::ENHANCED_WILDCARD_CLEANING => false,
 			self::MODULE_DEBUG => false,
+			self::REDIRECTS_IMPORTED => false,
 			self::STATUS_CODES => '200 301 302',
 			self::WILDCARD_CLEANING => 'fullClean',
 		);

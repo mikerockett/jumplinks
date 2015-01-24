@@ -1,6 +1,6 @@
 ## ProcessJumplinks
 
-**Current Development Phase:** 0.9.2-beta
+**Current Development Phase:** 0.9.3-beta
 
 **Intended for (and developed in):** ProcessWire 2.6-dev (current 2.5.16)
 
@@ -12,7 +12,7 @@ Usage Guides and Documentation to come soon.
 
 #### Feature Implementations
 - [x] Hit counter
-- [x] Import (from CSV [done] or ProcessRedirects [pending])
+- [x] Import (from CSV or ProcessRedirects)
 
 #### Other stuff
 - [x] Debug Mode should only show logs to users that have the relevant permission

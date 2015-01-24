@@ -97,7 +97,7 @@ class ProcessJumplinks extends Process {
 			'entitySelectAllJsonNav' => "SELECT * FROM {$this->tableName} ORDER BY updated_at DESC LIMIT 5",
 			'entitySelectSingle' => "SELECT * FROM {$this->tableName} WHERE id=%s",
 			'entityDropById' => "DELETE FROM {$this->tableName} WHERE id=%s",
-			'entityInsert' => "INSERT INTO {$this->tableName} SET source = '%s', destination = '%s', date_start = %s, date_end = %s, user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
+			'entityInsert' => "INSERT INTO {$this->tableName} SET source = '%s', destination = '%s', hits = '%s', date_start = %s, date_end = %s, user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
 			'entityUpdate' => "UPDATE {$this->tableName} SET source = '%s', destination = '%s', date_start = %s, date_end = %s, user_updated = %s WHERE id = %s",
 			'entityUpdateHits' => "UPDATE {$this->tableName} SET hits = %s WHERE id = %s",
 			'mappingCollectionsSelectAll' => "SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
@@ -792,7 +792,7 @@ class ProcessJumplinks extends Process {
 			$importFromRedirectsButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
 				'id' => 'importFromRedirects',
 				'href' => "{$this->importPath}?type=redirects",
-				'value' => $this->_('Import from Redirects Module'),
+				'value' => $this->_('Import from Redirects Module') . (($this->redirectsImported) ? ' ' . $this->_("(you've already done this)") : ''),
 			))->addClass('ui-priority-secondary');
 
 			$importContainer->value .= $importFromRedirectsButton->render();
@@ -993,6 +993,36 @@ class ProcessJumplinks extends Process {
 		return $message . $form->render() . $this->helpLink('registering-jumplinks');
 	}
 
+	protected function commitJumplink($input, $hits = 0, $updating = false, $id = 0) {
+
+		// If the Destination Path's URI matches that of a page, use a page ID instead
+		if (false === strpos($input->destinationUriUrl, '{') && false === strpos($input->destinationUriUrl, '}')) {
+			if (($page = $this->pages->get('name=' . trim($input->destinationUriUrl, '/'))) && $page->id) {
+				$input->destinationUriUrl = "page:{$page->id}";
+			}
+		}
+
+		// Escape Source and Destination (Sanitised) Paths
+		$source = ltrim($this->db->escape_string($input->sourcePath), '/');
+		$destination = ltrim($this->db->escape_string($this->sanitizer->url($input->destinationUriUrl)), '/');
+
+		// Prepare dates (times) for database entry
+		$start = (!isset($input->dateStart) || empty($input->dateStart)) ? 'null' : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart))) . "'";
+		$end = (!isset($input->dateEnd) || empty($input->dateEnd)) ? 'null' : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd))) . "'";
+
+		// Set the user creating/updating
+		if (!$updating) {
+			$userCreated = $this->user->id;
+		}
+		$userUpdated = $this->user->id;
+
+		// Insert/Update
+		$this->db->query(($updating)
+			? sprintf($this->sql->entityUpdate, $source, $destination, $start, $end, $userUpdated, $id)
+			: sprintf($this->sql->entityInsert, $source, $destination, $hits, $start, $end, $userCreated, $userUpdated)
+		);
+	}
+
 	/**
 	 * Admin Route: Commit new jumplink or update existing
 	 */
@@ -1015,33 +1045,8 @@ class ProcessJumplinks extends Process {
 			$this->session->redirect("../");
 		}
 
-		// If the Destination Path's URI matches that of a page, use a page ID instead
-		if (false === strpos($input->destinationUriUrl, '{') && false === strpos($input->destinationUriUrl, '}')) {
-			if (($page = $this->pages->get('name=' . trim($input->destinationUriUrl, '/'))) && $page->id) {
-				$input->destinationUriUrl = "page:{$page->id}";
-			}
-		}
-
-		// Escape Source and Destination (Sanitised) Paths
-		$source = ltrim($this->db->escape_string($input->sourcePath), '/');
-		$destination = ltrim($this->db->escape_string($this->sanitizer->url($input->destinationUriUrl)), '/');
-
-		// Prepare dates (times) for database entry
-		$start = empty($input->dateStart) ? 'null' : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart))) . "'";
-		$end = empty($input->dateEnd) ? 'null' : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd))) . "'";
-
-		// Set the user creating/updating
-		if (!$isUpdating) {
-			$userCreated = $this->user->id;
-		}
-
-		$userUpdated = $this->user->id;
-
-		// Insert/Update
-		$this->db->query(($isUpdating)
-			? sprintf($this->sql->entityUpdate, $source, $destination, $start, $end, $userUpdated, $id)
-			: sprintf($this->sql->entityInsert, $source, $destination, $start, $end, $userCreated, $userUpdated)
-		);
+		// Otherwise, continue to commit jumplink to DB
+		$this->commitJumplink($input, 0, $isUpdating, $id);
 
 		$this->message($this->_("Redirect saved."));
 
@@ -1207,8 +1212,6 @@ class ProcessJumplinks extends Process {
 
 		$dbInput = trim($dbInput);
 
-		//var_dump($dbInput);die;
-
 		// Set the user creating/updating
 		if (!$isUpdating) {
 			$userCreated = $this->user->id;
@@ -1251,36 +1254,44 @@ class ProcessJumplinks extends Process {
 					$this->session->redirect('../');
 				}
 
-				// Information
-				$field = $this->modules->get('InputfieldMarkup');
-				$form->add($this->populateInputField($field, array(
-					'label' => $this->_('Import from the Redirects module'),
-					'value' => $this->_("You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Jumplinks. If there are any redirects you wish to exclude, simply uncheck the box in the first column"),
-				)));
+				if (!$this->redirectsImported) {
+					// Information
+					$field = $this->modules->get('InputfieldMarkup');
+					$form->add($this->populateInputField($field, array(
+						'label' => $this->_('Import from the Redirects module'),
+						'value' => $this->_("You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Jumplinks. If there are any redirects you wish to exclude, simply uncheck the box in the first column"),
+					)));
+				}
 
 				// Redirects
 				$jumplinksMarkup = $this->modules->get('InputfieldMarkup');
 
-				$jumplinksTable = $this->modules->get('MarkupAdminDataTable');
-				$jumplinksTable->setClass('old-redirects');
-				$jumplinksTable->setEncodeEntities(false);
-				$jumplinksTable->setSortable(false);
-				$jumplinksTable->headerRow(array($this->_('Import'), $this->_('Redirect From'), $this->_('Redirect To'), $this->_('Hits')));
+				if ($this->redirectsImported) {
+					$jumplinksMarkup->label = $this->_('Redirects already imported');
+					$jumplinksMarkup->value = $this->_("All your redirects from ProcessRedirects have already been imported. You can safely uninstall ProcessRedirects.");
+				} else {
+					$jumplinksTable = $this->modules->get('MarkupAdminDataTable');
+					$jumplinksTable->setClass('old-redirects');
+					$jumplinksTable->setEncodeEntities(false);
+					$jumplinksTable->setSortable(false);
+					$jumplinksTable->headerRow(array($this->_('Import'), $this->_('Redirect From'), $this->_('Redirect To'), $this->_('Hits')));
 
-				$jumplinks = $this->db->query("SELECT * FROM processredirects ORDER BY redirect_from");
+					$jumplinks = $this->db->query("SELECT * FROM processredirects ORDER BY redirect_from");
 
-				while ($jumplink = $jumplinks->fetch_object()) {
+					while ($jumplink = $jumplinks->fetch_object()) {
 
-					$jumplinksTable->row(array(
-						"<input type=\"checkbox\" name=\"importArray[]\" checked value=\"{$jumplink->id}\">",
-						$jumplink->redirect_from,
-						$jumplink->redirect_to,
-						$jumplink->counter,
-					));
+						$jumplinksTable->row(array(
+							"<input type=\"checkbox\" name=\"importArray[]\" checked value=\"{$jumplink->id}\">",
+							$jumplink->redirect_from,
+							$jumplink->redirect_to,
+							$jumplink->counter,
+						));
 
+					}
+
+					$jumplinksMarkup->label = $this->_('Available Redirects');
+					$jumplinksMarkup->value = $jumplinksTable->render();
 				}
-
-				$jumplinksMarkup->value = $jumplinksTable->render();
 
 				$form->add($jumplinksMarkup);
 
@@ -1316,14 +1327,16 @@ class ProcessJumplinks extends Process {
 			'value' => $importType,
 		)));
 
-		// Import data button
-		$field = $this->modules->get('InputfieldButton');
-		$form->add($this->populateInputField($field, array(
-			'name+id' => 'doImport',
-			'value' => 'Import Data',
-			'icon' => 'cloud-upload',
-			'type' => 'submit',
-		))->addClass('head_button_clone'));
+		if ($importType === 'redirects' && !$this->redirectsImported) {
+			// Import data button
+			$field = $this->modules->get('InputfieldButton');
+			$form->add($this->populateInputField($field, array(
+				'name+id' => 'doImport',
+				'value' => 'Import Data',
+				'icon' => 'cloud-upload',
+				'type' => 'submit',
+			))->addClass('head_button_clone'));
+		}
 
 		return $form->render() . $this->helpLink("importing#{$importType}");
 	}
@@ -1343,7 +1356,6 @@ class ProcessJumplinks extends Process {
 		// ... and go!
 		switch ($importType) {
 			case 'csv':
-				// header("Content-Type: text/plain");
 
 				// Prepare the parser
 				$csv = new ParseCSV();
@@ -1390,7 +1402,7 @@ class ProcessJumplinks extends Process {
 					}
 
 					$this->db->query(sprintf($this->sql->entityInsert,
-						$jumplink['source'], $jumplink['destination'], $jumplink['date_start'], $jumplink['date_end'],
+						$jumplink['source'], $jumplink['destination'], 0, $jumplink['date_start'], $jumplink['date_end'],
 						$this->user->id, $this->user->id
 					));
 
@@ -1403,8 +1415,28 @@ class ProcessJumplinks extends Process {
 
 			case 'redirects':
 
-				$this->setFuel('processHeadline', $this->_('Around the corner...'));
-				return 'Feature not ready yet.';
+				// Fetch the importArray - make sure all values are integers.
+				$redirectsArray = implode(',', array_map('intval', $this->input->post->importArray));
+
+				// Now fetch the redirects
+				$redirects = $this->db->query("SELECT * FROM processredirects WHERE id IN ($redirectsArray)");
+
+				// And import them
+				while ($redirect = $redirects->fetch_object()) {
+					$jumplink = (object) array(
+						'sourcePath' => $redirect->redirect_from,
+						'destinationUriUrl' => preg_replace("~\^(\d+)$~i", "page:\\1", $redirect->redirect_to)
+					);
+					$this->commitJumplink($jumplink, $redirect->counter);
+				}
+
+				// Don't allow another import (we're importing for a reason - to migrate over to one module)
+				$configData = $this->modules->getModuleConfigData($this);
+				$configData['redirectsImported'] = true;
+				$this->modules->saveModuleConfigData($this, $configData);
+
+				$this->message('Redirects imported. You can now safely uninstall ProcessRedirects.');
+				$this->session->redirect('../');
 
 				break;
 
@@ -1433,6 +1465,15 @@ class ProcessJumplinks extends Process {
 		// Uninstall tables
 		$this->db->query($this->blueprint('schema-drop'));
 		parent::___uninstall();
+	}
+
+	/**
+	 * Dump and die
+	 * @param  Mixed $mixed Anything
+	 */
+	protected function dd($mixed) {
+		header('Content-Type: text/plain');
+		var_dump($mixed); die;
 	}
 
 }
