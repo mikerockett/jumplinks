@@ -113,14 +113,17 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	}
 
 	public static function getModuleConfigInputfields(array $data) {
+		// Inject assets
 		wire('config')->scripts->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.js');
 		wire('config')->styles->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
 		// Include WireTabs
 		wire('modules')->get('JqueryWireTabs');
 
+		// Add JS config data
 		wire('config')->js('pjModuleAdmin', true);
 		wire('config')->js('pjOldRedirectsInstalled', wire('modules')->isInstalled('ProcessRedirects'));
 
+		// Start inputfields
 		$inputfields = new InputfieldWrapper();
 		$data = array_merge(self::getConfigDefaultsArray(), $data);
 
@@ -318,8 +321,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$blueprint = new Blueprint($name);
 
 		if (empty(array_filter($data))) {
-			// Should we rather just always include tableName?
-			// It's used quite often...
 			$data = array('table-name' => $this->tableName);
 		}
 
@@ -352,8 +353,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			// If we're rendering for backend output, truncate and return the destination.
 			// Otherwise, return the full destination.
 			return ($renderForOutput)
-			? $this->truncate($destination, 45)
-			: $prefix . $destination;
+				? $this->truncate($destination, 45)
+				: $prefix . $destination;
 		}
 
 		// If we're using a page identifier, fetch it
@@ -366,8 +367,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 			// If we're rendering for output, make it pretty.
 			$destination = ($renderForOutput)
-			? "<abbr title=\"{$pagePath}\">{$page->get('headline|title|name')}<abbr>"
-			: $pagePath;
+				? "<abbr title=\"{$pagePath}\">{$page->get('headline|title|name')}<abbr>"
+				: $pagePath;
 		}
 
 		return $destination;
@@ -404,9 +405,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
 		if ($this->{self::ENHANCED_WILDCARD_CLEANING}) {
-			// Merge these two?
-			$input = preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input);
-			$input = preg_replace("~(\d)([a-z])~i", "\\1-\\2", $input);
+			$input = preg_replace("~(\d)([a-z])~i", "\\1-\\2", preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input));
 		}
 
 		$input = trim($input, '-');
@@ -427,8 +426,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 */
 	protected function truncate($string, $length = 55) {
 		return (strlen($string) > $length)
-		? substr($string, 0, $length) . " <span class=\"ellipses\" title=\"{$string}\">...</span>"
-		: $string;
+			? substr($string, 0, $length) . " <span class=\"ellipses\" title=\"{$string}\">...</span>"
+			: $string;
 	}
 
 	/**
@@ -703,8 +702,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				// Check for Timed Activation and determine if we're in the period specified
 				$time = time();
 				$activated = ($starts || $ends)
-				? ($time >= $starts && $time <= $ends)
-				: true;
+					? ($time >= $starts && $time <= $ends)
+					: true;
 
 				// If we're not debugging, and we're Time-activated, then do the redirect
 				if (!$this->userHasDebugRights() && $activated) {
@@ -746,8 +745,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		if (!empty(trim($this->{self::LEGACY_DOMAIN}))) {
 			// Fetch the accepted codes
 			$okCodes = trim(!empty($this->{self::STATUS_CODES}))
-			? array_map('trim', explode(' ', $this->{self::STATUS_CODES}))
-			: explode(',', $this->statusCodes);
+				? array_map('trim', explode(' ', $this->{self::STATUS_CODES}))
+				: explode(',', $this->statusCodes);
 
 			// Prepare and do the request
 			$domainRequest = $this->{self::LEGACY_DOMAIN} . $request;
