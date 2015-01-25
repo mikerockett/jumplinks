@@ -1182,6 +1182,22 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	}
 
 	/**
+	 * API method to add a new jumplink
+	 * @param String $source
+	 * @param String $destination
+	 * @param String $start
+	 * @param String $end
+	 */
+	public function add($source, $destination, $start = '', $end = '') {
+		$this->commitJumplink((object) array(
+			'sourcePath' => $source,
+			'destinationUriUrl' => $destination,
+			'dateStart' => $start,
+			'dateEnd' => $end,
+		));
+	}
+
+	/**
 	 * Admin Route: Commit new jumplink or update existing
 	 */
 	public function ___executeCommit() {
