@@ -1022,7 +1022,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'name+id' => 'sourcePath',
 			'label' => $this->_('Source'),
 			'description' => $this->_("Enter a path that's relative to the root of this installation, without the leading slash."),
-			'notes' => sprintf($this->_("**Examples:** page.html, [{page:segment}](%1\$s/wildcards).html, page.php?name={page:segment}, [page.php?id={id}](%1\$s/mapping-collections)"), $this->moduleInfo['href']),
+			'notes' => sprintf($this->_("**Examples:** page.html, [{page:segment}](%1\$s/Wildcards).html, page.php?name={page:segment}, [page.php?id={id}](%1\$s/Mapping-Collections)"), $this->moduleInfo['href']),
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
 			'value' => isset($sourcePath) ? $sourcePath : '',
@@ -1059,7 +1059,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'name+id' => 'destinationUriUrl',
 			'label' => $this->_('or enter a URI/URL'),
 			'description' => $this->_('Enter a URI relative to the root of this installation, without the leading slash, or an absolute URL.'),
-			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%s/mapping-collections) .\n**Note:** If you select a page from the Page Selector above, its identifier will be added here."), $this->moduleInfo['href']),
+			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%s/Mapping-Collections) .\n**Note:** If you select a page from the Page Selector above, its identifier will be added here."), $this->moduleInfo['href']),
 			'required' => 1,
 			'value' => isset($destinationUriUrl) ? $destinationUriUrl : '',
 		)));
