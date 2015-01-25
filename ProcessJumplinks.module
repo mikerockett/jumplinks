@@ -988,7 +988,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$userCreated, $userUpdated, $dateStart, $dateEnd,
 				$createdAt, $updatedAt) = $result->fetch_array();
 
-			$this->setFuel('processHeadline', $this->_('Editing Redirect'));
+			$this->setFuel('processHeadline', $this->_('Editing Jumplink'));
 
 			// Format dates (times)
 			$dateStart = ($dateStart != null) ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
