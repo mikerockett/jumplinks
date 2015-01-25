@@ -235,19 +235,32 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$this->setArray(self::getConfigDefaultsArray());
 		$this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
 		$this->sql = (object) array(
-			'entitySelectAll' => "SELECT * FROM {$this->tableName} ORDER BY source",
-			'entitySelectAllJsonNav' => "SELECT * FROM {$this->tableName} ORDER BY updated_at DESC LIMIT 5",
-			'entitySelectSingle' => "SELECT * FROM {$this->tableName} WHERE id=%s",
-			'entityDropById' => "DELETE FROM {$this->tableName} WHERE id=%s",
-			'entityInsert' => "INSERT INTO {$this->tableName} SET source = '%s', destination = '%s', hits = '%s', date_start = %s, date_end = %s, user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
-			'entityUpdate' => "UPDATE {$this->tableName} SET source = '%s', destination = '%s', date_start = %s, date_end = %s, user_updated = %s WHERE id = %s",
-			'entityUpdateHits' => "UPDATE {$this->tableName} SET hits = %s WHERE id = %s",
-			'mappingCollectionsSelectAll' => "SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
-			'mappingCollectionsSelectSingle' => "SELECT * FROM {$this->tableName}_mc WHERE id=%s",
-			'mappingCollectionsSelectAllFromName' => "SELECT * FROM {$this->tableName}_mc WHERE collection_name='%s'",
-			'mappingCollectionsDropById' => "DELETE FROM {$this->tableName}_mc WHERE id=%s",
-			'mappingCollectionsInsert' => "INSERT INTO {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
-			'mappingCollectionsUpdate' => "UPDATE {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_updated = %s WHERE id = %s",
+			'entitySelectAll' =>
+				"SELECT * FROM {$this->tableName} ORDER BY source",
+			'entitySelectAllJsonNav' =>
+				"SELECT * FROM {$this->tableName} ORDER BY updated_at DESC LIMIT 5",
+			'entitySelectSingle' =>
+				"SELECT * FROM {$this->tableName} WHERE id=%s",
+			'entityDropById' =>
+				"DELETE FROM {$this->tableName} WHERE id=%s",
+			'entityInsert' =>
+				"INSERT INTO {$this->tableName} SET source = '%s', destination = '%s', hits = '%s', date_start = %s, date_end = %s, user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
+			'entityUpdate' =>
+				"UPDATE {$this->tableName} SET source = '%s', destination = '%s', date_start = %s, date_end = %s, user_updated = %s WHERE id = %s",
+			'entityUpdateHits' =>
+				"UPDATE {$this->tableName} SET hits = %s WHERE id = %s",
+			'mappingCollectionsSelectAll' =>
+				"SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
+			'mappingCollectionsSelectSingle' =>
+				"SELECT * FROM {$this->tableName}_mc WHERE id=%s",
+			'mappingCollectionsSelectAllFromName' =>
+				"SELECT * FROM {$this->tableName}_mc WHERE collection_name='%s'",
+			'mappingCollectionsDropById' =>
+				"DELETE FROM {$this->tableName}_mc WHERE id=%s",
+			'mappingCollectionsInsert' =>
+				"INSERT INTO {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_created = %s, user_updated = %s ON DUPLICATE KEY UPDATE id = id",
+			'mappingCollectionsUpdate' =>
+				"UPDATE {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_updated = %s WHERE id = %s",
 		);
 	}
 

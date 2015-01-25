@@ -68,14 +68,14 @@ $(function() {
 
     }();
 
-    // Check if we're working with a redirect
+    // Check if we're working with a jumplink
     config.pjEntity && function() {
 
         $('#destinationPage').bind('pageSelected', function(a, b) {
             b.id > 0 && $('input#destinationUriUrl').val('page:' + b.id)
         });
 
-        $('button#saveRedirect').on('click', function() {
+        $('button#saveJumplink').on('click', function() {
 
             var $values = {
                     sourcePath: $('input#sourcePath').val(),
