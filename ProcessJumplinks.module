@@ -1139,7 +1139,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		// Save/Update button
 		$field = $this->modules->get('InputfieldButton');
 		$form->add($this->populateInputField($field, array(
-			'name+id' => 'saveRedirect',
+			'name+id' => 'saveJumplink',
 			'value' => ($editingId) ? $this->_('Update & Return') : $this->_('Save & Return'),
 			'icon' => 'save',
 			'type' => 'submit',
@@ -1199,14 +1199,14 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		// If we're updating, check if we should delete
 		if ($isUpdating && $input->delete) {
 			$this->db->query(sprintf($this->sql->entityDropById, $id));
-			$this->message($this->_('Redirect deleted.'));
+			$this->message($this->_('Jumplink deleted.'));
 			$this->session->redirect("../");
 		}
 
 		// Otherwise, continue to commit jumplink to DB
 		$this->commitJumplink($input, 0, $isUpdating, $id);
 
-		$this->message($this->_("Redirect saved."));
+		$this->message($this->_("Jumplink saved."));
 
 		$this->session->redirect("../");
 	}
