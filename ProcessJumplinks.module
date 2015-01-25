@@ -130,19 +130,19 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Wildcard Cleaning Fieldset
 		$fieldset = self::buildInputField('InputfieldFieldset', array(
-			'label' => _('Wildcard Cleaning'),
+			'label' => __('Wildcard Cleaning'),
 			'collapsed' => Inputfield::collapsedNever,
 		));
 
 		// Wildcard Cleaning
 		$fieldset->add(self::buildInputField('InputfieldRadios', array(
 			'name+id' => self::WILDCARD_CLEANING,
-			'description' => _("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
-			'notes' => sprintf(_("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)"), self::HREF),
+			'description' => __("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
+			'notes' => sprintf(__("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)"), self::HREF),
 			'options' => array(
-				'fullClean' => _('Full Clean (default, recommended)'),
-				'semiClean' => _("Clean, but don't change case"),
-				'noClean' => _("Don't clean at all (not recommended)"),
+				'fullClean' => __('Full Clean (default, recommended)'),
+				'semiClean' => __("Clean, but don't change case"),
+				'noClean' => __("Don't clean at all (not recommended)"),
 			),
 			'columnWidth' => 50,
 			'collapsed' => Inputfield::collapsedNever,
@@ -153,10 +153,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		// Enhanced Wildcard Cleaning
 		$fieldset->add(self::buildInputField('InputfieldCheckbox', array(
 			'name+id' => self::ENHANCED_WILDCARD_CLEANING,
-			'label' => _('Enhanced Wildcard Cleaning'),
-			'description' => _("When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
-			'label2' => _('Use Enhanced Wildcard Cleaning'),
-			'notes' => _("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'."),
+			'label' => __('Enhanced Wildcard Cleaning'),
+			'description' => __("When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
+			'label2' => __('Use Enhanced Wildcard Cleaning'),
+			'notes' => __("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'."),
 			'columnWidth' => 50,
 			'collapsed' => Inputfield::collapsedNever,
 			'autocheck' => true,
@@ -167,7 +167,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Legacy Domain Fieldset
 		$fieldset = self::buildInputField('InputfieldFieldset', array(
-			'label' => _('Legacy Domain'),
+			'label' => __('Legacy Domain'),
 			'collapsed' => Inputfield::collapsedYes,
 		));
 
@@ -175,9 +175,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$fieldset->add(self::buildInputField('InputfieldText', array(
 			'name+id' => self::LEGACY_DOMAIN,
 			'columnWidth' => 50,
-			'description' => _('Attempt any requested, unresolved Source paths on a legacy domain/URL.'),
-			'notes' => _("Enter a full, valid domain/URL. **Source Path won't be cleaned upon redirect**."),
-			'placeholder' => _('Examples: "http://legacy.domain.com/" or "http://domain.com/old/"'),
+			'description' => __('Attempt any requested, unresolved Source paths on a legacy domain/URL.'),
+			'notes' => __("Enter a full, valid domain/URL. **Source Path won't be cleaned upon redirect**."),
+			'placeholder' => __('Examples: "http://legacy.domain.com/" or "http://domain.com/old/"'),
 			'collapsed' => Inputfield::collapsedNever,
 			'skipLabel' => Inputfield::skipLabelHeader,
 			'spellcheck' => 'false',
@@ -188,8 +188,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$fieldset->add(self::buildInputField('InputfieldText', array(
 			'name+id' => self::STATUS_CODES,
 			'columnWidth' => 50,
-			'description' => _('Only redirect if a request to it yields one of these HTTP status codes:'),
-			'notes' => _("Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**"),
+			'description' => __('Only redirect if a request to it yields one of these HTTP status codes:'),
+			'notes' => __("Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**"),
 			'collapsed' => Inputfield::collapsedNever,
 			'skipLabel' => Inputfield::skipLabelHeader,
 			'spellcheck' => 'false',
@@ -201,10 +201,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		// Debug Mode
 		$inputfields->add(self::buildInputField('InputfieldCheckbox', array(
 			'name+id' => self::MODULE_DEBUG,
-			'label' => _('Debug Mode'),
-			'description' => _("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
-			'label2' => _('Turn debug mode on'),
-			'notes' => _("**Notes:** Hits won't be affected when debug mode is turned on. Also, only those that have permission to manage jumplinks will be shown the debug logs."),
+			'label' => __('Debug Mode'),
+			'description' => __("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
+			'label2' => __('Turn debug mode on'),
+			'notes' => __("**Notes:** Hits won't be affected when debug mode is turned on. Also, only those that have permission to manage jumplinks will be shown the debug logs."),
 			'collapsed' => Inputfield::collapsedBlank,
 			'autocheck' => true,
 			'value' => $data[self::MODULE_DEBUG],
