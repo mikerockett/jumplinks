@@ -89,7 +89,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * See the docs for more info.
 	 * @var array
 	 */
-	public $smartWildcards = array(
+	protected $smartWildcards = array(
 		'all' => 'all',
 		'ext' => 'ext',
 		'name|title|page|post|user|model|entry' => 'segment',
@@ -101,7 +101,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * Get the default configuration details
 	 * @return array
 	 */
-	public static function getConfigDefaultsArray() {
+	protected static function getConfigDefaultsArray() {
 		return array(
 			self::_SCHEMA_VERSION => self::SCHEMA_VERSION,
 			self::ENHANCED_WILDCARD_CLEANING => false,
@@ -306,8 +306,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	protected function helpLink($uri = '') {
-		if (!empty($uri))
+		if (!empty($uri)) {
 			$uri = "/{$uri}";
+		}
+
 		return "<div class=\"pjHelpLink\"><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Need help?</a></div>";
 	}
 
@@ -637,6 +639,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 			// If the request matches the source currently being checked:
 			if (preg_match("~^$computedWildcards$~i", $request)) {
+
 				// For the purposes of mapping, fetch all the collections and compile them
 				$collections = $this->db->query($this->sql->mappingCollectionsSelectAll);
 				$compiledCollections = new StdClass();
@@ -812,13 +815,14 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$relativeEndTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_end, true));
 
 			$relativeStartTime = ($relativeStartTime === '-')
-			? $relativeStartTime
-			: "<abbr title=\"{$jumplink->date_start}\">{$relativeStartTime}</abbr>";
+				? $relativeStartTime
+				: "<abbr title=\"{$jumplink->date_start}\">{$relativeStartTime}</abbr>";
 			$relativeEndTime = ($relativeEndTime === '-')
-			? $relativeEndTime
-			: "<abbr title=\"{$jumplink->date_end}\">{$relativeEndTime}</abbr>";
+				? $relativeEndTime
+				: "<abbr title=\"{$jumplink->date_end}\">{$relativeEndTime}</abbr>";
 
 			$hits = $hits + $jumplink->hits;
+
 			$jumplinksTable->row(array(
 				$this->truncate($jumplink->source, 80) => "{$this->entityFormPath}?id={$jumplink->id}",
 				$jumplink->destination,
