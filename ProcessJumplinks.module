@@ -154,7 +154,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$fieldset->add(self::buildInputField('InputfieldCheckbox', array(
 			'name+id' => self::ENHANCED_WILDCARD_CLEANING,
 			'label' => _('Enhanced Wildcard Cleaning'),
-			'description' => _("The following experiment enhances wildcard cleaning by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
+			'description' => _("When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
 			'label2' => _('Use Enhanced Wildcard Cleaning'),
 			'notes' => _("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'."),
 			'columnWidth' => 50,
