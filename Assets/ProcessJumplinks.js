@@ -142,6 +142,29 @@ $(function() {
 
     }();
 
+    // Check if we're importing from CSV
+    config.pjImport && function() {
+
+        $('button#doImport').on('click', function() {
+
+            var $values = {
+                    data: $('textarea#csvData').val(),
+                },
+                errors = [],
+                errorString = '';
+
+            if (!$values.data)
+                errors.push("CSV data can't be empty...");
+
+            if (errors.length) {
+                errorDialog(errors);
+                return false;
+            }
+
+        });
+
+    }();
+
     // Detect if we're on the module's config page
     config.pjModuleAdmin && function() {
 
