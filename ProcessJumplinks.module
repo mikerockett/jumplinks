@@ -283,7 +283,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		if (preg_match($indexExpression, $this->request)) {
 			$this->session->redirect(preg_replace(
 				$indexExpression,
-				"{$this->config->urls->root}index.php.pw-pj\\1",
+				"{$this->config->urls->root}index.php.pwpj\\1",
 				$this->request
 			));
 		}
@@ -516,7 +516,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$indent = ($indent) ? "- " : '';
 			$break = ($break) ? "\n" : '';
 
-			print str_replace('.pw-pj', '', "{$indent}{$message}\n{$break}");
+			print str_replace('.pwpj', '', "{$indent}{$message}\n{$break}");
 
 			if ($die) {
 				die();
@@ -595,7 +595,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			// Then, convert '[character]' to 'character?' for matching.
 			$source = preg_replace('~\[([a-z0-9\/])\]~i', "\\1?", str_replace(
 				array('?', '&', ':', '+', 'index.php'),
-				array('\?', '\&', '\:', '+', 'index.php.pw-pj'),
+				array('\?', '\&', '\:', '+', 'index.php.pwpj'),
 				$jumplink->source));
 
 			// Reverse ? escaping for wildcards
