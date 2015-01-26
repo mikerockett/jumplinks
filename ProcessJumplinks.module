@@ -19,19 +19,19 @@ require_once __DIR__ . '../Classes/ParseCSV.php';
 class ProcessJumplinks extends Process implements ConfigurableModule {
 
 	/** Schema version for this release */
-	const SCHEMA_VERSION = 1;
+	const schemaVersion = 1;
 
 	/** Module docs link */
 	const HREF = 'https://github.com/mike-anthony/ProcessJumplinks/wiki';
 
 	/** Config names */
-	const _SCHEMA_VERSION = "schemaVersion";
-	const ENHANCED_WILDCARD_CLEANING = "enhancedWildcardCleaning";
-	const LEGACY_DOMAIN = "legacyDomain";
-	const MODULE_DEBUG = "moduleDebug";
-	const REDIRECTS_IMPORTED = "redirectsImported";
-	const STATUS_CODES = "statusCodes";
-	const WILDCARD_CLEANING = "wildcardCleaning";
+	const _schemaVersion = "schemaVersion";
+	const enhancedWildcardCleaning = "enhancedWildcardCleaning";
+	const legacyDomain = "legacyDomain";
+	const moduleDebug = "moduleDebug";
+	const redirectsImported = "redirectsImported";
+	const statusCodes = "statusCodes";
+	const wildcardCleaning = "wildcardCleaning";
 
 	/**
 	 * Determine if the text/plain header is set
@@ -103,13 +103,13 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 */
 	protected static function getConfigDefaultsArray() {
 		return array(
-			self::_SCHEMA_VERSION => self::SCHEMA_VERSION,
-			self::ENHANCED_WILDCARD_CLEANING => false,
-			self::LEGACY_DOMAIN => '',
-			self::MODULE_DEBUG => false,
-			self::REDIRECTS_IMPORTED => false,
-			self::STATUS_CODES => '200 301 302',
-			self::WILDCARD_CLEANING => 'fullClean',
+			self::_schemaVersion => self::schemaVersion,
+			self::enhancedWildcardCleaning => false,
+			self::legacyDomain => '',
+			self::moduleDebug => false,
+			self::redirectsImported => false,
+			self::statusCodes => '200 301 302',
+			self::wildcardCleaning => 'fullClean',
 		);
 	}
 
@@ -136,7 +136,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Wildcard Cleaning
 		$fieldset->add(self::buildInputField('InputfieldRadios', array(
-			'name+id' => self::WILDCARD_CLEANING,
+			'name+id' => self::wildcardCleaning,
 			'description' => __("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
 			'notes' => sprintf(__("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)"), self::HREF),
 			'options' => array(
@@ -147,12 +147,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'columnWidth' => 50,
 			'collapsed' => Inputfield::collapsedNever,
 			'skipLabel' => Inputfield::skipLabelHeader,
-			'value' => $data[self::WILDCARD_CLEANING],
+			'value' => $data[self::wildcardCleaning],
 		)));
 
 		// Enhanced Wildcard Cleaning
 		$fieldset->add(self::buildInputField('InputfieldCheckbox', array(
-			'name+id' => self::ENHANCED_WILDCARD_CLEANING,
+			'name+id' => self::enhancedWildcardCleaning,
 			'label' => __('Enhanced Wildcard Cleaning'),
 			'description' => __("When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
 			'label2' => __('Use Enhanced Wildcard Cleaning'),
@@ -160,7 +160,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'columnWidth' => 50,
 			'collapsed' => Inputfield::collapsedNever,
 			'autocheck' => true,
-			'value' => $data[self::ENHANCED_WILDCARD_CLEANING],
+			'value' => $data[self::enhancedWildcardCleaning],
 		)));
 
 		$inputfields->add($fieldset);
@@ -173,7 +173,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Legacy Domain Name
 		$fieldset->add(self::buildInputField('InputfieldText', array(
-			'name+id' => self::LEGACY_DOMAIN,
+			'name+id' => self::legacyDomain,
 			'columnWidth' => 50,
 			'description' => __('Attempt any requested, unresolved Source paths on a legacy domain/URL.'),
 			'notes' => __("Enter a full, valid domain/URL. **Source Path won't be cleaned upon redirect**."),
@@ -181,33 +181,33 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'collapsed' => Inputfield::collapsedNever,
 			'skipLabel' => Inputfield::skipLabelHeader,
 			'spellcheck' => 'false',
-			'value' => $data[self::LEGACY_DOMAIN],
+			'value' => $data[self::legacyDomain],
 		)));
 
 		// Legacy Domain Status Codes
 		$fieldset->add(self::buildInputField('InputfieldText', array(
-			'name+id' => self::STATUS_CODES,
+			'name+id' => self::statusCodes,
 			'columnWidth' => 50,
 			'description' => __('Only redirect if a request to it yields one of these HTTP status codes:'),
 			'notes' => __("Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**"),
 			'collapsed' => Inputfield::collapsedNever,
 			'skipLabel' => Inputfield::skipLabelHeader,
 			'spellcheck' => 'false',
-			'value' => $data[self::STATUS_CODES],
+			'value' => $data[self::statusCodes],
 		)));
 
 		$inputfields->add($fieldset);
 
 		// Debug Mode
 		$inputfields->add(self::buildInputField('InputfieldCheckbox', array(
-			'name+id' => self::MODULE_DEBUG,
+			'name+id' => self::moduleDebug,
 			'label' => __('Debug Mode'),
 			'description' => __("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
 			'label2' => __('Turn debug mode on'),
 			'notes' => __("**Notes:** Hits won't be affected when debug mode is turned on. Also, only those that have permission to manage jumplinks will be shown the debug logs."),
 			'collapsed' => Inputfield::collapsedBlank,
 			'autocheck' => true,
-			'value' => $data[self::MODULE_DEBUG],
+			'value' => $data[self::moduleDebug],
 		)));
 
 		return $inputfields;
@@ -275,7 +275,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$this->config->js("pjAdminPageUrl", $this->pages->get('name=jumplinks')->url);
 
 		// Make sure schemas are up to date
-		if ($this->schemaVersion < self::SCHEMA_VERSION) {
+		if ($this->schemaVersion < self::schemaVersion) {
 			$this->updateDatabaseSchemas();
 		}
 
@@ -410,7 +410,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	public function cleanWildcard($input, $noLower = false) {
-		if ($this->{self::ENHANCED_WILDCARD_CLEANING}) {
+		if ($this->{self::enhancedWildcardCleaning}) {
 			// Courtesy @sln on StackOverflow
 			$input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures) {
 				return $captures[1] . strtolower($captures[2]);
@@ -422,7 +422,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$input = preg_replace("~[^\\pL\d\/]+~u", '-', $input);
 		$input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
-		if ($this->{self::ENHANCED_WILDCARD_CLEANING}) {
+		if ($this->{self::enhancedWildcardCleaning}) {
 			$input = preg_replace("~(\d)([a-z])~i", "\\1-\\2", preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input));
 		}
 
@@ -508,7 +508,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return bool
 	 */
 	protected function userHasDebugRights() {
-		return ($this->{self::MODULE_DEBUG} && $this->user->hasPermission('jumplinks-admin'));
+		return ($this->{self::moduleDebug} && $this->user->hasPermission('jumplinks-admin'));
 	}
 
 	/**
@@ -680,7 +680,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 						$paramSkipCleanCheck = "~\{!$value\}~i";
 						$uncleanedCapture = $captures[$c];
 						if (!preg_match($paramSkipCleanCheck, $result)) {
-							$wildcardCleaning = $this->{self::WILDCARD_CLEANING};
+							$wildcardCleaning = $this->{self::wildcardCleaning};
 							if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
 								$captures[$c] = $this->cleanWildcard($captures[$c], ($wildcardCleaning === 'fullClean') ? false : true);
 							}
@@ -716,7 +716,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				}, $convertedWildcards);
 
 				$this->log("Original Destination Path:    $jumplink->destination", true);
-				$this->log("Compiled Destination Path:    $destination", true, true);
+				$this->log("Compiled Destination Path:    $convertedWildcards", true, true);
 
 				// Check for Timed Activation and determine if we're in the period specified
 				$time = time();
@@ -737,8 +737,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$this->log("From URL:   {$requestedUrlFirstPart}/{$request}", true);
 				$this->log("To URL:     {$convertedWildcards}", true);
 
-				// If we're in the period specified:
-				if ($activated) {
+				if (!$activated) {
 					// If it ends before it starts, then show the time it starts.
 					// Otherwise, show the period.
 					if ($ends < $starts) {
@@ -761,14 +760,14 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Considering we don't have one available, let's check to see if the Source Path
 		// exists on the Legacy Domain, if defined.
-		if (!empty(trim($this->{self::LEGACY_DOMAIN}))) {
+		if (!empty(trim($this->{self::legacyDomain}))) {
 			// Fetch the accepted codes
-			$okCodes = trim(!empty($this->{self::STATUS_CODES}))
-				? array_map('trim', explode(' ', $this->{self::STATUS_CODES}))
+			$okCodes = trim(!empty($this->{self::statusCodes}))
+				? array_map('trim', explode(' ', $this->{self::statusCodes}))
 				: explode(',', $this->statusCodes);
 
 			// Prepare and do the request
-			$domainRequest = $this->{self::LEGACY_DOMAIN} . $request;
+			$domainRequest = $this->{self::legacyDomain} . $request;
 			$status = $this->getResponseCode($domainRequest);
 
 			// If the response has an accepted code, then 302 redirect (or log)
@@ -1391,7 +1390,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		foreach ($mappings as $mapping) {
 			$mapping = explode('=', $mapping);
 
-			$wildcardCleaning = $this->{self::WILDCARD_CLEANING};
+			$wildcardCleaning = $this->{self::wildcardCleaning};
 			if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
 				$mapping[1] = $this->cleanWildcard($mapping[1], ($wildcardCleaning === 'fullClean') ? false : true);
 			}
