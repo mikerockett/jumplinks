@@ -13,8 +13,8 @@
  *
  */
 
-require_once __DIR__ . '../Classes/Blueprint.php';
-require_once __DIR__ . '../Classes/ParseCSV.php';
+require_once __DIR__ . '/Classes/Blueprint.php';
+require_once __DIR__ . '/Classes/ParseCSV.php';
 
 class ProcessJumplinks extends Process implements ConfigurableModule {
 
