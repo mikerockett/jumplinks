@@ -1660,7 +1660,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 */
 	public function ___install() {
 		// Install tables (their schemas may not remain the same as updateDatabaseSchemas() may change them)
-		foreach (array('main', 'logs', 'mc') as $schema) {
+		foreach (array('main', 'mc') as $schema) {
 			$this->db->query($this->blueprint("schema-create-{$schema}"));
 		}
 
