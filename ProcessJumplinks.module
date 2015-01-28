@@ -63,7 +63,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @var string
 	 */
 	protected $entityFormPath = 'entity/';
-	protected $mappingCollectionFormPath = 'mapping-collection/';
+	protected $mappingCollectionFormPath = 'mappingcollection/';
 	protected $importPath = 'import/';
 
 	/**
