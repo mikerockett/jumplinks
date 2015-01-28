@@ -802,11 +802,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$jumplinks = $this->db->query($this->sql->entitySelectAll);
 		$this->setFuel('processHeadline', $this->_('Manage Jumplinks'));
 
-		// If we don't have any jumplinks defined, then we should start be creating one
-		if ($jumplinks->num_rows == 0) {
-			$this->session->redirect("{$this->entityFormPath}?first");
-		}
-
 		$tabContainer = new InputfieldWrapper();
 
 		$jumplinksTab = new InputfieldWrapper();
@@ -818,7 +813,11 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$jumplinksTable->headerRow(array($this->_('Source'), $this->_('Destination'), $this->_('Start'), $this->_('End'), $this->_('Hits')));
 
 		$pronoun = $this->_n('it', 'one', $jumplinks->num_rows);
-		$description = $this->_n('You have one jumplink registered.', 'Your jumplinks are listed below.', $jumplinks->num_rows) . ' ' . sprintf($this->_("To edit/delete %s, simply click on its Source."), $pronoun);
+		if ($jumplinks->num_rows == 0) {
+			$description = $this->_("You don't have any jumplinks yet.");
+		} else {
+			$description = $this->_n('You have one jumplink registered.', 'Your jumplinks are listed below.', $jumplinks->num_rows) . ' ' . sprintf($this->_("To edit/delete %s, simply click on its Source."), $pronoun);
+		}
 
 		$jumplinksDescriptionMarkup = $this->modules->get('InputfieldMarkup');
 		$jumplinksDescriptionMarkup->value = $description;
@@ -853,7 +852,17 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$wordLinks = ($jumplinks->num_rows === 1) ? 'jumplink' : 'jumplinks';
 		$jumplinksTable->footerRow(array("{$jumplinks->num_rows} {$wordLinks}", '', '', '', $hits));
 
-		$registerJumplinkButtonLabel = ($jumplinks->num_rows === 1) ? $this->_('Register Another Jumplink') : $this->_('Register New Jumplink');
+		switch ($jumplinks->num_rows) {
+			case 0:
+				$registerJumplinkButtonLabel = $this->_('Register First Jumplink');
+				break;
+			case 1:
+				$registerJumplinkButtonLabel = $this->_('Register Another Jumplink');
+				break;
+			default:
+				$registerJumplinkButtonLabel = $this->_('Register New Jumplink');
+				break;
+		}
 
 		$jumplinks->close();
 
@@ -1017,14 +1026,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$dateEnd = ($dateEnd != null) ? date('Y-m-d h:m A', strtotime($dateEnd)) : null;
 		}
 
-		// Check if this is our first jumplink
-		$message = '';
-		if (isset($this->input->get->first)) {
-			$message = sprintf($this->_("You don't have any jumplinks registered. Let's create a new one now. Or, you can <a href=\"%s\">import them</a>."), $this->getModuleConfigUri() . '#Inputfield_submit_save_module');
-			$message = "<p class=\"description pjInfo\">{$message}</p>";
-			$this->setFuel('processHeadline', $this->_('Register First Jumplink'));
-		}
-
 		// Prep the form
 		$form = $this->modules->get('InputfieldForm');
 		$form->id = 'pjInputForm';
@@ -1162,7 +1163,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$field = $this->modules->get('InputfieldButton');
 		$form->add($this->populateInputField($field, array(
 			'name+id' => 'saveJumplink',
-			'value' => ($editingId) ? $this->_('Update & Return') : $this->_('Save & Return'),
+			'value' => ($editingId) ? $this->_('Update Jumplink') : $this->_('Save Jumplink'),
 			'icon' => 'save',
 			'type' => 'submit',
 		))->addClass('head_button_clone'));
@@ -1170,7 +1171,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$this->config->js('pjEntity', true);
 
 		// Return the rendered page
-		return $message . $form->render() . $this->helpLink('Working-with-Jumplinks');
+		return $form->render() . $this->helpLink('Working-with-Jumplinks');
 	}
 
 	protected function commitJumplink($input, $hits = 0, $updating = false, $id = 0) {
