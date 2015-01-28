@@ -1361,33 +1361,17 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	}
 
 	/**
-	 * Admin Route: Commit new mapping collection or update existing
+	 * Commit a new mapping collection
+	 * @param  String $collectionName
+	 * @param  Array  $data
+	 * @param  int    $id
 	 */
-	public function ___executeCommitMappingCollection() {
-		// Just to be on the safe side...
-		if ($this->input->post->id == null) {
-			$this->session->redirect("../");
-		}
-
-		$input = $this->input->post;
-
-		// Set the ID and check if we're updating
-		$id = (int) $input->id;
-		$isUpdating = ($id !== 0);
-
-		// If we're updating, check if we should delete
-		if ($isUpdating && $input->uninstallCollection) {
-			$this->db->query(sprintf($this->sql->mappingCollectionsDropById, $id));
-			$this->message($this->_('Collection uninstalled.'));
-			$this->session->redirect("../");
-		}
-
+	protected function commitMappingCollection($collectionName, $collectionData, $id = 0) {
 		// Clean up name (alphas only)
-		$collectionName = preg_replace('~[^a-z]~', '', strtolower($input->collectionName));
+		$collectionName = preg_replace('~[^a-z]~', '', strtolower($collectionName));
 
 		// Fetch, trim, and explode the data for cleaning
-		$collectionMappings = $input->collectionData;
-		$mappings = explode(PHP_EOL, trim($collectionMappings));
+		$mappings = explode(PHP_EOL, trim($collectionData));
 
 		$compiledMappings = array();
 
@@ -1411,17 +1395,61 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$dbInput = trim($dbInput);
 
+		$updating = ($id > 0);
+
 		// Set the user creating/updating
-		if (!$isUpdating) {
+		if (!$updating) {
 			$userCreated = $this->user->id;
 		}
 		$userUpdated = $this->user->id;
 
 		// Insert/Update
-		$this->db->query(($isUpdating)
+		$this->db->query(($updating)
 			? sprintf($this->sql->mappingCollectionsUpdate, $collectionName, $dbInput, $userUpdated, $id)
 			: sprintf($this->sql->mappingCollectionsInsert, $collectionName, $dbInput, $userCreated, $userUpdated)
 		);
+	}
+
+	/**
+	 * API call to create a new collection
+	 * @param String $name
+	 * @param Array $data
+	 */
+	public function addCollection($name, $data) {
+
+		// Gather the data from the array
+		$collectionData = "";
+		foreach ($data as $key => $value) {
+			$collectionData .= "{$key}={$value}" . PHP_EOL;
+		}
+
+		// And send it off!
+		$this->commitMappingCollection($name, $collectionData);
+	}
+
+	/**
+	 * Admin Route: Commit new mapping collection or update existing
+	 */
+	public function ___executeCommitMappingCollection() {
+		// Just to be on the safe side...
+		if ($this->input->post->id == null) {
+			$this->session->redirect("../");
+		}
+
+		$input = $this->input->post;
+
+		// Set the ID and check if we're updating
+		$id = (int) $input->id;
+		$isUpdating = ($id > 0);
+
+		// If we're updating, check if we should uninstall
+		if ($isUpdating && $input->uninstallCollection) {
+			$this->db->query(sprintf($this->sql->mappingCollectionsDropById, $id));
+			$this->message($this->_('Collection uninstalled.'));
+			$this->session->redirect("../");
+		}
+
+		$this->commitMappingCollection($input->collectionName, $input->collectionData, $id);
 
 		$this->message(sprintf($this->_("Mapping Collection '%s' saved."), $collectionName));
 
