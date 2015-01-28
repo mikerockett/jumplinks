@@ -5,9 +5,9 @@ CREATE TABLE <table-name> (
     hits INT UNSIGNED DEFAULT 0,
     user_created INT UNSIGNED DEFAULT 0,
     user_updated INT UNSIGNED DEFAULT 0,
-    date_start DATETIME NULL,
-    date_end DATETIME NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    date_start TIMESTAMP NULL,
+    date_end TIMESTAMP NULL,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
     PRIMARY KEY(id)
 ) ENGINE = MyISAM DEFAULT CHARSET=utf8;
