@@ -338,7 +338,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	protected function blueprint($name, $data = array()) {
 		$blueprint = new Blueprint($name);
 
-		if (empty(array_filter($data))) {
+		$data = array_filter($data);
+
+		if (empty($data)) {
 			$data = array('table-name' => $this->tableName);
 		}
 
@@ -760,7 +762,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Considering we don't have one available, let's check to see if the Source Path
 		// exists on the Legacy Domain, if defined.
-		if (!empty(trim($this->{self::legacyDomain}))) {
+
+		$legacyDomain = trim($this->{self::legacyDomain});
+		if (!empty($legacyDomain)) {
 			// Fetch the accepted codes
 			$okCodes = trim(!empty($this->{self::statusCodes}))
 				? array_map('trim', explode(' ', $this->{self::statusCodes}))
