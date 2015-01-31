@@ -4,8 +4,8 @@ CREATE TABLE <table-name>_mc (
     collection_mappings LONGTEXT NOT NULL,
     user_created INT UNSIGNED DEFAULT 0,
     user_updated INT UNSIGNED DEFAULT 0,
-    created_at TIMESTAMP,
     updated_at TIMESTAMP,
+    created_at TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY(collection_name)
 ) ENGINE = MyISAM DEFAULT CHARSET=utf8;

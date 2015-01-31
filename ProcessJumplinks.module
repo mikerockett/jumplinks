@@ -268,7 +268,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'mappingCollectionsInsert' =>
 				"INSERT INTO {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_created = %s, user_updated = %s, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
 			'mappingCollectionsUpdate' =>
-				"UPDATE {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_updated = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+				"UPDATE {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_updated = %s WHERE id = %s",
 		);
 	}
 
