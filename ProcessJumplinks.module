@@ -327,7 +327,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @param  string $uri
 	 * @return string
 	 */
-	protected function helpLink($uri = '', $justTheLink = false) {
+	protected function helpLinks($uri = '', $justTheLink = false) {
 
 		if (!empty($uri)) {
 			$uri = "/{$uri}";
@@ -335,7 +335,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		return ($justTheLink)
 			? $this->moduleInfo['href'] . $uri
-			: "<div class=\"pjHelpLink\"><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Need help?</a></div>";
+			: "<div class=\"pjHelpLink\"><a href=\"https://processwire.com/talk/topic/8697-module-jumplinks/\">Get Support</a><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Documentation</a></div>";
 	}
 
 	/**
@@ -1019,7 +1019,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// We have to wrap it in a form to prevent spacing underneath
 		// the tabs. This goes hand in hand with a rule in the stylesheet
-		return "<form id=\"pjTabs\">{$tabContainer->render()}{$this->helpLink()}</form>";
+		return "<form id=\"pjTabs\">{$tabContainer->render()}{$this->helpLinks()}</form>";
 	}
 
 	/**
@@ -1194,7 +1194,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$this->config->js('pjEntity', true);
 
 		// Return the rendered page
-		return $form->render() . $this->helpLink('Working-with-Jumplinks');
+		return $form->render() . $this->helpLinks('Working-with-Jumplinks');
 	}
 
 	protected function commitJumplink($input, $hits = 0, $updating = false, $id = 0) {
@@ -1325,7 +1325,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$form->add($this->populateInputField($field, array(
 			'name+id' => 'collectionData',
 			'label' => $this->_('Mapping Data'),
-			'description' => sprintf($this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names. To learn more about how this feature works, please [read through the documentation](%s).'), $this->helpLink("Mapping-Collections", true)),
+			'description' => sprintf($this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names. To learn more about how this feature works, please [read through the documentation](%s).'), $this->helpLinks("Mapping-Collections", true)),
 			'notes' => sprintf($this->_("To make things easier, you'll probably want to export your data from your old platform/framework in this format.\n**Note:** All **values** will be cleaned according to the 'Wildcard Cleaning' setting in the [module's configuration](%s)."), $this->getModuleConfigUri()),
 			'required' => 1,
 			'rows' => 10,
@@ -1383,7 +1383,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$this->config->js('pjCollection', true);
 
 		// Return the rendered page
-		return $form->render() . $this->helpLink('Mapping-Collections');
+		return $form->render() . $this->helpLinks('Mapping-Collections');
 	}
 
 	/**
@@ -1574,7 +1574,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$form->add($this->populateInputField($field, array(
 					'name+id' => 'csvData',
 					'label' => $this->_('Import from CSV'),
-					'description' => sprintf($this->_("Paste in your old redirects below, where each one is on its own line. You may use any standard delimeter you like (comma, colon, semi-colon, period, pipe, or tab), so long as it is consistent throughout. Any URI/URL that contains the delimter must be wrapped in double quotes.\n\n**Columns:** Source, Destination, Time Start, Time End. The last two columns are optional - when used, they should contain any valid date/time string. However, if they are used in one line, then all other lines should have blank entries for these columns.\n\nFor examples, [see the documentation](%s)."), $this->helpLink("Importing#importing-from-{$importType}", true)),
+					'description' => sprintf($this->_("Paste in your old redirects below, where each one is on its own line. You may use any standard delimeter you like (comma, colon, semi-colon, period, pipe, or tab), so long as it is consistent throughout. Any URI/URL that contains the delimter must be wrapped in double quotes.\n\n**Columns:** Source, Destination, Time Start, Time End. The last two columns are optional - when used, they should contain any valid date/time string. However, if they are used in one line, then all other lines should have blank entries for these columns.\n\nFor examples, [see the documentation](%s)."), $this->helpLinks("Importing#importing-from-{$importType}", true)),
 					'notes' => $this->_("**Conversion Notes:**\n1. Any encoded ampersands (**&amp;amp;**) will be converted to **&amp;**.\n2. If the source or destination of a redirect contains leading slashes, they will be stripped."),
 					'rows' => 15,
 				)));
@@ -1621,7 +1621,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$this->config->js('pjImport', true);
 
-		return $form->render() . $this->helpLink("Importing#importing-from-{$importType}");
+		return $form->render() . $this->helpLinks("Importing#importing-from-{$importType}");
 	}
 
 	/**
