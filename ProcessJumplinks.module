@@ -259,9 +259,11 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				"UPDATE {$this->tableName} SET hits = %s WHERE id = %s",
 			'mappingCollectionsSelectAll' =>
 				"SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
+			'mappingCollectionsSelectAllFromName' =>
+				"SELECT * FROM {$this->tableName}_mc WHERE collection_name='%s'",
 			'mappingCollectionsSelectSingle' =>
 				"SELECT * FROM {$this->tableName}_mc WHERE id=%s",
-			'mappingCollectionsSelectAllFromName' =>
+			'mappingCollectionsSelectSingleFromName' =>
 				"SELECT * FROM {$this->tableName}_mc WHERE collection_name='%s'",
 			'mappingCollectionsDropById' =>
 				"DELETE FROM {$this->tableName}_mc WHERE id=%s",
@@ -1438,20 +1440,32 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	}
 
 	/**
-	 * API call to create a new collection
+	 * API call to create a new collection, or add to an existing one
 	 * @param String $name
 	 * @param Array $data
 	 */
-	public function addCollection($name, $data) {
+	public function collection($name, $data) {
+
+		$collectionData = "";
+		$id = 0;
+
+		// Check if the collection already exists
+		// and grab its data if it does
+		$collections = $this->db->query(sprintf($this->sql->mappingCollectionsSelectSingleFromName, $name));
+		if ($collections->num_rows !== 0) {
+			while ($collection = $collections->fetch_object()) {
+				$id = $collection->id;
+				$collectionData .= $collection->collection_mappings . PHP_EOL;
+			}
+		}
 
 		// Gather the data from the array
-		$collectionData = "";
 		foreach ($data as $key => $value) {
 			$collectionData .= "{$key}={$value}" . PHP_EOL;
 		}
 
 		// And send it off!
-		$this->commitMappingCollection($name, $collectionData);
+		$this->commitMappingCollection($name, trim($collectionData, PHP_EOL), $id);
 	}
 
 	/**
