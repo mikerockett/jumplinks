@@ -245,8 +245,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$this->sql = (object) array(
 			'entitySelectAll' =>
 				"SELECT * FROM {$this->tableName} ORDER BY source",
-			'entitySelectAllJsonNav' =>
-				"SELECT * FROM {$this->tableName} ORDER BY updated_at DESC LIMIT 5",
 			'entitySelectSingle' =>
 				"SELECT * FROM {$this->tableName} WHERE id=%s",
 			'entityDropById' =>
@@ -1315,7 +1313,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$field = $this->modules->get('InputfieldText');
 		$form->add($this->populateInputField($field, array(
 			'name+id' => 'collectionName',
-			'label' => $this->_('Name of Collection'),
+			'label' => $this->_('Name'),
 			'notes' => $this->_('Only use alpha characters (a-z). Name will be sanitised upon submission. This name is the identifier to be used in mapping wildcards.'),
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
@@ -1326,7 +1324,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$field = $this->modules->get('InputfieldTextarea');
 		$form->add($this->populateInputField($field, array(
 			'name+id' => 'collectionData',
-			'label' => $this->_('Collection Data'),
+			'label' => $this->_('Mapping Data'),
 			'description' => sprintf($this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names. To learn more about how this feature works, please [read through the documentation](%s).'), $this->helpLink("Mapping-Collections", true)),
 			'notes' => sprintf($this->_("To make things easier, you'll probably want to export your data from your old platform/framework in this format.\n**Note:** All **values** will be cleaned according to the 'Wildcard Cleaning' setting in the [module's configuration](%s)."), $this->getModuleConfigUri()),
 			'required' => 1,
