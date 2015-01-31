@@ -102,6 +102,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return array
 	 */
 	protected static function getConfigDefaultsArray() {
+
 		return array(
 			self::_schemaVersion => self::schemaVersion,
 			self::enhancedWildcardCleaning => false,
@@ -113,6 +114,11 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		);
 	}
 
+	/**
+	 * Get config input fiels
+	 * @param  array  $data
+	 * @return InputfieldWrapper
+	 */
 	public static function getModuleConfigInputfields(array $data) {
 		// Inject assets
 		wire('config')->scripts->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.js');
@@ -220,6 +226,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return [type] [description]
 	 */
 	protected function injectAssets() {
+
 		// Inject script and style
 		$this->config->scripts->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.js');
 		$this->config->styles->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
@@ -232,6 +239,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * Init moduleInfo, sql
 	 */
 	public function __construct() {
+
 		$this->setArray(self::getConfigDefaultsArray());
 		$this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
 		$this->sql = (object) array(
@@ -269,6 +277,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @hook ProcessPageView::pageNotFound to scanAndRedirect
 	 */
 	public function init() {
+
 		parent::init();
 
 		// Set the admin page URL for JS
@@ -319,6 +328,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	protected function helpLink($uri = '', $justTheLink = false) {
+
 		if (!empty($uri)) {
 			$uri = "/{$uri}";
 		}
@@ -336,6 +346,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	protected function blueprint($name, $data = array()) {
+
 		$blueprint = new Blueprint($name);
 
 		$data = array_filter($data);
@@ -358,6 +369,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	protected function compileDestinationUrl($destination, $renderForOutput = false, $http = true) {
+
 		$pageIdentifier = 'page:';
 
 		// Check if we're using a page identifier
@@ -400,6 +412,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	protected function getModuleConfigUri() {
+
 		return "{$this->config->urls->admin}module/edit?name={$this->moduleInfo['name']}";
 		// ^ Better way to get this URI?
 	}
@@ -412,6 +425,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	public function cleanWildcard($input, $noLower = false) {
+
 		if ($this->{self::enhancedWildcardCleaning}) {
 			// Courtesy @sln on StackOverflow
 			$input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures) {
@@ -445,6 +459,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	protected function truncate($string, $length = 55) {
+
 		return (strlen($string) > $length)
 			? substr($string, 0, $length) . " <span class=\"ellipses\" title=\"{$string}\">...</span>"
 			: $string;
@@ -457,6 +472,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return Inputfield
 	 */
 	protected static function buildInputField($fieldNameId, $meta) {
+
 		$field = wire('modules')->get($fieldNameId);
 
 		foreach ($meta as $metaNames => $metaInfo) {
@@ -476,6 +492,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return Inputfield
 	 */
 	protected function populateInputField($field, $meta) {
+
 		foreach ($meta as $metaNames => $metaInfo) {
 			$metaNames = explode('+', $metaNames);
 			foreach ($metaNames as $metaName) {
@@ -493,6 +510,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	protected function getResponseCode($request) {
+
 		stream_context_set_default(array(
 			'http' => array(
 				'method' => 'HEAD',
@@ -510,6 +528,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return bool
 	 */
 	protected function userHasDebugRights() {
+
 		return ($this->{self::moduleDebug} && $this->user->hasPermission('jumplinks-admin'));
 	}
 
@@ -522,6 +541,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @param  bool   $die
 	 */
 	protected function log($message, $indent = false, $break = false, $die = false) {
+
 		if ($this->userHasDebugRights()) {
 			if (!$this->headerSet) {
 				header("Content-Type: text/plain");
@@ -544,6 +564,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @caller Hook: ProcessPageView::pageNotFound
 	 */
 	protected function scanAndRedirect() {
+
 		$jumplinks = $this->db->query($this->sql->entitySelectAll);
 
 		if ($jumplinks->num_rows === 0) {
@@ -797,6 +818,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	public function ___execute() {
+
 		$this->injectAssets();
 
 		$jumplinks = $this->db->query($this->sql->entitySelectAll);
@@ -1005,6 +1027,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	public function ___executeEntity() {
+
 		$this->injectAssets();
 
 		$this->setFuel('processHeadline', $this->_('Register New Jumplink'));
@@ -1212,6 +1235,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @param String $end
 	 */
 	public function add($source, $destination, $start = '', $end = '') {
+
 		$this->commitJumplink((object) array(
 			'sourcePath' => $source,
 			'destinationUriUrl' => $destination,
@@ -1224,6 +1248,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * Admin Route: Commit new jumplink or update existing
 	 */
 	public function ___executeCommit() {
+
 		// Just to be on the safe side...
 		if ($this->input->post->id == null) {
 			$this->session->redirect("../");
@@ -1255,6 +1280,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	public function ___executeMappingCollection() {
+
 		$this->injectAssets();
 
 		$this->setFuel('processHeadline', $this->_('Install New Mapping Collection'));
@@ -1367,6 +1393,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @param  int    $id
 	 */
 	protected function commitMappingCollection($collectionName, $collectionData, $id = 0) {
+
 		// Clean up name (alphas only)
 		$collectionName = preg_replace('~[^a-z]~', '', strtolower($collectionName));
 
@@ -1431,6 +1458,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * Admin Route: Commit new mapping collection or update existing
 	 */
 	public function ___executeCommitMappingCollection() {
+
 		// Just to be on the safe side...
 		if ($this->input->post->id == null) {
 			$this->session->redirect("../");
@@ -1461,6 +1489,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	public function ___executeImport() {
+
 		$this->injectAssets();
 
 		$this->setFuel('processHeadline', $this->_('Import Jumplinks'));
@@ -1587,6 +1616,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * Admin Route: Do an import based on data sent.
 	 */
 	public function ___executeDoImport() {
+
 		// Just to be on the safe side...
 		if ($this->input->post->importType == null) {
 			$this->session->redirect("../");
@@ -1692,6 +1722,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * Install the module
 	 */
 	public function ___install() {
+
 		// Install tables (their schemas may not remain the same as updateDatabaseSchemas() may change them)
 		foreach (array('main', 'mc') as $schema) {
 			$this->db->query($this->blueprint("schema-create-{$schema}"));
@@ -1704,6 +1735,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * Uninstall the module
 	 */
 	public function ___uninstall() {
+
 		// Uninstall tables
 		$this->db->query($this->blueprint('schema-drop'));
 		parent::___uninstall();
@@ -1714,6 +1746,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @param  Mixed $mixed Anything
 	 */
 	protected function dd($mixed) {
+
 		header('Content-Type: text/plain');
 		var_dump($mixed); die;
 	}
