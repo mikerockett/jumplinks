@@ -1400,7 +1400,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$collectionName = preg_replace('~[^a-z]~', '', strtolower($collectionName));
 
 		// Fetch, trim, and explode the data for cleaning
-		$mappings = explode(PHP_EOL, trim($collectionData));
+		$mappings = explode("\n", trim($collectionData));
 
 		$compiledMappings = array();
 
@@ -1454,18 +1454,18 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$collections = $this->db->query(sprintf($this->sql->mappingCollectionsSelectSingleFromName, $name));
 		if ($collections->num_rows !== 0) {
 			while ($collection = $collections->fetch_object()) {
-				$id = $collection->id;
-				$collectionData .= $collection->collection_mappings . PHP_EOL;
+				$id = (int) $collection->id;
+				$collectionData = $collection->collection_mappings . "\n";
 			}
 		}
 
 		// Gather the data from the array
 		foreach ($data as $key => $value) {
-			$collectionData .= "{$key}={$value}" . PHP_EOL;
+			$collectionData .= "{$key}={$value}" . "\n";
 		}
 
 		// And send it off!
-		$this->commitMappingCollection($name, trim($collectionData, PHP_EOL), $id);
+		$this->commitMappingCollection($name, trim($collectionData, "\n"), $id);
 	}
 
 	/**
@@ -1759,10 +1759,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * Dump and die
 	 * @param  Mixed $mixed Anything
 	 */
-	protected function dd($mixed) {
+	protected function dd($mixed, $die = true) {
 
 		header('Content-Type: text/plain');
-		var_dump($mixed); die;
+		var_dump($mixed); $die && die;
 	}
 
 }
