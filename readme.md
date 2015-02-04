@@ -15,7 +15,12 @@ The module manages your permanent and temporary redirects (jumplinks) - useful f
 
 ---
 
-### Installation
+### Quick Installation
+
+1. Under *Modules*, go go the *New* tab.
+2. Enter the class name (ProcessJumplinks) and click *Download & Install*
+
+### Manual Installation
 
 1. Download the module from [here](https://github.com/mike-anthony/ProcessJumplinks/archive/master.zip)
 2. Copy the *ProcessJumplinks* folder to `site/modules`
