@@ -1300,7 +1300,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$form = $this->modules->get('InputfieldForm');
 		$form->id = 'pjInputForm';
 		$form->method = 'POST';
-		$form->action = '../commit-mapping-collection/';
+		$form->action = '../commitmappingcollection/';
 
 		// ID field
 		$field = $this->modules->get('InputfieldHidden');
@@ -1510,7 +1510,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$form = $this->modules->get('InputfieldForm');
 		$form->id = 'pjInputForm';
 		$form->method = 'POST';
-		$form->action = '../do-import/';
+		$form->action = '../doimport/';
 
 		$importType = $this->input->get->type;
 		if (is_null($importType)) {
