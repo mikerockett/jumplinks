@@ -134,9 +134,21 @@ div.pjHelpLink {
     margin-top: 1em;
     overflow: hidden;
     a {
-        font-size: 1em;
+        font-size: 11px;
         float: right;
+        text-transform: uppercase;
         margin-left: 12px;
+        &.paypal {
+            color: orange;
+        }
+        &:not(:last-child):before {
+            content: "";
+            height: 8px;
+            margin-right: 12px;
+            border-left: 1px solid #eee;
+            width: 1px;
+            display: inline-block;
+        }
     }
 }
 p.pjInfo {
