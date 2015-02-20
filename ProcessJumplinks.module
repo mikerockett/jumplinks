@@ -310,8 +310,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			));
 		}
 
-		// Hook to the 404 event ...
-		$this->addHook('ProcessPageView::pageNotFound', $this, 'scanAndRedirect', array('priority' => 10));
+		// Hook prior to the pageNotFound event ...
+		$this->addHookBefore('ProcessPageView::pageNotFound', $this, 'scanAndRedirect', array('priority' => 10));
 	}
 
 	/**
