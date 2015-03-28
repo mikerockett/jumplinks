@@ -160,3 +160,14 @@ p.pjInfo {
     line-height: 1em;
     padding: 16px;
 }
+
+@media only screen and (max-width: 767px) {
+    table.jumplinks {
+        tfoot {
+            display: none;
+        }
+        tbody tr > td {
+            border-bottom-style: none !important;
+        }
+    }
+}
