@@ -121,7 +121,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 */
 	public static function getModuleConfigInputfields(array $data) {
 		// Inject assets
-		wire('config')->scripts->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.js');
+		wire('config')->scripts->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.min.js');
 		wire('config')->styles->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
 		// Include WireTabs
 		wire('modules')->get('JqueryWireTabs');
@@ -228,7 +228,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	protected function injectAssets() {
 
 		// Inject script and style
-		$this->config->scripts->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.js');
+		$this->config->scripts->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.min.js');
 		$this->config->styles->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
 		// Include WireTabs
 		$this->modules->get('JqueryWireTabs');
