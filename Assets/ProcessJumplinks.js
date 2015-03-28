@@ -153,8 +153,9 @@ $(function() {
                 errors = [],
                 errorString = '';
 
-            if (!$values.data)
-                errors.push("CSV data can't be empty...");
+            if (config.pjImportCSVData)
+                if (!$values.data)
+                    errors.push("CSV data can't be empty...");
 
             if (errors.length) {
                 errorDialog(errors);

@@ -246,29 +246,27 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'entitySelectAll' =>
 				"SELECT * FROM {$this->tableName} ORDER BY source",
 			'entitySelectSingle' =>
-				"SELECT * FROM {$this->tableName} WHERE id=%s",
+				"SELECT * FROM {$this->tableName} WHERE id = :id",
 			'entityDropById' =>
-				"DELETE FROM {$this->tableName} WHERE id=%s",
+				"DELETE FROM {$this->tableName} WHERE id = :id",
 			'entityInsert' =>
-				"INSERT INTO {$this->tableName} SET source = '%s', destination = '%s', hits = '%s', date_start = %s, date_end = %s, user_created = %s, user_updated = %s, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
+				"INSERT INTO {$this->tableName} SET source = :source, destination = :destination, hits = :hits, date_start = :date_start, date_end = :date_end, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
 			'entityUpdate' =>
-				"UPDATE {$this->tableName} SET source = '%s', destination = '%s', date_start = %s, date_end = %s, user_updated = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+				"UPDATE {$this->tableName} SET source = :source, destination = :destination, date_start = :date_start, date_end = :date_end, user_updated = :user_updated, updated_at = CURRENT_TIMESTAMP WHERE id = :id",
 			'entityUpdateHits' =>
-				"UPDATE {$this->tableName} SET hits = %s WHERE id = %s",
+				"UPDATE {$this->tableName} SET hits = :hits WHERE id = :id",
 			'mappingCollectionsSelectAll' =>
 				"SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
-			'mappingCollectionsSelectAllFromName' =>
-				"SELECT * FROM {$this->tableName}_mc WHERE collection_name='%s'",
 			'mappingCollectionsSelectSingle' =>
-				"SELECT * FROM {$this->tableName}_mc WHERE id=%s",
+				"SELECT * FROM {$this->tableName}_mc WHERE id = :id",
 			'mappingCollectionsSelectSingleFromName' =>
-				"SELECT * FROM {$this->tableName}_mc WHERE collection_name='%s'",
+				"SELECT * FROM {$this->tableName}_mc WHERE collection_name = :collection",
 			'mappingCollectionsDropById' =>
-				"DELETE FROM {$this->tableName}_mc WHERE id=%s",
+				"DELETE FROM {$this->tableName}_mc WHERE id = :id",
 			'mappingCollectionsInsert' =>
-				"INSERT INTO {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_created = %s, user_updated = %s, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
+				"INSERT INTO {$this->tableName}_mc SET collection_name = :collection, collection_mappings = :mappings, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
 			'mappingCollectionsUpdate' =>
-				"UPDATE {$this->tableName}_mc SET collection_name = '%s', collection_mappings = '%s', user_updated = %s WHERE id = %s",
+				"UPDATE {$this->tableName}_mc SET collection_name = :collection, collection_mappings = :mappings, user_updated = :user_updated WHERE id = :id",
 		);
 	}
 
@@ -750,7 +748,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				// If we're not debugging, and we're Time-activated, then do the redirect
 				if (!$this->userHasDebugRights() && $activated) {
 					$hitsPlusOne = $jumplink->hits + 1;
-					$this->db->query(sprintf($this->sql->entityUpdateHits, $hitsPlusOne, $jumplink->id));
+					$this->database->prepare($this->sql->entityUpdateHits)->execute(array(
+						'hits' => $hitsPlusOne,
+						'id' => $jumplink->id,
+					));
 					$this->session->redirect($convertedWildcards, !$activated);
 				}
 
@@ -1037,16 +1038,20 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		if ($editingId) {
 			// Fetch the details and list vars
-			$result = $this->db->query(sprintf($this->sql->entitySelectSingle, $editingId));
+			$query = $this->database->prepare($this->sql->entitySelectSingle);
+			$query->execute(array(
+				'id' => $editingId
+			));
 			list($id, $sourcePath, $destinationUriUrl, $hits,
 				$userCreated, $userUpdated, $dateStart, $dateEnd,
-				$createdAt, $updatedAt) = $result->fetch_array();
+				$createdAt, $updatedAt) = $query->fetch();
 
 			$this->setFuel('processHeadline', $this->_('Editing Jumplink'));
 
 			// Format dates (times)
-			$dateStart = ($dateStart != null) ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
-			$dateEnd = ($dateEnd != null) ? date('Y-m-d h:m A', strtotime($dateEnd)) : null;
+			$nullValue = '0000-00-00 00:00:00';
+			$dateStart = ($dateStart !== "0000-00-00 00:00:00") ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
+			$dateEnd = ($dateEnd !== "0000-00-00 00:00:00") ? date('Y-m-d h:m A', strtotime($dateEnd)) : null;
 		}
 
 		// Prep the form
@@ -1115,7 +1120,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$fieldSet->label = 'Timed Activation';
 		$fieldSet->collapsed = Inputfield::collapsedYes;
 		$fieldSet->description = $this->_("If you'd like this jumplink to only function during a specific time-range, then select the start and end dates and times below.");
-		$fieldSet->notes = $this->_("You don't have to specify both. If you only specify a start time , you're simply delaying activation. If you only specify an end time, then you're simply telling it when to stop.\nIf an End Date/Time is specified, a temporary redirect will be made (302 status code, as opposed to 301).");
+		$fieldSet->notes = $this->_("You don't have to specify both. If you only specify a start time, you're simply delaying activation. If you only specify an end time, then you're simply telling it when to stop.\nIf an End Date/Time is specified, a temporary redirect will be made (302 status code, as opposed to 301).");
 
 		$datetimeFieldDefaults = array(
 			'datepicker' => 1,
@@ -1177,8 +1182,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				'icon' => 'times-circle',
 				'description' => $this->_("If you'd like to delete this jumplink, check the box below."),
 				'label2' => $this->_('Delete this jumplink'),
-				'collapsed' => Inputfield::collapsedYes,
-				'showIf' => 'isPermanent=0',
+				'collapsed' => Inputfield::collapsedYes
 			)));
 		}
 
@@ -1211,8 +1215,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$destination = ltrim($this->db->escape_string($this->sanitizer->url($input->destinationUriUrl)), '/');
 
 		// Prepare dates (times) for database entry
-		$start = (!isset($input->dateStart) || empty($input->dateStart)) ? 'null' : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart))) . "'";
-		$end = (!isset($input->dateEnd) || empty($input->dateEnd)) ? 'null' : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd))) . "'";
+		$start = (!isset($input->dateStart) || empty($input->dateStart)) ? 'null' : date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart)));
+		$end = (!isset($input->dateEnd) || empty($input->dateEnd)) ? 'null' : date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd)));
 
 		// Set the user creating/updating
 		if (!$updating) {
@@ -1221,10 +1225,24 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$userUpdated = $this->user->id;
 
 		// Insert/Update
-		$this->db->query(($updating)
-			? sprintf($this->sql->entityUpdate, $source, $destination, $start, $end, $userUpdated, $id)
-			: sprintf($this->sql->entityInsert, $source, $destination, $hits, $start, $end, $userCreated, $userUpdated)
+
+		$dataBind = array(
+			'source' => $source,
+			'destination' => $destination,
+			'date_start' => $start,
+			'date_end' => $end,
+			'user_updated' => $userUpdated,
 		);
+
+		if ($updating) {
+			$query = $this->database->prepare($this->sql->entityUpdate);
+			$dataBind['id'] = $id;
+		} else {
+			$query = $this->database->prepare($this->sql->entityInsert);
+			$dataBind['hits'] = $hits;
+			$dataBind['user_created'] = $userCreated;
+		}
+		$query->execute($dataBind);
 	}
 
 	/**
@@ -1262,7 +1280,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// If we're updating, check if we should delete
 		if ($isUpdating && $input->delete) {
-			$this->db->query(sprintf($this->sql->entityDropById, $id));
+			$query = $this->database->prepare($this->sql->entityDropById);
+			$query->execute(array(
+				'id' => $id
+			));
 			$this->message($this->_('Jumplink deleted.'));
 			$this->session->redirect("../");
 		}
@@ -1290,8 +1311,11 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		if ($editingId) {
 			// Fetch the details and list vars
-			$result = $this->db->query(sprintf($this->sql->mappingCollectionsSelectSingle, $editingId));
-			list($id, $collectionName, $collectionData, $userCreated, $userUpdated, $createdAt, $updatedAt) = $result->fetch_array();
+			$query = $this->database->prepare($this->sql->mappingCollectionsSelectSingle);
+			$query->execute(array(
+				'id' => $editingId
+			));
+			list($id, $collectionName, $collectionData, $userCreated, $userUpdated, $updatedAt, $createdAt) = $query->fetch();
 
 			$this->setFuel('processHeadline', $this->_("Editing Mapping Collection: $collectionName"));
 		}
@@ -1430,11 +1454,20 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		}
 		$userUpdated = $this->user->id;
 
-		// Insert/Update
-		$this->db->query(($updating)
-			? sprintf($this->sql->mappingCollectionsUpdate, $collectionName, $dbInput, $userUpdated, $id)
-			: sprintf($this->sql->mappingCollectionsInsert, $collectionName, $dbInput, $userCreated, $userUpdated)
+		$dataBind = array(
+			'collection' => $collectionName,
+			'mappings' => $dbInput,
+			'user_updated' => $userUpdated,
 		);
+
+		if ($updating) {
+			$query = $this->database->prepare($this->sql->mappingCollectionsUpdate);
+			$dataBind['id'] = $id;
+		} else {
+			$query = $this->database->prepare($this->sql->mappingCollectionsInsert);
+			$dataBind['user_created'] = $userCreated;
+		}
+		$query->execute($dataBind);
 	}
 
 	/**
@@ -1449,9 +1482,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Check if the collection already exists
 		// and grab its data if it does
-		$collections = $this->db->query(sprintf($this->sql->mappingCollectionsSelectSingleFromName, $name));
-		if ($collections->num_rows !== 0) {
-			while ($collection = $collections->fetch_object()) {
+		$collections = $this->database->prepare($this->sql->mappingCollectionsSelectSingleFromName);
+		$collections->execute(array(
+			'collection' => $name
+		));
+		if (count($collections) !== 0) {
+			while ($collection = $collections->fetch(PDO::FETCH_OBJ)) {
 				$id = (int) $collection->id;
 				$collectionData = $collection->collection_mappings . "\n";
 			}
@@ -1484,7 +1520,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// If we're updating, check if we should uninstall
 		if ($isUpdating && $input->uninstallCollection) {
-			$this->db->query(sprintf($this->sql->mappingCollectionsDropById, $id));
+			$this->database->prepare($this->sql->mappingCollectionsDropById)->execute(array(
+				'id' => $id
+			));
 			$this->message($this->_('Collection uninstalled.'));
 			$this->session->redirect("../");
 		}
@@ -1519,6 +1557,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		switch ($importType) {
 			case 'redirects':
+
+				$this->config->js('pjImportRedirectsModule', true);
 
 				if (!$this->modules->isInstalled('ProcessRedirects')) {
 					$this->session->redirect('../');
@@ -1569,6 +1609,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 			default:	// type = csv
 
+				$this->config->js('pjImportCSVData', true);
+
 				// Information
 				$field = $this->modules->get('InputfieldTextarea');
 				$form->add($this->populateInputField($field, array(
@@ -1605,7 +1647,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				'icon' => 'arrow-right',
 				'type' => 'submit',
 			))->addClass('head_button_clone'));
-		} else {
+		} else if ($importType !== 'redirects') {
 			$form->add($this->populateInputField($field, array(
 				'name+id' => 'doImport',
 				'value' => 'Import Data',
@@ -1685,11 +1727,15 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 						$jumplink[$cols[3]] = 'null';
 					}
 
-					$this->db->query(sprintf($this->sql->entityInsert,
-						$jumplink['source'], $jumplink['destination'], 0, $jumplink['date_start'], $jumplink['date_end'],
-						$this->user->id, $this->user->id
+					$this->database->prepare($this->sql->entityInsert)->execute(array(
+						'source' => $jumplink['source'],
+						'destination' => $jumplink['destination'],
+						'date_start' => $jumplink['date_start'],
+						'date_end' => $jumplink['date_end'],
+						'hits' => 0,
+						'user_updated' => $this->user->id,
+						'user_created' => $this->user->id,
 					));
-
 				}
 
 				$this->message('Redirects imported.');
@@ -1703,10 +1749,13 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$redirectsArray = implode(',', array_map('intval', $this->input->post->importArray));
 
 				// Now fetch the redirects
-				$redirects = $this->db->query("SELECT * FROM processredirects WHERE id IN ($redirectsArray)");
+				$query = $this->database->prepare("SELECT * FROM processredirects WHERE id IN (:redirects_array)");
+				$query->execute(array(
+					'redirects_array' => $redirectsArray
+				));
 
 				// And import them
-				while ($redirect = $redirects->fetch_object()) {
+				while ($redirect = $query->fetch(PDO::FETCH_OBJ)) {
 					$jumplink = (object) array(
 						'sourcePath' => $redirect->redirect_from,
 						'destinationUriUrl' => preg_replace("~\^(\d+)$~i", "page:\\1", $redirect->redirect_to)
