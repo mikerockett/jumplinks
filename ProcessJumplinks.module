@@ -1631,6 +1631,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$form->add($this->populateInputField($field, array(
 					'name+id' => 'csvHeadings',
 					'label' => $this->_('My CSV data contains headings'),
+					'notes' => $this->_("No need to worry about what your headings are called. The importer simply ignores them when you check this box.")
 				)));
 
 				break;
