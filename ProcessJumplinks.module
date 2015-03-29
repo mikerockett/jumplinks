@@ -1050,8 +1050,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 			// Format dates (times)
 			$nullValue = '0000-00-00 00:00:00';
-			$dateStart = ($dateStart !== "0000-00-00 00:00:00") ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
-			$dateEnd = ($dateEnd !== "0000-00-00 00:00:00") ? date('Y-m-d h:m A', strtotime($dateEnd)) : null;
+			$dateStart = ($dateStart !== $nullValue) ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
+			$dateEnd = ($dateEnd !== $nullValue) ? date('Y-m-d h:m A', strtotime($dateEnd)) : null;
 		}
 
 		// Prep the form
