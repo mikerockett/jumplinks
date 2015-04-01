@@ -1210,7 +1210,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// If the Destination Path's URI matches that of a page, use a page ID instead
 		if (false === strpos($input->destinationUriUrl, '{') && false === strpos($input->destinationUriUrl, '}')) {
-			if (($page = $this->pages->get('name=' . trim($input->destinationUriUrl, '/'))) && $page->id) {
+			if (($page = $this->pages->get('/' . trim($input->destinationUriUrl, '/'))) && $page->id) {
 				$input->destinationUriUrl = "page:{$page->id}";
 			}
 		}
@@ -1733,18 +1733,16 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 						$jumplink[$cols[3]] = 'null';
 					}
 
-					$this->database->prepare($this->sql->entity->insert)->execute(array(
-						'source' => $jumplink['source'],
-						'destination' => $jumplink['destination'],
-						'date_start' => $jumplink['date_start'],
-						'date_end' => $jumplink['date_end'],
-						'hits' => 0,
-						'user_updated' => $this->user->id,
-						'user_created' => $this->user->id,
-					));
+					$jumplinkData = (object) array(
+						'sourcePath' => $jumplink['source'],
+						'destinationUriUrl' => $jumplink['destination'],
+						'dateStart' => $jumplink['date_start'],
+						'dateEnd' => $jumplink['date_end'],
+					);
+					$this->commitJumplink($jumplinkData, 0);
 				}
 
-				$this->message('Redirects imported.');
+				$this->message('Redirects imported from CSV.');
 				$this->session->redirect('../');
 
 				break;
