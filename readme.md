@@ -7,7 +7,7 @@
 
 ### What it is
 
-Jumplinks is a Process module intended for ProcessWire 2.5, and is an enhanced version of the original [ProcessRedirects](http://modules.processwire.com/modules/process-redirects/) by [Antti Peisa](https://twitter.com/apeisa).
+Jumplinks is a Process module intended for ProcessWire 2.5/2.6, and is an enhanced version of the original [ProcessRedirects](http://modules.processwire.com/modules/process-redirects/) by [Antti Peisa](https://twitter.com/apeisa).
 
 ### What it does
 
