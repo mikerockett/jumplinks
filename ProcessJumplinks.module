@@ -293,7 +293,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Set the request (URI), and trim off the leading slash,
 		// as we won't be needing it for comparison.
-		$this->request = ltrim($_SERVER['REQUEST_URI'], '/');
+		$this->request = ltrim(@$_SERVER['REQUEST_URI'], '/');
 
 		// If a request is made to the index.php file, with a slash,
 		// then redirect to root (mod_rewrite is a PW requirement)
