@@ -338,7 +338,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		return ($justTheLink)
 			? $this->moduleInfo['href'] . $uri
-			: "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ\">Donate via PayPal</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-module-jumplinks/\">Need Help?</a><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Documentation</a></div>";
+			: "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ\">Donate via PayPal</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">Need Help?</a><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Documentation</a></div>";
 	}
 
 	/**
