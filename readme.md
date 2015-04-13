@@ -1,4 +1,4 @@
-## ProcessJumplinks
+![ProcessJumplinks](https://processwire.com/talk/uploads/monthly_04_2015/post-2289-0-33063200-1428045771.png)
 
 **Current Version:** 1.1.3 (Stable)<br>
 **Requires ProcessWire 2.5.3** (works in 2.6-dev)
@@ -18,7 +18,7 @@ The module manages your permanent and temporary redirects (jumplinks) - useful f
 ### Quick Installation
 
 1. Under *Modules*, go to the *New* tab.
-2. Enter the class name (ProcessJumplinks) and click *Download & Install*.
+2. Enter the class name (*ProcessJumplinks*) and click *Download & Install*.
 
 ### Manual Installation
 
@@ -35,7 +35,7 @@ You can view the documentation [here](https://github.com/mike-anthony/ProcessJum
 
 ### Support
 
-Need help with something? [Ask in the forums](https://processwire.com/talk/topic/8697-module-jumplinks/).
+Need help with something? [Ask in the forums](https://processwire.com/talk/topic/8697-jumplinks/).
 
 ---
 
