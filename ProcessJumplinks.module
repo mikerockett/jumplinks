@@ -744,6 +744,14 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 					}
 				}, $convertedWildcards);
 
+				// Check for any selectors and get the respective page
+				$convertedWildcards = preg_replace_callback("~\[\[([\w-_\/\s=\",.']+)\]\]~i", function ($mapCaptures) {
+					$page = $this->pages->get($mapCaptures[1]);
+					if ($page->id) {
+						return ltrim($page->url, '/');
+					}
+				}, $convertedWildcards);
+
 				$this->log("Original Destination Path:    $jumplink->destination", true);
 				$this->log("Compiled Destination Path:    $convertedWildcards", true, true);
 
@@ -1116,9 +1124,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		// Destination Path field
 		$form->add($this->populateInputField($destinationPathField, array(
 			'name+id' => 'destinationUriUrl',
-			'label' => $this->_('or enter a URI/URL'),
-			'description' => $this->_('Enter a URI relative to the root of this installation, without the leading slash, or an absolute URL.'),
-			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%s/Mapping-Collections) .\n**Note:** If you select a page from the Page Selector above, its identifier will be added here."), $this->moduleInfo['href']),
+			'label' => $this->_('or specify a destination'),
+			'description' => $this->_('Enter either a URI relative to the root of this installation (without the leading slash), an absolute URL, or a selector that gets the page to redirect to.'),
+			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%1\$s/Mapping-Collections), [[[template=your_template, field={path}]]](%1\$s/Selectors).\n**Note:** If you select a page from the Page Selector above, its identifier will be added here."), $this->moduleInfo['href']),
 			'required' => 1,
 			'value' => isset($destinationUriUrl) ? $destinationUriUrl : '',
 		)));
