@@ -745,8 +745,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				}, $convertedWildcards);
 
 				// Check for any selectors and get the respective page
-				$convertedWildcards = preg_replace_callback("~\[\[([\w-_\/\s=\",.']+)\]\]~i", function ($mapCaptures) {
-					$page = $this->pages->get($mapCaptures[1]);
+				$convertedWildcards = preg_replace_callback("~\[\[([\w-_\/\s=\",.']+)\]\]~i", function ($selectorCaptures) {
+					$page = $this->pages->get($selectorCaptures[1]);
 					if ($page->id) {
 						return ltrim($page->url, '/');
 					}
