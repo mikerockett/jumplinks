@@ -744,10 +744,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 					}
 				}, $convertedWildcards);
 
+				// Check for any selectors and get the respective page
 				$selectorUsed = false;
 				$selectorMatched = false;
 
-				// Check for any selectors and get the respective page
 				$convertedWildcards = preg_replace_callback("~\[\[([\w-_\/\s=\",.']+)\]\]~i", function ($selectorCaptures) use (&$selectorUsed, &$selectorMatched) {
 					$selectorUsed = true;
 					$page = $this->pages->get($selectorCaptures[1]);
@@ -759,6 +759,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 				$this->log("Original Destination Path:    $jumplink->destination", true);
 
+				// If a match was found, but the selector didn't return a page, then continue the loop
 				if ($selectorUsed && !$selectorMatched) {
 					$this->log("\nWhilst a match was found, the selector you specified didn't return a page. So, this jumplink will be skipped.", false, true);
 					continue;
