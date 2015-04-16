@@ -744,15 +744,26 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 					}
 				}, $convertedWildcards);
 
+				$selectorUsed = false;
+				$selectorMatched = false;
+
 				// Check for any selectors and get the respective page
-				$convertedWildcards = preg_replace_callback("~\[\[([\w-_\/\s=\",.']+)\]\]~i", function ($selectorCaptures) {
+				$convertedWildcards = preg_replace_callback("~\[\[([\w-_\/\s=\",.']+)\]\]~i", function ($selectorCaptures) use (&$selectorUsed, &$selectorMatched) {
+					$selectorUsed = true;
 					$page = $this->pages->get($selectorCaptures[1]);
-					if ($page->id) {
+					if ($page->id > 0) {
+						$selectorMatched = true;
 						return ltrim($page->url, '/');
 					}
 				}, $convertedWildcards);
 
 				$this->log("Original Destination Path:    $jumplink->destination", true);
+
+				if ($selectorUsed && !$selectorMatched) {
+					$this->log("\nWhilst a match was found, the selector you specified didn't return a page. So, this jumplink will be skipped.", false, true);
+					continue;
+				}
+
 				$this->log("Compiled Destination Path:    $convertedWildcards", true, true);
 
 				// Check for Timed Activation and determine if we're in the period specified
