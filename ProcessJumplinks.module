@@ -375,9 +375,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	protected function compileDestinationUrl($destination, $renderForOutput = false, $http = true) {
 
 		$pageIdentifier = 'page:';
+		$usingPageIdentifier = substr($destination, 0, 5) === $pageIdentifier;
 
-		// Check if we're using a page identifier
-		if (substr($destination, 0, 5) !== $pageIdentifier) {
+		// Check if we're not using a page identifier or selector
+		if (!$usingPageIdentifier) {
 			// Check to see if we're working with an absolute URL
 			// and if we're currently using HTTPS
 			$hasScheme = (bool) parse_url($destination, PHP_URL_SCHEME);
@@ -391,23 +392,24 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			return ($renderForOutput)
 				? $this->truncate($destination, 45)
 				: $prefix . $destination;
+		} else {
+			// If we're using a page identifier, fetch it
+			$pageId = str_replace($pageIdentifier, '', $destination);
+			$page = $this->pages->get((int) $pageId);
+
+			// If it's a valid page, then get its URL
+			if ($page->id) {
+				$pagePath = $page->get($http ? "httpUrl" : "path");
+
+				// If we're rendering for output, make it pretty.
+				$destination = ($renderForOutput)
+					? "<abbr title=\"{$pagePath}\">{$page->get('headline|title|name')}<abbr>"
+					: $pagePath;
+			}
+
+			return $destination;
 		}
 
-		// If we're using a page identifier, fetch it
-		$pageId = str_replace($pageIdentifier, '', $destination);
-		$page = $this->pages->get((int) $pageId);
-
-		// If it's a valid page, then get its URL
-		if ($page->id) {
-			$pagePath = $page->get($http ? "httpUrl" : "path");
-
-			// If we're rendering for output, make it pretty.
-			$destination = ($renderForOutput)
-				? "<abbr title=\"{$pagePath}\">{$page->get('headline|title|name')}<abbr>"
-				: $pagePath;
-		}
-
-		return $destination;
 	}
 
 	/**
