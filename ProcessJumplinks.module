@@ -1109,7 +1109,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Destination fields
 		$destinationPageField = $this->modules->get('InputfieldPageListSelect');
-		$destinationPathField = $this->modules->get('InputfieldURL');
+		$destinationPathField = $this->modules->get('InputfieldText');
 
 		// Check if the current destination is a page
 		if (isset($destinationUriUrl) && $page = $this->pages->get((int) str_replace('page:', '', $destinationUriUrl))) {
