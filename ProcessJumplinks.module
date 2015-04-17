@@ -408,7 +408,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			// If we're rendering for backend output, truncate and return the destination.
 			// Otherwise, return the full destination.
 			return ($renderForOutput)
-				? $this->truncate($destination, 45)
+				? $this->truncate($destination)
 				: $prefix . $destination;
 		} else {
 			// If we're using a page identifier, fetch it
