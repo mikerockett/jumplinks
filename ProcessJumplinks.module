@@ -1782,18 +1782,23 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$redirectsArray = implode(',', array_map('intval', $this->input->post->importArray));
 
 				// Now fetch the redirects
-				$query = $this->database->prepare("SELECT * FROM processredirects WHERE id IN (:redirects_array)");
-				$query->execute(array(
-					'redirects_array' => $redirectsArray
-				));
+				$query = $this->database->prepare("SELECT * FROM processredirects WHERE id IN ($redirectsArray)");
+				$query->execute();
+
+
+				// Gather and count the redirects
+				$redirects = $query->fetchAll(PDO::FETCH_OBJ);
+				$countRedirects = count($redirects);
 
 				// And import them
-				while ($redirect = $query->fetch(PDO::FETCH_OBJ)) {
-					$jumplink = (object) array(
-						'sourcePath' => $redirect->redirect_from,
-						'destinationUriUrl' => preg_replace("~\^(\d+)$~i", "page:\\1", $redirect->redirect_to)
-					);
-					$this->commitJumplink($jumplink, $redirect->counter);
+				if ($countRedirects > 0) {
+					foreach ($redirects as $redirect) {
+						$jumplink = (object) array(
+							'sourcePath' => $redirect->redirect_from,
+							'destinationUriUrl' => preg_replace("~\^(\d+)$~i", "page:\\1", $redirect->redirect_to)
+						);
+						$this->commitJumplink($jumplink, $redirect->counter);
+					}
 				}
 
 				// Don't allow another import (we're importing for a reason - to migrate over to one module)
