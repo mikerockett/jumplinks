@@ -1048,7 +1048,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$importFromRedirectsButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
 				'id' => 'importFromRedirects',
 				'href' => "{$this->importPath}?type=redirects",
-				'value' => $this->_('Import from Redirects Module') . (($this->redirectsImported) ? ' ' . $this->_("(you've already done this)") : ''),
+				'value' => $this->_('Import from Redirects Module'),
 			))->addClass('ui-priority-secondary');
 
 			$importContainer->value .= $importFromRedirectsButton->render();
@@ -1611,38 +1611,52 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			case 'redirects':
 
 				$this->config->js('pjImportRedirectsModule', true);
+				$redoing = $this->input->get('redo') == true;
 
 				if (!$this->modules->isInstalled('ProcessRedirects')) {
 					$this->session->redirect('../');
 				}
 
-				if (!$this->redirectsImported) {
+				if (!$this->redirectsImported || $redoing) {
 					// Information
 					$field = $this->modules->get('InputfieldMarkup');
+					if ($redoing) {
+						$infoLabel = $this->_("If your last import failed, you can always try the import again. First, make sure that the jumplinks you imported have been deleted. Alternatively, just uncheck the ones that sucessfully imported the first time.");
+					} else {
+						$infoLabel = $this->_("You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Jumplinks. If there are any redirects you wish to exclude, simply uncheck the box in the first column");
+					}
 					$form->add($this->populateInputField($field, array(
 						'label' => $this->_('Import from the Redirects module'),
-						'value' => $this->_("You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Jumplinks. If there are any redirects you wish to exclude, simply uncheck the box in the first column"),
+						'value' => $infoLabel,
 					)));
 				}
 
 				// Redirects
-				$jumplinksMarkup = $this->modules->get('InputfieldMarkup');
+				$importInfoMarkup = $this->modules->get('InputfieldMarkup');
 
-				if ($this->redirectsImported) {
-					$jumplinksMarkup->label = $this->_('Redirects already imported');
-					$jumplinksMarkup->value = $this->_("All your redirects from ProcessRedirects have already been imported. You can safely uninstall ProcessRedirects.");
+				if ($this->redirectsImported && !$redoing) {
+					$importInfoMarkup->label = $this->_('Redirects already imported');
+					$importInfoMarkup->value = $this->_("All your redirects from ProcessRedirects have already been imported. You can safely uninstall ProcessRedirects. However, if something went wrong during the import, you can always try again using the button below. Of course, this import facility will not appear once ProcessRedirects is uninstalled.");
+					$form->add($importInfoMarkup);
+					$oopsButton = $this->modules->get('InputfieldButton');
+					$form->add($this->populateInputField($oopsButton, array(
+						'name+id' => 'oopsRedo',
+						'value' => 'Something went wrong, let me try again',
+						'icon' => 'repeat',
+						'href' => '?type=redirects&redo=true',
+					)));
 				} else {
-					$jumplinksTable = $this->modules->get('MarkupAdminDataTable');
-					$jumplinksTable->setClass('old-redirects');
-					$jumplinksTable->setEncodeEntities(false);
-					$jumplinksTable->setSortable(false);
-					$jumplinksTable->headerRow(array($this->_('Import'), $this->_('Redirect From'), $this->_('Redirect To'), $this->_('Hits')));
+					$redirectsTable = $this->modules->get('MarkupAdminDataTable');
+					$redirectsTable->setClass('old-redirects');
+					$redirectsTable->setEncodeEntities(false);
+					$redirectsTable->setSortable(false);
+					$redirectsTable->headerRow(array($this->_('Import'), $this->_('Redirect From'), $this->_('Redirect To'), $this->_('Hits')));
 
-					$jumplinks = $this->db->query("SELECT * FROM processredirects ORDER BY redirect_from");
+					$jumplinks = $this->db->query("SELECT * FROM {$this->redirectsTableName} ORDER BY redirect_from");
 
 					while ($jumplink = $jumplinks->fetch_object()) {
 
-						$jumplinksTable->row(array(
+						$redirectsTable->row(array(
 							"<input type=\"checkbox\" name=\"importArray[]\" checked value=\"{$jumplink->id}\">",
 							$jumplink->redirect_from,
 							$jumplink->redirect_to,
@@ -1651,11 +1665,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 					}
 
-					$jumplinksMarkup->label = $this->_('Available Redirects');
-					$jumplinksMarkup->value = $jumplinksTable->render();
+					$importInfoMarkup->label = $this->_('Available Redirects');
+					$importInfoMarkup->value = $redirectsTable->render();
+					$form->add($importInfoMarkup);
 				}
-
-				$form->add($jumplinksMarkup);
 
 				break;
 
@@ -1693,7 +1706,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Import data/redirects button
 		$field = $this->modules->get('InputfieldButton');
-		if ($importType === 'redirects' && !$this->redirectsImported) {
+		if ($importType === 'redirects' && !$this->redirectsImported || $redoing) {
 			$form->add($this->populateInputField($field, array(
 				'name+id' => 'doImport',
 				'value' => 'Import these Redirects',
@@ -1800,7 +1813,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$redirectsArray = implode(',', array_map('intval', $this->input->post->importArray));
 
 				// Now fetch the redirects
-				$query = $this->database->prepare("SELECT * FROM processredirects WHERE id IN ($redirectsArray)");
+				$query = $this->database->prepare("SELECT * FROM {$this->redirectsTableName} WHERE id IN ($redirectsArray)");
 				$query->execute();
 
 
