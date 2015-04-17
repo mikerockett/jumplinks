@@ -59,6 +59,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	protected $tableName = 'process_jumplinks';
 
 	/**
+	 * The base table name for ProcessRedirects
+	 * @var string
+	 */
+	protected $redirectsTableName = 'ProcessRedirects'; // This is the default, and will be checked for case
+
+	/**
 	 * Paths to forms
 	 * @var string
 	 */
@@ -243,6 +249,18 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$this->setArray(self::getConfigDefaultsArray());
 		$this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
+
+		// Get the correct table name for ProcessRedirects
+		$redirectsTableNameQuery = $this->database->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = :db_name AND TABLE_NAME LIKE :table_name");
+		$redirectsTableNameQuery->execute(array(
+			'db_name' => $this->config->dbName,
+			'table_name' => $this->redirectsTableName,
+		));
+		$redirectsTableNameResult = $redirectsTableNameQuery->fetch(PDO::FETCH_OBJ)->TABLE_NAME;
+		if ($this->redirectsTableName == $redirectsTableNameResult ||
+			strtolower($this->redirectsTableName) == $redirectsTableNameResult) {
+			$this->redirectsTableName = $redirectsTableNameResult;
+		}
 
 		$this->sql = (object) array(
 			'entity' => (object) array(
