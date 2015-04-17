@@ -1231,8 +1231,14 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 	protected function commitJumplink($input, $hits = 0, $updating = false, $id = 0) {
 
+		$noWildcards = (
+			false === strpos($input->destinationUriUrl, '{') &&
+			false === strpos($input->destinationUriUrl, '}')
+		);
+		$isRelative = !(bool) parse_url($input->destinationUriUrl, PHP_URL_SCHEME);
+
 		// If the Destination Path's URI matches that of a page, use a page ID instead
-		if (false === strpos($input->destinationUriUrl, '{') && false === strpos($input->destinationUriUrl, '}')) {
+		if ($noWildcards && $isRelative) {
 			if (($page = $this->pages->get('/' . trim($input->destinationUriUrl, '/'))) && $page->id) {
 				$input->destinationUriUrl = "page:{$page->id}";
 			}
@@ -1635,7 +1641,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 				break;
 
-			default:	// type = csv
+			default: // type = csv
 
 				$this->config->js('pjImportCSVData', true);
 
