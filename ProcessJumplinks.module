@@ -1156,7 +1156,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'name+id' => 'destinationUriUrl',
 			'label' => $this->_('or specify a destination'),
 			'description' => $this->_('Enter either a URI relative to the root of this installation (without the leading slash) or an absolute URL.'),
-			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%1\$s/Mapping-Collections) (Mapping Collections), [[[template=your_template, field={path}]]](%1\$s/Selectors) (Selectors).\n**Note:** If you select a page from the Page Selector above, its identifier will be placed here."), $this->moduleInfo['href']),
+			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%1\$s/Mapping-Collections) (Mapping Collections), [[[template=your_template, field={path}]]](%1\$s/Destination-Selectors) (Selectors).\n**Note:** If you select a page from the Page Selector above, its identifier will be placed here."), $this->moduleInfo['href']),
 			'required' => 1,
 			'value' => isset($destinationUriUrl) ? $destinationUriUrl : '',
 		)));
