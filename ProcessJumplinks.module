@@ -149,8 +149,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		// Wildcard Cleaning
 		$fieldset->add(self::buildInputField('InputfieldRadios', array(
 			'name+id' => self::wildcardCleaning,
-			'description' => __("When set to 'Full Clean', each wildcard in a Destination Path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
-			'notes' => sprintf(__("**Note:** It's highly recommended to keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)"), self::HREF),
+			'description' => __("When set to 'Full Clean', each wildcard in a destination path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
+			'notes' => sprintf(__("**Note:** It's recommended that you keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)"), self::HREF),
 			'options' => array(
 				'fullClean' => __('Full Clean (default, recommended)'),
 				'semiClean' => __("Clean, but don't change case"),
@@ -168,7 +168,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'label' => __('Enhanced Wildcard Cleaning'),
 			'description' => __("When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
 			'label2' => __('Use Enhanced Wildcard Cleaning'),
-			'notes' => __("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'."),
+			'notes' => __("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'.\n**Note:** This feature only works when Wildcard Cleaning is enabled."),
 			'columnWidth' => 50,
 			'collapsed' => Inputfield::collapsedNever,
 			'autocheck' => true,
