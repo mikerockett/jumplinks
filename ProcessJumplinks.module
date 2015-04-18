@@ -303,7 +303,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		parent::init();
 
 		// Set the admin page URL for JS
-		$this->config->js("pjAdminPageUrl", $this->pages->get('name=jumplinks')->url);
+		$this->config->js("pjAdminPageUrl", $this->pages->get('name=jumplinks,template=admin')->url);
 
 		// Make sure schemas are up to date
 		if ($this->schemaVersion < self::schemaVersion) {
