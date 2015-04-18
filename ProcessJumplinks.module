@@ -1607,11 +1607,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$importType = 'csv';
 		}
 
+		$redoing = $this->input->get('redo') == true;
+
 		switch ($importType) {
 			case 'redirects':
 
 				$this->config->js('pjImportRedirectsModule', true);
-				$redoing = $this->input->get('redo') == true;
 
 				if (!$this->modules->isInstalled('ProcessRedirects')) {
 					$this->session->redirect('../');
