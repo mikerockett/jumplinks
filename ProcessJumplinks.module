@@ -1118,7 +1118,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$form->add($this->populateInputField($field, array(
 			'name+id' => 'sourcePath',
 			'label' => $this->_('Source'),
-			'description' => $this->_("Enter a path that's relative to the root of this installation, without the leading slash."),
+			'description' => $this->_("Enter a URI that's relative to the root of this installation, without the leading slash."),
 			'notes' => sprintf($this->_("**Examples:** page.html, [{page:segment}](%1\$s/Wildcards).html, page.php?name={page:segment}, [page.php?id={id}](%1\$s/Mapping-Collections)"), $this->moduleInfo['href']),
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
@@ -1145,8 +1145,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$form->add($this->populateInputField($destinationPageField, array(
 			'name+id' => 'destinationPage',
-			'label' => $this->_('Select a Page'),
-			'notes' => $this->_("If you leave this out, be sure to enter a valid path below.\n**Note:** If you need to see the details of a page in another language, you'll need to [switch to that language first](../../../profile)."),
+			'label' => $this->_('Select a page'),
+			'notes' => $this->_("If you leave this out, be sure to enter a valid path below.\n**Note:** If you need to use a page in another language, you'll need to [switch to that language first](../../../profile)."),
 			'parent_id' => 0,
 			'startLabel' => $this->_('Select Page'),
 		)));
@@ -1155,8 +1155,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$form->add($this->populateInputField($destinationPathField, array(
 			'name+id' => 'destinationUriUrl',
 			'label' => $this->_('or specify a destination'),
-			'description' => $this->_('Enter either a URI relative to the root of this installation (without the leading slash), an absolute URL, or a selector that gets the page to redirect to.'),
-			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%1\$s/Mapping-Collections), [[[template=your_template, field={path}]]](%1\$s/Selectors).\n**Note:** If you select a page from the Page Selector above, its identifier will be added here."), $this->moduleInfo['href']),
+			'description' => $this->_('Enter either a URI relative to the root of this installation (without the leading slash) or an absolute URL.'),
+			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%1\$s/Mapping-Collections) (Mapping Collections), [[[template=your_template, field={path}]]](%1\$s/Selectors) (Selectors).\n**Note:** If you select a page from the Page Selector above, its identifier will be placed here."), $this->moduleInfo['href']),
 			'required' => 1,
 			'value' => isset($destinationUriUrl) ? $destinationUriUrl : '',
 		)));
