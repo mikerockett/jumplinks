@@ -1401,7 +1401,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$form->add($this->populateInputField($field, array(
 			'name+id' => 'collectionData',
 			'label' => $this->_('Mapping Data'),
-			'description' => sprintf($this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names. To learn more about how this feature works, please [read through the documentation](%s).'), $this->helpLinks("Mapping-Collections", true)),
+			'description' => sprintf($this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names, but you can use named identifiers too. To learn more about how this feature works, please [read through the documentation](%s).'), $this->helpLinks("Mapping-Collections", true)),
 			'notes' => sprintf($this->_("To make things easier, you'll probably want to export your data from your old platform/framework in this format.\n**Note:** All **values** will be cleaned according to the 'Wildcard Cleaning' setting in the [module's configuration](%s)."), $this->getModuleConfigUri()),
 			'required' => 1,
 			'rows' => 10,
