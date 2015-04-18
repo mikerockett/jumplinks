@@ -264,32 +264,20 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$this->sql = (object) array(
 			'entity' => (object) array(
-				'selectAll' =>
-					"SELECT * FROM {$this->tableName} ORDER BY source",
-				'selectOne' =>
-					"SELECT * FROM {$this->tableName} WHERE id = :id",
-				'dropOne' =>
-					"DELETE FROM {$this->tableName} WHERE id = :id",
-				'insert' =>
-					"INSERT INTO {$this->tableName} SET source = :source, destination = :destination, hits = :hits, date_start = :date_start, date_end = :date_end, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
-				'update' =>
-					"UPDATE {$this->tableName} SET source = :source, destination = :destination, date_start = :date_start, date_end = :date_end, user_updated = :user_updated, updated_at = CURRENT_TIMESTAMP WHERE id = :id",
-				'updateHits' =>
-					"UPDATE {$this->tableName} SET hits = :hits WHERE id = :id",
+				'selectAll' => "SELECT * FROM {$this->tableName} ORDER BY source",
+				'selectOne' => "SELECT * FROM {$this->tableName} WHERE id = :id",
+				'dropOne' => "DELETE FROM {$this->tableName} WHERE id = :id",
+				'insert' => "INSERT INTO {$this->tableName} SET source = :source, destination = :destination, hits = :hits, date_start = :date_start, date_end = :date_end, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
+				'update' => "UPDATE {$this->tableName} SET source = :source, destination = :destination, date_start = :date_start, date_end = :date_end, user_updated = :user_updated, updated_at = CURRENT_TIMESTAMP WHERE id = :id",
+				'updateHits' => "UPDATE {$this->tableName} SET hits = :hits WHERE id = :id",
 			),
 			'collection' => (object) array(
-				'selectAll' =>
-					"SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
-				'selectOne' =>
-					"SELECT * FROM {$this->tableName}_mc WHERE id = :id",
-				'selectOneByName' =>
-					"SELECT * FROM {$this->tableName}_mc WHERE collection_name = :collection",
-				'dropOne' =>
-					"DELETE FROM {$this->tableName}_mc WHERE id = :id",
-				'insert' =>
-					"INSERT INTO {$this->tableName}_mc SET collection_name = :collection, collection_mappings = :mappings, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
-				'update' =>
-					"UPDATE {$this->tableName}_mc SET collection_name = :collection, collection_mappings = :mappings, user_updated = :user_updated WHERE id = :id",
+				'selectAll' => "SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
+				'selectOne' => "SELECT * FROM {$this->tableName}_mc WHERE id = :id",
+				'selectOneByName' => "SELECT * FROM {$this->tableName}_mc WHERE collection_name = :collection",
+				'dropOne' => "DELETE FROM {$this->tableName}_mc WHERE id = :id",
+				'insert' => "INSERT INTO {$this->tableName}_mc SET collection_name = :collection, collection_mappings = :mappings, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
+				'update' => "UPDATE {$this->tableName}_mc SET collection_name = :collection, collection_mappings = :mappings, user_updated = :user_updated WHERE id = :id",
 			)
 		);
 	}
@@ -1816,7 +1804,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				// Now fetch the redirects
 				$query = $this->database->prepare("SELECT * FROM {$this->redirectsTableName} WHERE id IN ($redirectsArray)");
 				$query->execute();
-
 
 				// Gather and count the redirects
 				$redirects = $query->fetchAll(PDO::FETCH_OBJ);
