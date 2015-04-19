@@ -1,6 +1,6 @@
 ![ProcessJumplinks](https://processwire.com/talk/uploads/monthly_04_2015/post-2289-0-33063200-1428045771.png)
 
-**Current Version:** 1.1.3 (Stable)<br>
+**Current Version:** 1.2.0 (Stable)<br>
 **Requires ProcessWire 2.5.3** (works in 2.6-dev)
 
 ---
