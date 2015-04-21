@@ -256,10 +256,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'db_name' => $this->config->dbName,
 			'table_name' => $this->redirectsTableName,
 		));
-		$redirectsTableNameResult = $redirectsTableNameQuery->fetch(PDO::FETCH_OBJ)->TABLE_NAME;
-		if ($this->redirectsTableName == $redirectsTableNameResult ||
-			strtolower($this->redirectsTableName) == $redirectsTableNameResult) {
-			$this->redirectsTableName = $redirectsTableNameResult;
+		if ($redirectsTableNameQuery->rowCount() > 0) {
+			$redirectsTableNameResult = $redirectsTableNameQuery->fetch(PDO::FETCH_OBJ)->TABLE_NAME;
+			if ($this->redirectsTableName == $redirectsTableNameResult ||
+				strtolower($this->redirectsTableName) == $redirectsTableNameResult) {
+				$this->redirectsTableName = $redirectsTableNameResult;
+			}
 		}
 
 		$this->sql = (object) array(
