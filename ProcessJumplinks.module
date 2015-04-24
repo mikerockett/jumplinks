@@ -648,7 +648,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				array('\?', '\&', '\:', 'index.php.pwpj'),
 				$jumplink->source));
 
-			// Reverse ? escaping for wildcards
+			// Reverse : escaping for wildcards
 			$source = preg_replace("~\{([a-z]+)\\\:([a-z]+)\}~i", "{\\1:\\2}", $source);
 
 			// Compile the destination URL
@@ -729,6 +729,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 						// Swap out any mapping wildcards with their uncleaned values
 						$value = preg_quote($value);
 						$result = preg_replace("~\{{$value}\|([a-z]+)\}~i", "($uncleanedCapture|\\1)", $result);
+						$this->log("> Wildcard Check:             {$c}> {$value} = {$uncleanedCapture} -> {$captures[$c]}", true);
 					}
 
 					// Trim the result of trailing slashes, and
