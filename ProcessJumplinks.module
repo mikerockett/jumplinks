@@ -644,8 +644,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			// First, escape ? & :, and rename index.php so we can make use of such requests.
 			// Then, convert '[character]' to 'character?' for matching.
 			$source = preg_replace('~\[([a-z0-9\/])\]~i', "\\1?", str_replace(
-				array('?', '&', ':', '+', 'index.php'),
-				array('\?', '\&', '\:', '+', 'index.php.pwpj'),
+				array('?', '&', ':', 'index.php'),
+				array('\?', '\&', '\:', 'index.php.pwpj'),
 				$jumplink->source));
 
 			// Reverse ? escaping for wildcards
