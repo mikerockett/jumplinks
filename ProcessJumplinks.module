@@ -613,6 +613,15 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Begin the loop
 		while ($jumplink = $jumplinks->fetch_object()) {
+			$nullDateTime = '0000-00-00 00:00:00';
+
+			if ($jumplink->date_start == $nullDateTime) {
+				$jumplink->date_start = "";
+			}
+			if ($jumplink->date_end == $nullDateTime) {
+				$jumplink->date_end = "";
+			}
+
 			$starts = strtotime($jumplink->date_start);
 			$ends = strtotime($jumplink->date_end);
 
@@ -884,10 +893,18 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$jumplinksTab->append($jumplinksDescriptionMarkup);
 
+		$nullDateTime = '0000-00-00 00:00:00';
+
 		$hits = 0;
 		while ($jumplink = $jumplinks->fetch_object()) {
 			$jumplink->source = htmlentities($jumplink->source);
 			$jumplink->destination = $this->compileDestinationUrl($jumplink->destination, true);
+			if ($jumplink->date_start == $nullDateTime) {
+				$jumplink->date_start = "";
+			}
+			if ($jumplink->date_end == $nullDateTime) {
+				$jumplink->date_end = "";
+			}
 			$relativeStartTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_start, true));
 			$relativeEndTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_end, true));
 
@@ -1086,9 +1103,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$this->setFuel('processHeadline', $this->_('Editing Jumplink'));
 
 			// Format dates (times)
-			$nullValue = '0000-00-00 00:00:00';
-			$dateStart = ($dateStart !== $nullValue) ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
-			$dateEnd = ($dateEnd !== $nullValue) ? date('Y-m-d h:m A', strtotime($dateEnd)) : null;
+			$nullDateTime = '0000-00-00 00:00:00';
+			$dateStart = ($dateStart !== $nullDateTime) ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
+			$dateEnd = ($dateEnd !== $nullDateTime) ? date('Y-m-d h:m A', strtotime($dateEnd)) : null;
 		}
 
 		// Prep the form
