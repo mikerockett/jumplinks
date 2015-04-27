@@ -616,6 +616,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$starts = strtotime($jumplink->date_start);
 			$ends = strtotime($jumplink->date_end);
 
+			$this->log("[Checking jumplink #{$jumplink->id}]");
+
 			// Timed Activation:
 			// If it ends, but doesn't start, then make it start now
 			if ($ends && !$starts) {
@@ -630,8 +632,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			} else {
 				$message = '';
 			}
-
-			$this->log("[Checking jumplink #{$jumplink->id}]");
 
 			// Log the activation periods for debugging
 			if ($starts || $ends) {
@@ -651,12 +651,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			// Reverse : escaping for wildcards
 			$source = preg_replace("~\{([a-z]+)\\\:([a-z]+)\}~i", "{\\1:\\2}", $source);
 
-			// Compile the destination URL
-			$destination = $this->compileDestinationUrl($jumplink->destination);
-
 			if ($source !== $jumplink->source) {
 				$this->log("Escaped Source Path:          {$source}", true);
 			}
+
+			// Compile the destination URL
+			$destination = $this->compileDestinationUrl($jumplink->destination);
 
 			// Setup capture prevention
 			$nonCaptureMatcher = "~<(.*?)>~";
