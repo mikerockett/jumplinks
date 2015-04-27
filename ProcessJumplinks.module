@@ -644,12 +644,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			// If it starts (which it will always do), but doesn't end,
 			// then set a dummy timestamp that is always in the future.
 			$dummyEnd = false;
+			$message = '';
 			if ($starts && !$ends) {
 				$ends = time() + (60 * 60);
 				$dummyEnd = true;
 				$message = '(has no ending, using dummy timestamp)';
-			} else
-				$message = '';
+			}
 
 			// Log the activation periods for debugging
 			if ($starts || $ends)
