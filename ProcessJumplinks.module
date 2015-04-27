@@ -126,9 +126,11 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return InputfieldWrapper
 	 */
 	public static function getModuleConfigInputfields(array $data) {
+
 		// Inject assets
 		wire('config')->scripts->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.min.js');
 		wire('config')->styles->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
+
 		// Include WireTabs
 		wire('modules')->get('JqueryWireTabs');
 
@@ -296,9 +298,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$this->config->js("pjAdminPageUrl", $this->pages->get('name=jumplinks,template=admin')->url);
 
 		// Make sure schemas are up to date
-		if ($this->schemaVersion < self::schemaVersion) {
+		if ($this->schemaVersion < self::schemaVersion)
 			$this->updateDatabaseSchemas();
-		}
 
 		// Set the request (URI), and trim off the leading slash,
 		// as we won't be needing it for comparison.
@@ -306,21 +307,19 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// If a request is made to the index.php file, with a slash,
 		// then redirect to root (mod_rewrite is a PW requirement)
-		if ($this->request === 'index.php/' || $this->request === 'index.php') {
+		if ($this->request === 'index.php/' || $this->request === 'index.php')
 			$this->session->redirect($this->config->urls->root);
-		}
 
 		// Magic ahead: Replace index.php with a dummy do we can scan such requests.
 		// But first, redirect requests to index.php/ so we don't have any legacy domain false positives,
 		// such as remote 301s used to trim trailing slashes.
 		$indexExpression = "~^index.php(\?|\/)~";
-		if (preg_match($indexExpression, $this->request)) {
+		if (preg_match($indexExpression, $this->request))
 			$this->session->redirect(preg_replace(
 				$indexExpression,
 				"{$this->config->urls->root}index.php.pwpj\\1",
 				$this->request
 			));
-		}
 
 		// Hook prior to the pageNotFound event ...
 		$this->addHookBefore('ProcessPageView::pageNotFound', $this, 'scanAndRedirect', array('priority' => 10));
@@ -341,9 +340,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 */
 	protected function helpLinks($uri = '', $justTheLink = false) {
 
-		if (!empty($uri)) {
+		if (!empty($uri))
 			$uri = "/{$uri}";
-		}
 
 		return ($justTheLink)
 			? $this->moduleInfo['href'] . $uri
@@ -363,9 +361,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$data = array_filter($data);
 
-		if (empty($data)) {
+		if (empty($data))
 			$data = array('table-name' => $this->tableName);
-		}
 
 		$blueprint->hydrate($data);
 
@@ -452,15 +449,13 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$input = preg_replace("~[^\\pL\d\/]+~u", '-', $input);
 		$input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
-		if ($this->{self::enhancedWildcardCleaning}) {
+		if ($this->{self::enhancedWildcardCleaning})
 			$input = preg_replace("~(\d)([a-z])~i", "\\1-\\2", preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input));
-		}
 
 		$input = trim($input, '-');
 		$input = preg_replace('~[^-\w\/]+~', '', $input);
-		if (!$noLower) {
+		if (!$noLower)
 			$input = strtolower($input);
-		}
 
 		return (empty($input)) ? '' : $input;
 	}
@@ -491,9 +486,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		foreach ($meta as $metaNames => $metaInfo) {
 			$metaNames = explode('+', $metaNames);
-			foreach ($metaNames as $metaName) {
+			foreach ($metaNames as $metaName)
 				$field->$metaName = $metaInfo;
-			}
 		}
 
 		return $field;
@@ -509,9 +503,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		foreach ($meta as $metaNames => $metaInfo) {
 			$metaNames = explode('+', $metaNames);
-			foreach ($metaNames as $metaName) {
+			foreach ($metaNames as $metaName)
 				$field->$metaName = $metaInfo;
-			}
 		}
 
 		return $field;
@@ -567,9 +560,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 			print str_replace('.pwpj', '', "{$indent}{$message}\n{$break}");
 
-			if ($die) {
-				die();
-			}
+			if ($die) die();
 		}
 	}
 
@@ -581,9 +572,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$jumplinks = $this->db->query($this->sql->entity->selectAll);
 
-		if ($jumplinks->num_rows === 0) {
+		if ($jumplinks->num_rows === 0)
 			return false;
-		}
 
 		$this->log("Page not found; scanning for jumplinks...");
 
@@ -597,15 +587,13 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$rootUrl = $this->config->urls->root;
 
-		if ($rootUrl !== '/') {
+		if ($rootUrl !== '/')
 			$request = substr($request, strlen($rootUrl) - 1);
-		}
 
 		// Get the available wildcards, prepare for pattern match
 		$availableWildcards = '';
-		foreach ($this->wildcards as $wildcard => $expression) {
+		foreach ($this->wildcards as $wildcard => $expression)
 			$availableWildcards .= "$wildcard|";
-		}
 		$availableWildcards = rtrim($availableWildcards, '|');
 
 		// Assign the wildcard pattern check
@@ -615,12 +603,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		while ($jumplink = $jumplinks->fetch_object()) {
 			$nullDateTime = '0000-00-00 00:00:00';
 
-			if ($jumplink->date_start == $nullDateTime) {
+			if ($jumplink->date_start == $nullDateTime)
 				$jumplink->date_start = "";
-			}
-			if ($jumplink->date_end == $nullDateTime) {
+			if ($jumplink->date_end == $nullDateTime)
 				$jumplink->date_end = "";
-			}
 
 			$starts = strtotime($jumplink->date_start);
 			$ends = strtotime($jumplink->date_end);
@@ -629,23 +615,22 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 			// Timed Activation:
 			// If it ends, but doesn't start, then make it start now
-			if ($ends && !$starts) {
+			if ($ends && !$starts)
 				$starts = time();
-			}
 
 			// If it starts (which it will always do), but doesn't end,
 			// then set a dummy timestamp that is always in the future.
+			$dummyEnd = false;
 			if ($starts && !$ends) {
 				$ends = time() + (60 * 60);
+				$dummyEnd = true;
 				$message = '(has no ending, using dummy timestamp)';
-			} else {
+			} else
 				$message = '';
-			}
 
 			// Log the activation periods for debugging
-			if ($starts || $ends) {
+			if ($starts || $ends)
 				$this->log(sprintf("Timed Activation:             %s to %s {$message}", date('r', $starts), date('r', $ends)), true);
-			}
 
 			$this->log("Original Source Path:         {$jumplink->source}", true);
 
@@ -660,18 +645,16 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			// Reverse : escaping for wildcards
 			$source = preg_replace("~\{([a-z]+)\\\:([a-z]+)\}~i", "{\\1:\\2}", $source);
 
-			if ($source !== $jumplink->source) {
+			if ($source !== $jumplink->source)
 				$this->log("Escaped Source Path:          {$source}", true);
-			}
 
 			// Compile the destination URL
 			$destination = $this->compileDestinationUrl($jumplink->destination);
 
 			// Setup capture prevention
 			$nonCaptureMatcher = "~<(.*?)>~";
-			if (preg_match($nonCaptureMatcher, $source)) {
+			if (preg_match($nonCaptureMatcher, $source))
 				$source = preg_replace($nonCaptureMatcher, "(?:\\1)", $source);
-			}
 
 			// Prepare Smart Wildcards - replace them with their equivalent standard ones.
 			$hasSmartWildcards = false;
@@ -692,9 +675,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			}, $source);
 
 			// Some more logging
-			if ($hasSmartWildcards) {
+			if ($hasSmartWildcards)
 				$this->log("After Smart Wildcards:        {$source}", true);
-			}
 
 			$this->log("Compiled Source Path:         {$computedWildcards}", true);
 
@@ -727,9 +709,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 						$uncleanedCapture = $captures[$c];
 						if (!preg_match($paramSkipCleanCheck, $result)) {
 							$wildcardCleaning = $this->{self::wildcardCleaning};
-							if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
+							if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean')
 								$captures[$c] = $this->cleanWildcard($captures[$c], ($wildcardCleaning === 'fullClean') ? false : true);
-							}
 						}
 						$openingTag = (preg_match($paramSkipCleanCheck, $result)) ? '{!' : '{';
 						$result = str_replace($openingTag . $value . '}', $captures[$c], $result);
@@ -744,22 +725,20 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 					// Trim the result of trailing slashes, and
 					// add one again if the Destination Path asked for it.
 					$result = rtrim($result, '/');
-					if (substr($destination, -1) === '/') {
+					if (substr($destination, -1) === '/')
 						$result .= '/';
-					}
 
 					return $result;
 				}, $request);
 
 				// Perform any mappings
 				$convertedWildcards = preg_replace_callback("~\(([\w-_\/]+)\|([a-z]+)\)~i", function ($mapCaptures) use ($compiledCollections) {
-					if (isset($compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]])) {
-						// If we have a match, bring it in
+					// If we have a match, bring it in
+					// Otherwise, fill the mapping wildcard with the original data
+					if (isset($compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]]))
 						return $compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]];
-					} else {
-						// Otherwise, fill the mapping wildcard with the original data
+					else
 						return $mapCaptures[1];
-					}
 				}, $convertedWildcards);
 
 				// Check for any selectors and get the respective page
@@ -807,20 +786,18 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$this->log("From URL:   {$requestedUrlFirstPart}/{$request}", true);
 				$this->log("To URL:     {$convertedWildcards}", true);
 
-				if (!$activated) {
+				if ($starts || $ends) {
 					// If it ends before it starts, then show the time it starts.
 					// Otherwise, show the period.
-					if ($ends < $starts) {
+					if ($dummyEnd)
 						$this->log(sprintf("Timed:      From %s onwards", date('r', $starts)), true);
-					} else {
+					else
 						$this->log(sprintf("Timed:      From %s to %s", date('r', $starts), date('r', $ends)), true);
-					}
 				}
 
 				// We can exit at this point.
-				if ($this->userHasDebugRights()) {
+				if ($this->userHasDebugRights())
 					die();
-				}
 			}
 
 			// If there were no available redirect definitions,
@@ -844,9 +821,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 			// If the response has an accepted code, then 302 redirect (or log)
 			if (in_array($status, $okCodes)) {
-				if (!$this->userHasDebugRights()) {
+				if (!$this->userHasDebugRights())
 					$this->session->redirect($domainRequest, false);
-				}
 				$this->log("Found Source Path on Legacy Domain (with status code {$status}); redirect allowed to:");
 				$this->log($domainRequest, true, false, true);
 			}
@@ -854,10 +830,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// If all fails, say so.
 		$this->log("No matches, sorry. We'll let the 404 error page take over when Debug Mode is turned off.");
-		if ($this->userHasDebugRights()) {
+		if ($this->userHasDebugRights())
 			die();
-		}
-
 	}
 
 	/**
@@ -882,11 +856,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$jumplinksTable->headerRow(array($this->_('Source'), $this->_('Destination'), $this->_('Start'), $this->_('End'), $this->_('Hits')));
 
 		$pronoun = $this->_n('it', 'one', $jumplinks->num_rows);
-		if ($jumplinks->num_rows == 0) {
+		if ($jumplinks->num_rows == 0)
 			$description = $this->_("You don't have any jumplinks yet.");
-		} else {
+		else
 			$description = $this->_n('You have one jumplink registered.', 'Your jumplinks are listed below.', $jumplinks->num_rows) . ' ' . sprintf($this->_("To edit/delete %s, simply click on its Source."), $pronoun);
-		}
 
 		$jumplinksDescriptionMarkup = $this->modules->get('InputfieldMarkup');
 		$jumplinksDescriptionMarkup->value = $description;
@@ -899,12 +872,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		while ($jumplink = $jumplinks->fetch_object()) {
 			$jumplink->source = htmlentities($jumplink->source);
 			$jumplink->destination = $this->compileDestinationUrl($jumplink->destination, true);
-			if ($jumplink->date_start == $nullDateTime) {
+			if ($jumplink->date_start == $nullDateTime)
 				$jumplink->date_start = "";
-			}
-			if ($jumplink->date_end == $nullDateTime) {
+			if ($jumplink->date_end == $nullDateTime)
 				$jumplink->date_end = "";
-			}
 			$relativeStartTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_start, true));
 			$relativeEndTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_end, true));
 
@@ -998,9 +969,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$created = wireRelativeTimeStr($mappingCollection->created_at) . " by {$userCreated}";
 			$updated = wireRelativeTimeStr($mappingCollection->updated_at) . " by {$userUpdated}";
 
-			if ($mappingCollection->created_at === $mappingCollection->updated_at) {
+			if ($mappingCollection->created_at === $mappingCollection->updated_at)
 				$updated = '';
-			}
 
 			$mappingCollectionsTable->row(array(
 				$mappingCollection->collection_name => "{$this->mappingCollectionFormPath}?id={$mappingCollection->id}",
@@ -1033,11 +1003,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$importTab->id = 'import';
 
 		$infoContainer = $this->modules->get('InputfieldMarkup');
-		if ($this->modules->isInstalled('ProcessRedirects')) {
+		if ($this->modules->isInstalled('ProcessRedirects'))
 			$infoContainer->value = $this->_('To import your jumplinks, select an option below:');
-		} else {
+		else
 			$infoContainer->value = $this->_('To import your jumplinks, click the button below:');
-		}
 
 		$importTab->append($infoContainer);
 
@@ -1147,9 +1116,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$destinationPageField->collapsed = Inputfield::collapsedYes;
 				$destinationPathField->collapsed = Inputfield::collapsedBlank;
 			}
-		} else {
-			$destinationPathField->collapsed = Inputfield::collapsedBlank;
-		}
+		} else $destinationPathField->collapsed = Inputfield::collapsedBlank;
 
 		$form->add($this->populateInputField($destinationPageField, array(
 			'name+id' => 'destinationPage',
@@ -1264,11 +1231,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$isRelative = !(bool) parse_url($input->destinationUriUrl, PHP_URL_SCHEME);
 
 		// If the Destination Path's URI matches that of a page, use a page ID instead
-		if ($noWildcards && $isRelative) {
-			if (($page = $this->pages->get('/' . trim($input->destinationUriUrl, '/'))) && $page->id) {
+		if ($noWildcards && $isRelative)
+			if (($page = $this->pages->get('/' . trim($input->destinationUriUrl, '/'))) && $page->id)
 				$input->destinationUriUrl = "page:{$page->id}";
-			}
-		}
 
 		// Escape Source and Destination (Sanitised) Paths
 		$source = ltrim($this->db->escape_string($input->sourcePath), '/');
@@ -1279,9 +1244,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$end = (!isset($input->dateEnd) || empty($input->dateEnd)) ? 'null' : date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd)));
 
 		// Set the user creating/updating
-		if (!$updating) {
+		if (!$updating)
 			$userCreated = $this->user->id;
-		}
 		$userUpdated = $this->user->id;
 
 		// Insert/Update
@@ -1328,9 +1292,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	public function ___executeCommit() {
 
 		// Just to be on the safe side...
-		if ($this->input->post->id == null) {
+		if ($this->input->post->id == null)
 			$this->session->redirect("../");
-		}
 
 		$input = $this->input->post;
 
@@ -1491,27 +1454,24 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$mapping = explode('=', $mapping);
 
 			$wildcardCleaning = $this->{self::wildcardCleaning};
-			if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
+			if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean')
 				$mapping[1] = $this->cleanWildcard($mapping[1], ($wildcardCleaning === 'fullClean') ? false : true);
-			}
 
 			$compiledMappings[trim($mapping[0])] = $mapping[1];
 		}
 
 		$dbInput = '';
 
-		foreach ($compiledMappings as $key => $value) {
+		foreach ($compiledMappings as $key => $value)
 			$dbInput .= "$key=$value\n";
-		}
 
 		$dbInput = trim($dbInput);
 
 		$updating = ($id > 0);
 
 		// Set the user creating/updating
-		if (!$updating) {
+		if (!$updating)
 			$userCreated = $this->user->id;
-		}
 		$userUpdated = $this->user->id;
 
 		$dataBind = array(
@@ -1546,17 +1506,15 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$collections->execute(array(
 			'collection' => $name
 		));
-		if (count($collections) !== 0) {
+		if (count($collections) !== 0)
 			while ($collection = $collections->fetch(PDO::FETCH_OBJ)) {
 				$id = (int) $collection->id;
 				$collectionData = $collection->collection_mappings . "\n";
 			}
-		}
 
 		// Gather the data from the array
-		foreach ($data as $key => $value) {
+		foreach ($data as $key => $value)
 			$collectionData .= "{$key}={$value}" . "\n";
-		}
 
 		// And send it off!
 		$this->commitMappingCollection($name, trim($collectionData, "\n"), $id);
@@ -1568,9 +1526,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	public function ___executeCommitMappingCollection() {
 
 		// Just to be on the safe side...
-		if ($this->input->post->id == null) {
+		if ($this->input->post->id == null)
 			$this->session->redirect("../");
-		}
 
 		$input = $this->input->post;
 
@@ -1611,9 +1568,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$form->action = '../doimport/';
 
 		$importType = $this->input->get->type;
-		if (is_null($importType)) {
+		if (is_null($importType))
 			$importType = 'csv';
-		}
 
 		$redoing = $this->input->get('redo') == true;
 
@@ -1622,18 +1578,16 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 				$this->config->js('pjImportRedirectsModule', true);
 
-				if (!$this->modules->isInstalled('ProcessRedirects')) {
+				if (!$this->modules->isInstalled('ProcessRedirects'))
 					$this->session->redirect('../');
-				}
 
 				if (!$this->redirectsImported || $redoing) {
 					// Information
 					$field = $this->modules->get('InputfieldMarkup');
-					if ($redoing) {
+					if ($redoing)
 						$infoLabel = $this->_("If your last import failed, you can always try the import again. First, make sure that the jumplinks you imported have been deleted. Alternatively, just uncheck the ones that sucessfully imported the first time.");
-					} else {
+					else
 						$infoLabel = $this->_("You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Jumplinks. If there are any redirects you wish to exclude, simply uncheck the box in the first column");
-					}
 					$form->add($this->populateInputField($field, array(
 						'label' => $this->_('Import from the Redirects module'),
 						'value' => $infoLabel,
@@ -1663,16 +1617,13 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 					$jumplinks = $this->db->query("SELECT * FROM {$this->redirectsTableName} ORDER BY redirect_from");
 
-					while ($jumplink = $jumplinks->fetch_object()) {
-
+					while ($jumplink = $jumplinks->fetch_object())
 						$redirectsTable->row(array(
 							"<input type=\"checkbox\" name=\"importArray[]\" checked value=\"{$jumplink->id}\">",
 							$jumplink->redirect_from,
 							$jumplink->redirect_to,
 							$jumplink->counter,
 						));
-
-					}
 
 					$importInfoMarkup->label = $this->_('Available Redirects');
 					$importInfoMarkup->value = $redirectsTable->render();
@@ -1715,26 +1666,24 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// Import data/redirects button
 		$field = $this->modules->get('InputfieldButton');
-		if ($importType === 'redirects' && !$this->redirectsImported || $redoing) {
+		if ($importType === 'redirects' && !$this->redirectsImported || $redoing)
 			$form->add($this->populateInputField($field, array(
 				'name+id' => 'doImport',
 				'value' => 'Import these Redirects',
 				'icon' => 'arrow-right',
 				'type' => 'submit',
 			))->addClass('head_button_clone'));
-		} else if ($importType !== 'redirects') {
+		else if ($importType !== 'redirects')
 			$form->add($this->populateInputField($field, array(
 				'name+id' => 'doImport',
 				'value' => 'Import Data',
 				'icon' => 'cloud-upload',
 				'type' => 'submit',
 			))->addClass('head_button_clone'));
-		}
 
 		// Rename import type for docs
-		if ($importType === 'redirects') {
+		if ($importType === 'redirects')
 			$importType = 'processredirects';
-		}
 
 		$this->config->js('pjImport', true);
 
@@ -1747,9 +1696,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	public function ___executeDoImport() {
 
 		// Just to be on the safe side...
-		if ($this->input->post->importType == null) {
+		if ($this->input->post->importType == null)
 			$this->session->redirect("../");
-		}
 
 		// Get the type of import ...
 		$importType = $this->input->post->importType;
@@ -1772,9 +1720,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 					$col = 0;
 					foreach ($row as $value) {
 						++$col;
-						if ($col >= 4) {
-							continue;
-						}
+						if ($col >= 4) continue;
 
 						$value = ltrim($value, '/');
 
@@ -1830,7 +1776,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$countRedirects = count($redirects);
 
 				// And import them
-				if ($countRedirects > 0) {
+				if ($countRedirects > 0)
 					foreach ($redirects as $redirect) {
 						$jumplink = (object) array(
 							'sourcePath' => $redirect->redirect_from,
@@ -1838,7 +1784,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 						);
 						$this->commitJumplink($jumplink, $redirect->counter);
 					}
-				}
 
 				// Don't allow another import (we're importing for a reason - to migrate over to one module)
 				$configData = $this->modules->getModuleConfigData($this);
@@ -1862,9 +1807,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	public function ___install() {
 
 		// Install tables (their schemas may not remain the same as updateDatabaseSchemas() may change them)
-		foreach (array('main', 'mc') as $schema) {
+		foreach (array('main', 'mc') as $schema)
 			$this->db->query($this->blueprint("schema-create-{$schema}"));
-		}
 
 		parent::___install();
 	}
