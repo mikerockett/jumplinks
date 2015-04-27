@@ -13,9 +13,6 @@
  *
  */
 
-require_once __DIR__ . '/Classes/Blueprint.php';
-require_once __DIR__ . '/Classes/ParseCSV.php';
-
 class ProcessJumplinks extends Process implements ConfigurableModule {
 
 	/** Schema version for current release */
@@ -385,6 +382,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @return string
 	 */
 	protected function blueprint($name, $data = array()) {
+
+		// Require the Blueprint parser
+		require_once __DIR__ . '/Classes/Blueprint.php';
 
 		$blueprint = new Blueprint($name);
 
@@ -1725,6 +1725,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		// ... and go!
 		switch ($importType) {
 			case 'csv':
+
+				// Require the CSV parser
+				require_once __DIR__ . '/Classes/ParseCSV.php';
 
 				// Prepare the parser
 				$csv = new ParseCSV();
