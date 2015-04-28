@@ -21,6 +21,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	/** Module docs link */
 	const HREF = 'https://github.com/mike-anthony/ProcessJumplinks/wiki';
 
+	/** NULL Date **/
+	const NULL_DATE = '0000-00-00 00:00:00';
+
 	/** Config names */
 	const _schemaVersion = "schemaVersion";
 	const enhancedWildcardCleaning = "enhancedWildcardCleaning";
@@ -1260,8 +1263,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$destination = ltrim($this->db->escape_string($this->sanitizer->url($input->destinationUriUrl)), '/');
 
 		// Prepare dates (times) for database entry
-		$start = (!isset($input->dateStart) || empty($input->dateStart)) ? 'null' : date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart)));
-		$end = (!isset($input->dateEnd) || empty($input->dateEnd)) ? 'null' : date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd)));
+		$start = (!isset($input->dateStart) || empty($input->dateStart)) ? self::NULL_DATE : date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart)));
+		$end = (!isset($input->dateEnd) || empty($input->dateEnd)) ? self::NULL_DATE : date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateEnd)));
 
 		// Set the user creating/updating
 		if (!$updating)
@@ -1758,7 +1761,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 								break;
 							case 3: // time start
 							case 4: // time end
-								$value = empty($value) ? 'null' : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $value))) . "'";
+								$value = empty($value) ? self::NULL_DATE : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $value))) . "'";
 								break;
 						}
 
@@ -1767,8 +1770,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 					}
 
 					if ($col === 2) {
-						$jumplink[$cols[2]] = 'null';
-						$jumplink[$cols[3]] = 'null';
+						$jumplink[$cols[2]] = self::NULL_DATE;
+						$jumplink[$cols[3]] = self::NULL_DATE;
 					}
 
 					$jumplinkData = (object) array(
