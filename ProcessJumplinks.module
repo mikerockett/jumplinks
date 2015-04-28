@@ -1154,7 +1154,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 					'id' => 'clearNotFoundLog',
 					'href' => $this->clearNotFoundLogPath,
 					'value' => $this->_('Clear All'),
-					'icon' => 'delete',
+					'icon' => 'times-circle',
 				));
 				$button = $clearNotFoundLogButton->render();
 			}
