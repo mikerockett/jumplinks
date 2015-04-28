@@ -66,6 +66,12 @@ $(function () {
             skipRememberTabIDs: ['log', 'import'],
         });
 
+        // Highlight jumplinks that haven't been hit in over 30 days
+        var $deleteSpan = $('.AdminDataTable.jumplinks td > span#staleJumplink', $t);
+        var $deleteSpanRowParent = $deleteSpan.parent().parent()
+        $deleteSpanRowParent.find('td').css('background-color', '#fff3f3');
+        $deleteSpanRowParent.find('td:first > a').css('color', '#db4747');
+
     }();
 
     // Check if we're working with a jumplink

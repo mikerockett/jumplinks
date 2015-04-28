@@ -16,7 +16,7 @@
 class ProcessJumplinks extends Process implements ConfigurableModule {
 
 	/** Schema version for current release */
-	const schemaVersion = 2;
+	const schemaVersion = 4;
 
 	/** Module docs link */
 	const HREF = 'https://github.com/mike-anthony/ProcessJumplinks/wiki';
@@ -28,6 +28,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	const _schemaVersion = "schemaVersion";
 	const enhancedWildcardCleaning = "enhancedWildcardCleaning";
 	const legacyDomain = "legacyDomain";
+	const enable404Monitor = "enable404Monitor";
 	const moduleDebug = "moduleDebug";
 	const redirectsImported = "redirectsImported";
 	const statusCodes = "statusCodes";
@@ -71,6 +72,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	protected $entityFormPath = 'entity/';
 	protected $mappingCollectionFormPath = 'mappingcollection/';
 	protected $importPath = 'import/';
+	protected $clearNotFoundLogPath = 'clearnotfoundlog/';
 
 	/**
 	 * Lowest date - for use when working with timestamps
@@ -119,6 +121,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			self::_schemaVersion => 1, // Initial schema
 			self::enhancedWildcardCleaning => false,
 			self::legacyDomain => '',
+			self::enable404Monitor => false,
 			self::moduleDebug => false,
 			self::redirectsImported => false,
 			self::statusCodes => '200 301 302',
@@ -219,6 +222,18 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$inputfields->add($fieldset);
 
+		// Log Not Found Hits
+		$inputfields->add(self::buildInputField('InputfieldCheckbox', array(
+			'name+id' => self::enable404Monitor,
+			'label' => __('Enable 404 Monitor'),
+			'description' => __("If you'd like to monitor and log 404 hits so that you can later create jumplinks for them, check the box below."),
+			'label2' => __('Log 404 hits to the database'),
+			'notes' => __("This log will be displayed on the Jumplinks setup page in a separate tab (limited to the last 100).\n**Note:** Turning this off will not delete any existing records from the database."),
+			'collapsed' => Inputfield::collapsedBlank,
+			'autocheck' => true,
+			'value' => $data[self::enable404Monitor],
+		)));
+
 		// Debug Mode
 		$inputfields->add(self::buildInputField('InputfieldCheckbox', array(
 			'name+id' => self::moduleDebug,
@@ -282,6 +297,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				'insert' => "INSERT INTO {$this->tableName} SET source = :source, destination = :destination, hits = :hits, date_start = :date_start, date_end = :date_end, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
 				'update' => "UPDATE {$this->tableName} SET source = :source, destination = :destination, date_start = :date_start, date_end = :date_end, user_updated = :user_updated, updated_at = CURRENT_TIMESTAMP WHERE id = :id",
 				'updateHits' => "UPDATE {$this->tableName} SET hits = :hits WHERE id = :id",
+				'updateLastHitDate' => "UPDATE {$this->tableName} SET last_hit = :last_hit WHERE id = :id",
 			),
 			'collection' => (object) array(
 				'selectAll' => "SELECT * FROM {$this->tableName}_mc ORDER BY collection_name",
@@ -290,7 +306,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				'dropOne' => "DELETE FROM {$this->tableName}_mc WHERE id = :id",
 				'insert' => "INSERT INTO {$this->tableName}_mc SET collection_name = :collection, collection_mappings = :mappings, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
 				'update' => "UPDATE {$this->tableName}_mc SET collection_name = :collection, collection_mappings = :mappings, user_updated = :user_updated WHERE id = :id",
-			)
+			),
+			'notFoundMonitor' => (object) array(
+				'selectAll' => "SELECT * FROM {$this->tableName}_nf ORDER BY created_at DESC LIMIT 100",
+				'insert' => "INSERT INTO {$this->tableName}_nf SET request_uri = :request_uri, referrer = :referrer, user_agent = :user_agent, created_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
+				'deleteAll' => "TRUNCATE TABLE {$this->tableName}_nf",
+			),
 		);
 	}
 
@@ -344,8 +365,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		while ($this->{self::_schemaVersion} < self::schemaVersion) {
             ++$this->{self::_schemaVersion};
             $memoryVersion = $this->{self::_schemaVersion};
-            switch ($memoryVersion) {
-                case 2:
+            switch (true) {
+                case ($memoryVersion <= 4):
                     $statement = $this->blueprint("schema-update-v{$memoryVersion}");
                     break;
                 default:
@@ -803,6 +824,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 						'hits' => $hitsPlusOne,
 						'id' => $jumplink->id,
 					));
+					$this->database->prepare($this->sql->entity->updateLastHitDate)->execute(array(
+						'last_hit' => date('Y-m-d H:i:s'),
+						'id' => $jumplink->id,
+					));
 					$this->session->redirect($convertedWildcards, !$activated);
 				}
 
@@ -820,6 +845,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 					else
 						$this->log(sprintf("Timed:      From %s to %s", date('r', $starts), date('r', $ends)), true);
 				}
+
 
 				// We can exit at this point.
 				if ($this->userHasDebugRights())
@@ -853,6 +879,14 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$this->log($domainRequest, true, false, true);
 			}
 		}
+
+		// If set in config, log 404 hits to the database
+		if ($this->enable404Monitor == true)
+			$this->database->prepare($this->sql->notFoundMonitor->insert)->execute(array(
+				'request_uri' => $request,
+				'referrer' => @$_SERVER['HTTP_REFERER'],
+				'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+			));
 
 		// If all fails, say so.
 		$this->log("No matches, sorry. We'll let the 404 error page take over when Debug Mode is turned off.");
@@ -896,10 +930,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		while ($jumplink = $jumplinks->fetch_object()) {
 			$jumplink->source = htmlentities($jumplink->source);
 			$jumplink->destination = $this->compileDestinationUrl($jumplink->destination, true);
+
 			if (strtotime($jumplink->date_start) < $this->lowestDate)
 				$jumplink->date_start = null;
 			if (strtotime($jumplink->date_end) < $this->lowestDate)
 				$jumplink->date_end = null;
+
 			$relativeStartTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_start, true));
 			$relativeEndTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_end, true));
 
@@ -910,6 +946,20 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				? $relativeEndTime
 				: "<abbr title=\"{$jumplink->date_end}\">{$relativeEndTime}</abbr>";
 
+			$relativeLastHit = wireRelativeTimeStr($jumplink->last_hit, true);
+
+			// Format the Hits column to show the last hit date in a tooltip.
+			$jumplinkHits = (strtotime($jumplink->last_hit) < $this->lowestDate)
+				? $jumplink->hits
+				: "<abbr title=\"Last hit: {$relativeLastHit} ($jumplink->last_hit)\">{$jumplink->hits}</abbr>";
+
+			// If the last hit was more than 30 days ago,
+			// let the user know so that it may be deleted.
+			if (strtotime($jumplink->last_hit) > $this->lowestDate &&
+				strtotime($jumplink->last_hit) < strtotime('-30 days'))
+
+				$jumplinkHits .= "<span id=\"staleJumplink\"></span>";
+
 			$hits = $hits + $jumplink->hits;
 
 			$jumplinksTable->row(array(
@@ -917,7 +967,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				$jumplink->destination,
 				$relativeStartTime,
 				$relativeEndTime,
-				$jumplink->hits,
+				$jumplinkHits,
 			));
 		}
 
@@ -979,7 +1029,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$pronoun = $this->_n('it', 'one', $mappingCollections->num_rows);
 		}
 
-		$description = ($mappingCollections->num_rows === 0) ? '' : sprintf($this->_("To edit/delete %s, simply click on its name."), $pronoun);
+		$description = ($mappingCollections->num_rows === 0) ? '' : sprintf($this->_("To edit/uninstall %s, simply click on its Name."), $pronoun);
 
 		$mappingCollectionsDescriptionMarkup = $this->modules->get('InputfieldMarkup');
 		$mappingCollectionsDescriptionMarkup->value = "{$head} {$description}";
@@ -1058,10 +1108,72 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$importTab->append($importContainer);
 
+		if ($this->enable404Monitor) {
+
+			$notFoundMonitorTab = new InputfieldWrapper();
+			$notFoundMonitorTab->attr('title', $this->_('404 Monitor'));
+			$notFoundMonitorTab->id = 'notFoundMonitor';
+
+			$notFoundEntities = $this->db->query($this->sql->notFoundMonitor->selectAll);
+
+			$infoContainer = $this->modules->get('InputfieldMarkup');
+
+			if ($notFoundEntities->num_rows === 0) {
+				$infoContainer->value = $this->_("There have been no '404 Not Found' hits on your site.");
+			} else if ($notFoundEntities->num_rows === 1) {
+				$infoContainer->value = $this->_("Below is the last '404 Not Found' hit. To create a jumplink for it, simply click on its Request URI.");
+			} else {
+				$infoContainer->value = $this->_("Below are the last {$notFoundEntities->num_rows} '404 Not Found' hits. To create a jumplink for one, simply click on its Request URI.");
+			}
+
+			$notFoundMonitorTab->append($infoContainer);
+
+			$notFoundMonitorTable = $this->modules->get('MarkupAdminDataTable');
+			$notFoundMonitorTable->setEncodeEntities(false);
+			$notFoundMonitorTable->setClass('jumplinks notFounds');
+			$notFoundMonitorTable->setSortable(false);
+			$notFoundMonitorTable->headerRow(array($this->_('Request URI'), $this->_('Referrer'), $this->_('User Agent'), $this->_('Date/Time')));
+
+			require_once __DIR__ . '/Classes/ParseUserAgent.php';
+
+			while ($notFoundEntity = $notFoundEntities->fetch_object()) {
+				$userAgentParsed = ParseUserAgent::get($notFoundEntity->user_agent);
+				$source = urlencode($notFoundEntity->request_uri);
+				$notFoundMonitorTable->row(array(
+					$notFoundEntity->request_uri => "{$this->entityFormPath}?id=0&source={$source}",
+					(!is_null($notFoundEntity->referrer)) ? $notFoundEntity->referrer : '',
+					"<abbr title=\"{$notFoundEntity->user_agent}\">{$userAgentParsed['browser']} {$userAgentParsed['version']}</abbr>",
+					$notFoundEntity->created_at,
+				));
+			}
+
+			$button = '';
+
+			if ($notFoundEntities->num_rows > 0) {
+				$clearNotFoundLogButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
+					'id' => 'clearNotFoundLog',
+					'href' => $this->clearNotFoundLogPath,
+					'value' => $this->_('Clear All'),
+					'icon' => 'delete',
+				));
+				$button = $clearNotFoundLogButton->render();
+			}
+
+			$notFoundEntities->close();
+
+			$notFoundMonitorTableContainer = $this->modules->get('InputfieldMarkup');
+			$notFoundMonitorTableContainer->value = $notFoundMonitorTable->render() . $button;
+
+			$notFoundMonitorTab->append($notFoundMonitorTableContainer);
+		}
+
 		$tabContainer
 			->append($jumplinksTab)
 			->append($mappingCollectionsTab)
 			->append($importTab);
+
+		if ($this->enable404Monitor)
+			$tabContainer->append($notFoundMonitorTab);
 
 		$this->config->js("pjAdmin", true);
 
@@ -1078,12 +1190,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$this->injectAssets();
 
-		$this->setFuel('processHeadline', $this->_('Register New Jumplink'));
-
 		// Get the ID if we're editing
 		$editingId = (isset($this->input->get->id)) ? $this->input->get->id : 0;
 
-		if ($editingId) {
+		$this->setFuel('processHeadline', $this->_(($editingId > 0) ? 'Editing Jumplink' : 'Register New Jumplink'));
+
+		if ($editingId > 0) {
 			// Fetch the details and list vars
 			$query = $this->database->prepare($this->sql->entity->selectOne);
 			$query->execute(array(
@@ -1091,9 +1203,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			));
 			list($id, $sourcePath, $destinationUriUrl, $hits,
 				$userCreated, $userUpdated, $dateStart, $dateEnd,
-				$createdAt, $updatedAt) = $query->fetch();
-
-			$this->setFuel('processHeadline', $this->_('Editing Jumplink'));
+				$createdAt, $updatedAt, $lastHit) = $query->fetch();
 
 			// Format dates (times)
 			$dateStart = (strtotime($dateStart) > $this->lowestDate) ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
@@ -1112,6 +1222,20 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			'name' => 'id',
 			'value' => $editingId,
 		)));
+
+		if ($editingId > 0 &&
+			strtotime($lastHit) > $this->lowestDate &&
+			strtotime($lastHit) < strtotime('-30 days')) {
+
+			$field = $this->modules->get('InputfieldMarkup');
+			$form->add($this->populateInputField($field, array(
+				'id' => 'staleJumplink',
+				'value' => sprintf($this->_("This jumplink hasn't been hit in over 30 days (last hit on %s), and so it is safe to delete."), $lastHit),
+			)));
+		}
+
+		if ($editingId == 0 && isset($this->input->get->source))
+			$sourcePath = urldecode($this->input->get->source);
 
 		// Source Path field
 		$field = $this->modules->get('InputfieldText');
@@ -1203,6 +1327,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 				'created' => wireRelativeTimeStr($createdAt),
 				'updated' => wireRelativeTimeStr($updatedAt),
 			);
+			$lastHitFormatted = $this->_("This jumplink hasn't been hit yet.");
+			if (strtotime($lastHit) > $this->lowestDate)
+				$lastHitFormatted = $this->_("Last hit on: ") . $lastHit . " (" . wireRelativeTimeStr($lastHit) . ")";
+
 			$form->add($this->populateInputField($field, array(
 				'id' => 'info',
 				'label' => $this->_('Info'),
@@ -1215,6 +1343,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 					'created-at-relative' => $relativeTimes['created'],
 					'updated-at' => $updatedAt,
 					'updated-at-relative' => $relativeTimes['updated'],
+					'last-hit' => $lastHitFormatted,
 				)),
 			)));
 
@@ -1417,7 +1546,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$form->add($this->populateInputField($field, array(
 				'id' => 'info',
 				'label' => $this->_('Info'),
-				'value' => $this->blueprint('entity-info', array(
+				'value' => $this->blueprint('collection-info', array(
 					'user-created-name' => $userCreated->name,
 					'user-updated-name' => $userUpdated->name,
 					'user-created-url' => $userUrl . $userCreated->id,
@@ -1824,6 +1953,17 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			default:
 				$this->session->redirect('../');
 		}
+
+	}
+
+	/**
+	 * Admin Route: Clear the 404 log.
+	 */
+	public function ___executeClearNotFoundLog() {
+
+		$this->db->query($this->sql->notFoundMonitor->deleteAll);
+		$this->message($this->_('[Jumplinks] 404 Monitor cleared.'));
+		$this->session->redirect('../');
 
 	}
 

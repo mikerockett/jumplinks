@@ -49,6 +49,12 @@
             td:last-child {
                 width: 5em;
                 border-left: 1px solid fade(black, 5%);
+                color: lighten(black, 60%);
+                abbr {
+                    border-bottom: none;
+                    padding: 3px 5px;
+                    color: #4797db;
+                }
             }
             td:nth-last-child(2), td:nth-last-child(3) {
                 width: 7em;
@@ -110,17 +116,14 @@
         }
         tfoot {
             tr {
-                & > td {
-                    background-color: rgba(0, 0, 0, 0.05);
+                > td {
                     border-top: 2px solid #bbb;
                     border-bottom: 1px solid #bbb;
                     font-weight: bold;
                     padding: 4px 8px !important;
-                }
-            }
-            tr:hover {
-                td {
-                    background-color: rgba(0, 0, 0, 0.05) !important;
+                    &:last-child {
+                        color: black !important;
+                    }
                 }
             }
         }
@@ -129,6 +132,10 @@
         float: right;
         margin-left: .3em;
     }
+}
+.InputfieldMarkup#staleJumplink {
+    background-color: #fff3f3;
+    color: #db4747;
 }
 div.pjHelpLink {
     margin-top: 1em;
