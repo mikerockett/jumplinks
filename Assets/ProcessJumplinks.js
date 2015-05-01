@@ -2,11 +2,11 @@
  *
  *  ProcessJumplinks - Main Script
  *
- *  Author: Mike Anthony
- *  Copyright (c) 2015, Mike Anthony. All Rights Reserved.
- *  Licence: MIT License - http://mikeanthony.mit-license.org/
+ *  Author: Mike Rockett
+ *  Copyright (c) 2015, Mike Rockett. All Rights Reserved.
+ *  Licence: MIT License - http://mit-license.org/
  *
- *  https://github.com/mike-anthony/ProcessJumplinks/wiki
+ *  https://github.com/mikerockett/ProcessJumplinks/wiki
  *
  */
 

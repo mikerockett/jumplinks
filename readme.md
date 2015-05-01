@@ -22,7 +22,7 @@ The module manages your permanent and temporary redirects (jumplinks) - useful f
 
 ### Manual Installation
 
-1. Download the module from [here](https://github.com/mike-anthony/ProcessJumplinks/archive/master.zip)
+1. Download the module from [here](https://github.com/mikerockett/ProcessJumplinks/archive/master.zip)
 2. Copy the *ProcessJumplinks* folder to `site/modules`
 3. Go to *Modules* in your admin panel, and find *ProcessJumplinks*. If it's not listed, you'll need to click *Refresh*.
 4. Install the module and configure it, if needed.
@@ -31,7 +31,7 @@ The module manages your permanent and temporary redirects (jumplinks) - useful f
 
 ### Documentation
 
-You can view the documentation [here](https://github.com/mike-anthony/ProcessJumplinks/wiki).
+You can view the documentation [here](https://github.com/mikerockett/ProcessJumplinks/wiki).
 
 ### Support
 
@@ -41,10 +41,10 @@ Need help with something? [Ask in the forums](https://processwire.com/talk/topic
 
 ### License
 
-Module is released under the [MIT License](http://mikeanthony.mit-license.org/)
+Module is released under the [MIT License](http://mit-license.org/)
 
 ```
-Copyright (c) 2015, Mike Anthony. All Rights Reserved.
+Copyright (c) 2015, Mike Rockett. All Rights Reserved.
 
 The MIT License (MIT)
 

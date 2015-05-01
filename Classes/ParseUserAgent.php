@@ -3,7 +3,7 @@
 /**
  * Parses a user agent string into its important parts
  *
- * Converted to a class and formatted by Mike Anthony for Jumplinks.
+ * Converted to a class and formatted by Mike Rockett for Jumplinks.
  *
  * @author Jesse G. Donat <donatj@gmail.com>
  * @link https://github.com/donatj/PhpUserAgent
