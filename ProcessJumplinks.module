@@ -1374,6 +1374,13 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		return $form->render() . $this->helpLinks('Working-with-Jumplinks');
 	}
 
+	/**
+	 * Commit a new jumplink
+	 * @param  String $input
+	 * @param  int    $hits     = 0
+	 * @param  bool   $updating = false
+	 * @param  int    $id       = 0
+	 */
 	protected function commitJumplink($input, $hits = 0, $updating = false, $id = 0) {
 
 		$noWildcards = (
