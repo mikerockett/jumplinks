@@ -4,7 +4,7 @@
  * ProcessJumplinks - a ProcessWire Module by Mike Rockett
  * Manage permanent and temporary redirects. Supports wildcards.
  *
- * Requires ProcessWire 2.5.3
+ * Compatible with ProcessWire 2.6.3 - 2.6.0
  *
  * Copyright (c) 2015, Mike Rockett. All Rights Reserved.
  * Licence: MIT License - http://mit-license.org/
