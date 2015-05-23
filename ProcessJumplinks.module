@@ -4,7 +4,7 @@
  * ProcessJumplinks - a ProcessWire Module by Mike Rockett
  * Manage permanent and temporary redirects. Supports wildcards.
  *
- * Compatible with ProcessWire 2.6.3 - 2.6.0
+ * Compatible with ProcessWire 2.5.3 - 2.6.0
  *
  * Copyright (c) 2015, Mike Rockett. All Rights Reserved.
  * Licence: MIT License - http://mit-license.org/
@@ -358,7 +358,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * Update database schema
 	 * This method applies incremental updates until latest schema version is
 	 * reached, while also keeping schemaVersion config setting up to date.
-	 * @state    schemaVersion = 2
 	 */
 	private function updateDatabaseSchema() {
 
@@ -370,7 +369,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
                     $statement = $this->blueprint("schema-update-v{$memoryVersion}");
                     break;
                 default:
-                    throw new WireException("Unrecognized database schema version: $memoryVersion");
+                    throw new WireException("[Jumplinks] Unrecognized database schema version: $memoryVersion");
             }
             if ($statement && $this->database->exec($statement) !== false) {
                 $configData = $this->modules->getModuleConfigData($this);
@@ -378,7 +377,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
                 $this->modules->saveModuleConfigData($this, $configData);
                 $this->message($this->_("[Jumplinks] Schema updates applied."));
             } else {
-                throw new WireException("Couldn't update database schema to version $memoryVersion");
+                throw new WireException("[Jumplinks] Couldn't update database schema to version $memoryVersion");
             }
         }
 	}
