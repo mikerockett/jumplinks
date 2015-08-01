@@ -827,7 +827,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 						'last_hit' => date('Y-m-d H:i:s'),
 						'id' => $jumplink->id,
 					));
-					$this->session->redirect($convertedWildcards, !$activated);
+					$this->session->redirect($convertedWildcards, !($starts || $ends));
 				}
 
 				// Otherwise, continue logging
