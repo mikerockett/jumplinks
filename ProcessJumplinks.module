@@ -429,7 +429,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	 * @param  bool   $http
 	 * @return string
 	 */
-	protected function compileDestinationUrl($destination, $renderForOutput = false, $http = true) {
+	protected function compileDestinationUrl($destination, $renderForOutput = false) {
 
 		$pageIdentifier = 'page:';
 		$usingPageIdentifier = substr($destination, 0, 5) === $pageIdentifier;
@@ -456,12 +456,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 			// If it's a valid page, then get its URL
 			if ($page->id) {
-				$pagePath = $page->get($http ? "httpUrl" : "path");
-
-				// If we're rendering for output, make it pretty.
-				$destination = ($renderForOutput)
-					? "<abbr title=\"{$pagePath}\">{$page->get('headline|title|name')}<abbr>"
-					: $pagePath;
+				$destination = ltrim($page->path, '/');
 			}
 
 			return $destination;
@@ -1241,15 +1236,22 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 		$form->add($this->populateInputField($field, array(
 			'name+id' => 'sourcePath',
 			'label' => $this->_('Source'),
-			'description' => $this->_("Enter a URI that's relative to the root of this installation, without the leading slash."),
-			'notes' => sprintf($this->_("**Examples:** page.html, [{page:segment}](%1\$s/Wildcards).html, page.php?name={page:segment}, [page.php?id={id}](%1\$s/Mapping-Collections)"), $this->moduleInfo['href']),
+			'description' => sprintf($this->_("Enter a URI relative to the root of your site. [See Examples](%1\$s/Examples)."), $this->moduleInfo['href']),
 			'required' => 1,
 			'collapsed' => Inputfield::collapsedNever,
 			'value' => isset($sourcePath) ? $sourcePath : '',
 		)));
 
 		// Destination fields
+		$destinationFieldset = self::buildInputField('InputfieldFieldset', array(
+			'label' => __('Destination'),
+		));
+		$destinationSelectorsFieldset = self::buildInputField('InputfieldFieldset', array(
+			'label' => __('or select one using...'),
+			'description' => $this->_("If you choose to not use either of the Page selectors below, be sure to enter a valid path above."),
+		));
 		$destinationPageField = $this->modules->get('InputfieldPageListSelect');
+		$destinationPageAutoField = $this->modules->get('InputfieldPageAutocomplete');
 		$destinationPathField = $this->modules->get('InputfieldText');
 
 		// Check if the current destination is a page
@@ -1257,30 +1259,44 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 			$isPage = (bool) $page->id;
 			if ($isPage) {
 				$destinationPageField->value = $page->id;
-				$destinationPathField->collapsed = Inputfield::collapsedYes;
+				$destinationPageAutoField->value = $page->id;
 			} else {
-				$destinationPageField->collapsed = Inputfield::collapsedYes;
+				$destinationSelectorsFieldset->collapsed = Inputfield::collapsedYes;
 				$destinationPathField->collapsed = Inputfield::collapsedBlank;
 			}
-		} else $destinationPathField->collapsed = Inputfield::collapsedBlank;
-
-		$form->add($this->populateInputField($destinationPageField, array(
-			'name+id' => 'destinationPage',
-			'label' => $this->_('Select a page'),
-			'notes' => $this->_("If you leave this out, be sure to enter a valid path below.\n**Note:** If you need to use a page in another language, you'll need to [switch to that language first](../../../profile)."),
-			'parent_id' => 0,
-			'startLabel' => $this->_('Select Page'),
-		)));
+		} else {
+				$destinationPageField->collapsed = Inputfield::collapsedYes;
+				$destinationPageAutoField->collapsed = Inputfield::collapsedYes;
+		}
 
 		// Destination Path field
-		$form->add($this->populateInputField($destinationPathField, array(
+		$destinationFieldset->add($this->populateInputField($destinationPathField, array(
 			'name+id' => 'destinationUriUrl',
-			'label' => $this->_('or specify a destination'),
-			'description' => $this->_('Enter either a URI relative to the root of this installation (without the leading slash) or an absolute URL.'),
-			'notes' => sprintf($this->_("**Examples:** path/, {path}/, http://domain.com/{path}, [product/{id|products}](%1\$s/Mapping-Collections) (Mapping Collections), [[[template=your_template, field={path}]]](%1\$s/Destination-Selectors) (Selectors).\n**Note:** If you select a page from the Page Selector above, its identifier will be placed here."), $this->moduleInfo['href']),
+			'label' => $this->_('Manually specify a destination'),
+			'description' => sprintf($this->_("Enter either a URI relative to the root of your site, an absolute URL, or a Page ID. [See Examples](%1\$s/Examples)."), $this->moduleInfo['href']),
+			'notes' => sprintf($this->_("If you select a page from either of the Page selectors below, its identifier will be placed here."), $this->moduleInfo['href']),
 			'required' => 1,
 			'value' => isset($destinationUriUrl) ? $destinationUriUrl : '',
 		)));
+
+		// Select from tree
+		$destinationSelectorsFieldset->add($this->populateInputField($destinationPageField, array(
+			'name+id' => 'destinationPage',
+			'label' => $this->_('Page Tree'),
+			'parent_id' => 0,
+			'startLabel' => $this->_('Choose a Page'),
+		)));
+
+		// Select via auto-complete
+		$destinationSelectorsFieldset->add($this->populateInputField($destinationPageAutoField, array(
+			'name+id' => 'destinationPageAuto',
+			'label' => $this->_('Auto Complete'),
+			'parent_id' => 0,
+			'maxSelectedItems' => 1,
+		)));
+
+		$destinationFieldset->add($destinationSelectorsFieldset);
+		$form->add($destinationFieldset);
 
 		// Timed Activation fieldset
 		$fieldSet = $this->modules->get('InputfieldFieldset');

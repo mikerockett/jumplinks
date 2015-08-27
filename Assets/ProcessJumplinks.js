@@ -1,5 +1,4 @@
-/*! @preserve
- *
+/*--
  *  ProcessJumplinks - Main Script
  *
  *  Author: Mike Rockett
@@ -7,7 +6,6 @@
  *  Licence: MIT License - http://mit-license.org/
  *
  *  https://github.com/mikerockett/ProcessJumplinks/wiki
- *
  */
 
 $(function () {
@@ -78,7 +76,16 @@ $(function () {
     config.pjEntity && function () {
 
         $('#destinationPage').bind('pageSelected', function (a, b) {
-            b.id > 0 && $('input#destinationUriUrl').val('page:' + b.id)
+            if (b.id > 0) {
+                $('input#destinationUriUrl').val('page:' + b.id)
+                $('#destinationPageAuto').val(b.title);
+            }
+        });
+        $('#destinationPageAuto').bind('change', function (b) {
+            if (b.currentTarget.value) {
+                $('input#destinationUriUrl').val('page:' + b.currentTarget.value);
+                $('#destinationPage').val(b.currentTarget.value);
+            }
         });
 
         $('button#saveJumplink').on('click', function () {
@@ -93,16 +100,16 @@ $(function () {
                 errorString = '';
 
             if ($values.sourcePath.trim().length === 0)
-                errors.push("Source Path can't be empty...");
+                errors.push("Source can't be empty...");
 
             else {
                 var isAbsolute = new RegExp('^(?:[a-z]+:)?//', 'i');
                 if (isAbsolute.test($values.sourcePath))
-                    errors.push('Source Path cannot be an absolute URL. It needs to be relative to the root of your installation, without the leading forward-slash.');
+                    errors.push('Source cannot be an absolute URL. It needs to be relative to the root of your installation, without the leading forward-slash.');
             }
 
             if ($values.destinationUriUrl.trim().length === 0)
-                errors.push("You need to select a destination...");
+                errors.push("You need to select a Destination...");
 
             if ($values.dateStart && $values.dateEnd)
                 if (new Date($values.dateStart).getTime() >= new Date($values.dateEnd).getTime())
