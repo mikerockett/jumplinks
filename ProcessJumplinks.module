@@ -612,6 +612,20 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 	}
 
 	/**
+	 * Log 404 to monitor
+	 * @caller scanAndRedirect
+	 * @param  string $request
+	 */
+	protected function log404($request) {
+
+		$this->database->prepare($this->sql->notFoundMonitor->insert)->execute(array(
+			'request_uri' => $request,
+			'referrer' => @$_SERVER['HTTP_REFERER'],
+			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+		));
+	}
+
+	/**
 	 * The fun part.
 	 * @caller Hook: ProcessPageView::pageNotFound
 	 */
@@ -619,12 +633,15 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		$jumplinks = $this->db->query($this->sql->entity->selectAll);
 
-		if ($jumplinks->num_rows === 0)
+		$request = $this->request;
+
+		if ($jumplinks->num_rows === 0) {
+			$this->log404($request);
 			return false;
+		}
 
 		$this->log("Page not found; scanning for jumplinks...");
 
-		$request = $this->request;
 		$requestedUrlFirstPart = "http" . ((@$_SERVER['HTTPS'] == 'on') ? "s" : "") . "://{$_SERVER['HTTP_HOST']}";
 
 		// Do some logging
@@ -876,11 +893,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule {
 
 		// If set in config, log 404 hits to the database
 		if ($this->enable404Monitor == true)
-			$this->database->prepare($this->sql->notFoundMonitor->insert)->execute(array(
-				'request_uri' => $request,
-				'referrer' => @$_SERVER['HTTP_REFERER'],
-				'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-			));
+			$this->log404($request);
 
 		// If all fails, say so.
 		$this->log("No matches, sorry. We'll let the 404 error page take over when Debug Mode is turned off.");
