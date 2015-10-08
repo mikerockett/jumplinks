@@ -7,11 +7,11 @@
 
 ### What it is
 
-Jumplinks is a Process module intended for ProcessWire 2.5/2.6, and is an enhanced version of the original [ProcessRedirects](http://modules.processwire.com/modules/process-redirects/) by [Antti Peisa](https://twitter.com/apeisa).
+Jumplinks is a Process module intended for ProcessWire 2.6.1+ which serves as an enhanced version of the original [ProcessRedirects](http://modules.processwire.com/modules/process-redirects/) by [Antti Peisa](https://twitter.com/apeisa).
 
 ### What it does
 
-The module manages your permanent and temporary redirects (jumplinks) - useful for when you're migrating over to ProcessWire from another CMS. Each jumplink supports standard and smart wildcards, so that you need not create multiple redirects for articles or blog entries.
+The module manages your permanent and temporary redirects (jumplinks) - useful for when you're migrating over to ProcessWire from another CMS/platform. Each jumplink supports named/typed and smart wildcards, so that you need not create multiple redirects for articles or blog entries.
 
 ---
 
@@ -31,17 +31,17 @@ The module manages your permanent and temporary redirects (jumplinks) - useful f
 
 ### Documentation
 
-You can view the documentation [here](https://github.com/mikerockett/ProcessJumplinks/wiki).
+You can view the documentation **[here](https://github.com/mikerockett/ProcessJumplinks/wiki)**.
 
 ### Support
 
-Need help with something? [Ask in the forums](https://processwire.com/talk/topic/8697-jumplinks/).
+Need help with something? **[Ask in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
 
 ---
 
 ### License
 
-Module is released under the [MIT License](http://mit-license.org/)
+Module is released under the **[MIT License](http://mit-license.org/)**
 
 ```
 Copyright (c) 2015, Mike Rockett. All Rights Reserved.
