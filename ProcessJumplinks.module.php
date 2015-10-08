@@ -2,15 +2,17 @@
 
 /**
  * ProcessJumplinks - a ProcessWire Module by Mike Rockett
- * Manage permanent and temporary redirects. Supports wildcards.
+ * Manage permanent and temporary redirects. Uses named wildcards and mapping collections.
  *
- * Compatible with ProcessWire 2.5.3 - 2.6.1 (plus current 2.7-dev versions)
+ * Compatible with ProcessWire 2.6.1+
  *
  * Copyright (c) 2015, Mike Rockett. All Rights Reserved.
  * Licence: MIT License - http://mit-license.org/
  *
- * https://github.com/mikerockett/ProcessJumplinks/wiki
- *
+ * @see https://github.com/mikerockett/ProcessJumplinks/wiki [Documentation]
+ * @see https://mods.pw/92 [Modules Directory Page]
+ * @see https://processwire.com/talk/topic/8697-jumplinks/ [Support/Discussion Thread]
+ * @see https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ [PayPal Donation]
  */
 
 class ProcessJumplinks extends Process implements ConfigurableModule
@@ -19,21 +21,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule
     /** Schema version for current release */
     const schemaVersion = 4;
 
-    /** Module docs link */
-    const HREF = 'https://github.com/mikerockett/ProcessJumplinks/wiki';
-
     /** NULL Date **/
     const NULL_DATE = '0000-00-00 00:00:00';
-
-    /** Config names */
-    const _schemaVersion = "schemaVersion";
-    const enhancedWildcardCleaning = "enhancedWildcardCleaning";
-    const legacyDomain = "legacyDomain";
-    const enable404Monitor = "enable404Monitor";
-    const moduleDebug = "moduleDebug";
-    const redirectsImported = "redirectsImported";
-    const statusCodes = "statusCodes";
-    const wildcardCleaning = "wildcardCleaning";
 
     /**
      * Determine if the text/plain header is set
@@ -113,146 +102,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
     );
 
     /**
-     * Get the default configuration details
-     * @return array
-     */
-    protected static function getConfigDefaultsArray()
-    {
-
-        return array(
-            self::_schemaVersion => 1, // Initial schema
-            self::enhancedWildcardCleaning => false,
-            self::legacyDomain => '',
-            self::enable404Monitor => false,
-            self::moduleDebug => false,
-            self::redirectsImported => false,
-            self::statusCodes => '200 301 302',
-            self::wildcardCleaning => 'fullClean',
-        );
-    }
-
-    /**
-     * Get config input fiels
-     * @param  array  $data
-     * @return InputfieldWrapper
-     */
-    public static function getModuleConfigInputfields(array $data)
-    {
-
-        // Inject assets
-        wire('config')->scripts->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.min.js');
-        wire('config')->styles->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
-
-        // Include WireTabs
-        wire('modules')->get('JqueryWireTabs');
-
-        // Add JS config data
-        wire('config')->js('pjModuleAdmin', true);
-        wire('config')->js('pjOldRedirectsInstalled', wire('modules')->isInstalled('ProcessRedirects'));
-
-        // Start inputfields
-        $inputfields = new InputfieldWrapper();
-        $data = array_merge(self::getConfigDefaultsArray(), $data);
-
-        // Wildcard Cleaning Fieldset
-        $fieldset = self::buildInputField('InputfieldFieldset', array(
-            'label' => __('Wildcard Cleaning'),
-            'collapsed' => Inputfield::collapsedNever,
-        ));
-
-        // Wildcard Cleaning
-        $fieldset->add(self::buildInputField('InputfieldRadios', array(
-            'name+id' => self::wildcardCleaning,
-            'description' => __("When set to 'Full Clean', each wildcard in a destination path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
-            'notes' => sprintf(__("**Note:** It's recommended that you keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). [Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)"), self::HREF),
-            'options' => array(
-                'fullClean' => __('Full Clean (default, recommended)'),
-                'semiClean' => __("Clean, but don't change case"),
-                'noClean' => __("Don't clean at all (not recommended)"),
-            ),
-            'columnWidth' => 50,
-            'collapsed' => Inputfield::collapsedNever,
-            'skipLabel' => Inputfield::skipLabelHeader,
-            'value' => $data[self::wildcardCleaning],
-        )));
-
-        // Enhanced Wildcard Cleaning
-        $fieldset->add(self::buildInputField('InputfieldCheckbox', array(
-            'name+id' => self::enhancedWildcardCleaning,
-            'label' => __('Enhanced Wildcard Cleaning'),
-            'description' => __("When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
-            'label2' => __('Use Enhanced Wildcard Cleaning'),
-            'notes' => __("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'.\n**Note:** This feature only works when Wildcard Cleaning is enabled."),
-            'columnWidth' => 50,
-            'collapsed' => Inputfield::collapsedNever,
-            'autocheck' => true,
-            'value' => $data[self::enhancedWildcardCleaning],
-        )));
-
-        $inputfields->add($fieldset);
-
-        // Legacy Domain Fieldset
-        $fieldset = self::buildInputField('InputfieldFieldset', array(
-            'label' => __('Legacy Domain'),
-            'description' => sprintf(__('Only use this if you are performing a slow migration to ProcessWire, and would still like your visitors to access old content moved to a new location, like a subdomain or folder, for example. [Learn more about how this feature works](%s/Configuration#legacy-domain).'), self::HREF),
-            'collapsed' => Inputfield::collapsedYes,
-        ));
-
-        // Legacy Domain Name
-        $fieldset->add(self::buildInputField('InputfieldText', array(
-            'name+id' => self::legacyDomain,
-            'columnWidth' => 50,
-            'description' => __('Attempt any requested, unresolved Source paths on a legacy domain/URL.'),
-            'notes' => __("Enter a *full*, valid domain/URL. **Source Path won't be cleaned upon redirect**."),
-            'placeholder' => __('Examples: "http://legacy.domain.com/" or "http://domain.com/old/"'),
-            'collapsed' => Inputfield::collapsedNever,
-            'skipLabel' => Inputfield::skipLabelHeader,
-            'spellcheck' => 'false',
-            'value' => $data[self::legacyDomain],
-        )));
-
-        // Legacy Domain Status Codes
-        $fieldset->add(self::buildInputField('InputfieldText', array(
-            'name+id' => self::statusCodes,
-            'columnWidth' => 50,
-            'description' => __('Only redirect if a request to it yields one of these HTTP status codes:'),
-            'notes' => __("Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**"),
-            'collapsed' => Inputfield::collapsedNever,
-            'skipLabel' => Inputfield::skipLabelHeader,
-            'spellcheck' => 'false',
-            'value' => $data[self::statusCodes],
-        )));
-
-        $inputfields->add($fieldset);
-
-        // Log Not Found Hits
-        $inputfields->add(self::buildInputField('InputfieldCheckbox', array(
-            'name+id' => self::enable404Monitor,
-            'label' => __('Enable 404 Monitor'),
-            'description' => __("If you'd like to monitor and log 404 hits so that you can later create jumplinks for them, check the box below."),
-            'label2' => __('Log 404 hits to the database'),
-            'notes' => __("This log will be displayed on the Jumplinks setup page in a separate tab (limited to the last 100).\n**Note:** Turning this off will not delete any existing records from the database."),
-            'collapsed' => Inputfield::collapsedBlank,
-            'autocheck' => true,
-            'value' => $data[self::enable404Monitor],
-        )));
-
-        // Debug Mode
-        $inputfields->add(self::buildInputField('InputfieldCheckbox', array(
-            'name+id' => self::moduleDebug,
-            'label' => __('Debug Mode'),
-            'description' => __("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
-            'label2' => __('Turn debug mode on'),
-            'notes' => __("**Notes:** Hits won't be affected when debug mode is turned on. Also, only those that have permission to manage jumplinks will be shown the debug logs."),
-            'collapsed' => Inputfield::collapsedBlank,
-            'autocheck' => true,
-            'value' => $data[self::moduleDebug],
-        )));
-
-        return $inputfields;
-    }
-
-    /**
      * Inject assets (used as assets are automatically inserted when
      * using the same name as the module, but the get thrown in before
      * JS dependencies. WireTabs also gets thrown in.)
@@ -260,7 +109,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function injectAssets()
     {
-
         // Inject script and style
         $this->config->scripts->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.min.js');
         $this->config->styles->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
@@ -274,10 +122,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function __construct()
     {
-
         $this->lowestDate = strtotime($this->lowestDate);
 
-        $this->setArray(self::getConfigDefaultsArray());
         $this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
 
         // Get the correct table name for ProcessRedirects
@@ -370,10 +216,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     private function updateDatabaseSchema()
     {
-
-        while ($this->{self::_schemaVersion} < self::schemaVersion) {
-            ++$this->{self::_schemaVersion};
-            $memoryVersion = $this->{self::_schemaVersion};
+        while ($this->_schemaVersion < self::schemaVersion) {
+            ++$this->_schemaVersion;
+            $memoryVersion = $this->_schemaVersion;
             switch (true) {
                 case ($memoryVersion <= 4):
                     $statement = $this->blueprint("schema-update-v{$memoryVersion}");
@@ -383,7 +228,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             }
             if ($statement && $this->database->exec($statement) !== false) {
                 $configData = $this->modules->getModuleConfigData($this);
-                $configData[self::_schemaVersion] = $memoryVersion;
+                $configData['_schemaVersion'] = $memoryVersion;
                 $this->modules->saveModuleConfigData($this, $configData);
                 $this->message($this->_("[Jumplinks] Schema updates applied."));
             } else {
@@ -399,7 +244,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function helpLinks($uri = '', $justTheLink = false)
     {
-
         if (!empty($uri)) {
             $uri = "/{$uri}";
         }
@@ -418,7 +262,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function blueprint($name, $data = array())
     {
-
         // Require the Blueprint parser
         require_once __DIR__ . '/Classes/Blueprint.php';
 
@@ -445,7 +288,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function compileDestinationUrl($destination, $renderForOutput = false)
     {
-
         $pageIdentifier = 'page:';
         $usingPageIdentifier = substr($destination, 0, 5) === $pageIdentifier;
 
@@ -472,6 +314,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             // If it's a valid page, then get its URL
             if ($page->id) {
                 $destination = ltrim($page->path, '/');
+                if (empty($destination)) {
+                    $destination = '/';
+                }
+                if ($renderForOutput) {
+                    $destination = "<abbr title=\"{$page->title} ({$page->httpUrl})\">{$destination}</abbr>";
+                }
             }
 
             return $destination;
@@ -486,7 +334,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function getModuleConfigUri()
     {
-
         return "{$this->config->urls->admin}module/edit?name={$this->moduleInfo['name']}";
         // ^ Better way to get this URI?
     }
@@ -500,8 +347,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function cleanWildcard($input, $noLower = false)
     {
-
-        if ($this->{self::enhancedWildcardCleaning}) {
+        if ($this->enhancedWildcardCleaning) {
             // Courtesy @sln on StackOverflow
             $input = preg_replace_callback("~([A-Z])([A-Z]+)(?=[A-Z]|\b)~", function ($captures) {
                 return $captures[1] . strtolower($captures[2]);
@@ -513,7 +359,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
         $input = preg_replace("~[^\\pL\d\/]+~u", '-', $input);
         $input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
-        if ($this->{self::enhancedWildcardCleaning}) {
+        if ($this->enhancedWildcardCleaning) {
             $input = preg_replace("~(\d)([a-z])~i", "\\1-\\2", preg_replace("~([a-z])(\d)~i", "\\1-\\2", $input));
         }
 
@@ -535,7 +381,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function truncate($string, $length = 55)
     {
-
         return (strlen($string) > $length)
             ? substr($string, 0, $length) . " <span class=\"ellipses\" title=\"{$string}\">...</span>"
             : $string;
@@ -549,7 +394,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected static function buildInputField($fieldNameId, $meta)
     {
-
         $field = wire('modules')->get($fieldNameId);
 
         foreach ($meta as $metaNames => $metaInfo) {
@@ -571,7 +415,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function populateInputField($field, $meta)
     {
-
         foreach ($meta as $metaNames => $metaInfo) {
             $metaNames = explode('+', $metaNames);
             foreach ($metaNames as $metaName) {
@@ -591,7 +434,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function getResponseCode($request)
     {
-
         stream_context_set_default(array(
             'http' => array(
                 'method' => 'HEAD',
@@ -610,8 +452,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function userHasDebugRights()
     {
-
-        return ($this->{self::moduleDebug} && $this->user->hasPermission('jumplinks-admin'));
+        return ($this->moduleDebug && $this->user->hasPermission('jumplinks-admin'));
     }
 
     /**
@@ -624,7 +465,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function log($message, $indent = false, $break = false, $die = false)
     {
-
         if ($this->userHasDebugRights()) {
             if (!$this->headerSet) {
                 header("Content-Type: text/plain");
@@ -639,7 +479,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             if ($die) {
                 die();
             }
-
         }
     }
 
@@ -793,7 +632,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                         $mapping = explode('=', $mapping);
                         $compiledCollectionData[$mapping[0]] = $mapping[1];
                     }
-
                     $compiledCollections->{$collection->collection_name} = $compiledCollectionData;
                 }
 
@@ -808,7 +646,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                         $paramSkipCleanCheck = "~\{!$value\}~i";
                         $uncleanedCapture = $captures[$c];
                         if (!preg_match($paramSkipCleanCheck, $result)) {
-                            $wildcardCleaning = $this->{self::wildcardCleaning};
+                            $wildcardCleaning = $this->wildcardCleaning;
                             if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
                                 $captures[$c] = $this->cleanWildcard($captures[$c], ($wildcardCleaning === 'fullClean') ? false : true);
                             }
@@ -843,7 +681,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                     } else {
                         return $mapCaptures[1];
                     }
-
                 }, $convertedWildcards);
 
                 // Check for any selectors and get the respective page
@@ -903,14 +740,12 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                     } else {
                         $this->log(sprintf("Timed:      From %s to %s", date('r', $starts), date('r', $ends)), true);
                     }
-
                 }
 
                 // We can exit at this point.
                 if ($this->userHasDebugRights()) {
                     die();
                 }
-
             }
 
             // If there were no available redirect definitions,
@@ -920,16 +755,15 @@ class ProcessJumplinks extends Process implements ConfigurableModule
 
         // Considering we don't have one available, let's check to see if the Source Path
         // exists on the Legacy Domain, if defined.
-
-        $legacyDomain = trim($this->{self::legacyDomain});
+        $legacyDomain = trim($this->legacyDomain);
         if (!empty($legacyDomain)) {
             // Fetch the accepted codes
-            $okCodes = trim(!empty($this->{self::statusCodes}))
-                ? array_map('trim', explode(' ', $this->{self::statusCodes}))
+            $okCodes = trim(!empty($this->statusCodes))
+                ? array_map('trim', explode(' ', $this->statusCodes))
                 : explode(',', $this->statusCodes);
 
             // Prepare and do the request
-            $domainRequest = $this->{self::legacyDomain} . $request;
+            $domainRequest = $this->legacyDomain . $request;
             $status = $this->getResponseCode($domainRequest);
 
             // If the response has an accepted code, then 302 redirect (or log)
@@ -953,7 +787,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
         if ($this->userHasDebugRights()) {
             die();
         }
-
     }
 
     /**
@@ -962,57 +795,61 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function ___execute()
     {
-
+        // Assets
         $this->injectAssets();
 
+        // Get Jumplinks
         $jumplinks = $this->db->query($this->sql->entity->selectAll);
+
+        // Set Page title
         $this->setFuel('processHeadline', $this->_('Manage Jumplinks'));
 
+        // Assign the main container (wrapper)
         $tabContainer = new InputfieldWrapper();
 
+        // Add the Jumplinks tab
         $jumplinksTab = new InputfieldWrapper();
         $jumplinksTab->attr('title', 'Jumplinks');
 
+        // Setup the datatable
         $jumplinksTable = $this->modules->get('MarkupAdminDataTable');
         $jumplinksTable->setEncodeEntities(false);
         $jumplinksTable->setClass('jumplinks redirects');
         $jumplinksTable->headerRow(array($this->_('Source'), $this->_('Destination'), $this->_('Start'), $this->_('End'), $this->_('Hits')));
 
+        // Setup and add the tab description markup
         $pronoun = $this->_n('it', 'one', $jumplinks->num_rows);
         if ($jumplinks->num_rows == 0) {
             $description = $this->_("You don't have any jumplinks yet.");
         } else {
             $description = $this->_n('You have one jumplink registered.', 'Your jumplinks are listed below.', $jumplinks->num_rows) . ' ' . sprintf($this->_("To edit/delete %s, simply click on its Source."), $pronoun);
         }
-
         $jumplinksDescriptionMarkup = $this->modules->get('InputfieldMarkup');
         $jumplinksDescriptionMarkup->value = $description;
-
         $jumplinksTab->append($jumplinksDescriptionMarkup);
 
+        // Work through each jumplink, formatting data as we go along.
         $hits = 0;
         while ($jumplink = $jumplinks->fetch_object()) {
+            // Source and Destination
             $jumplink->source = htmlentities($jumplink->source);
             $jumplink->destination = $this->compileDestinationUrl($jumplink->destination, true);
 
+            // Timed Activation columns
             if (strtotime($jumplink->date_start) < $this->lowestDate) {
                 $jumplink->date_start = null;
             }
-
             if (strtotime($jumplink->date_end) < $this->lowestDate) {
                 $jumplink->date_end = null;
             }
-
             $relativeStartTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_start, true));
             $relativeEndTime = str_replace('Never', '', wireRelativeTimeStr($jumplink->date_end, true));
-
             $relativeStartTime = ($relativeStartTime === '-')
                 ? $relativeStartTime
                 : "<abbr title=\"{$jumplink->date_start}\">{$relativeStartTime}</abbr>";
             $relativeEndTime = ($relativeEndTime === '-')
                 ? $relativeEndTime
                 : "<abbr title=\"{$jumplink->date_end}\">{$relativeEndTime}</abbr>";
-
             $relativeLastHit = wireRelativeTimeStr($jumplink->last_hit, true);
 
             // Format the Hits column to show the last hit date in a tooltip.
@@ -1026,9 +863,9 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                 strtotime($jumplink->last_hit) < strtotime('-30 days')) {
                 $jumplinkHits .= "<span id=\"staleJumplink\"></span>";
             }
-
             $hits = $hits + $jumplink->hits;
 
+            // Add the row, now that the data has been formatted.
             $jumplinksTable->row(array(
                 $this->truncate($jumplink->source, 80) => "{$this->entityFormPath}?id={$jumplink->id}",
                 $jumplink->destination,
@@ -1038,9 +875,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             ));
         }
 
-        $wordLinks = ($jumplinks->num_rows === 1) ? 'jumplink' : 'jumplinks';
-        $jumplinksTable->footerRow(array("{$jumplinks->num_rows} {$wordLinks}", '', '', '', $hits));
-
+        // Register button setup
         switch ($jumplinks->num_rows) {
             case 0:
                 $registerJumplinkButtonLabel = $this->_('Register First Jumplink');
@@ -1053,8 +888,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                 break;
         }
 
+        // Close the query
         $jumplinks->close();
 
+        // Build Register button
         $registerJumplinkButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
             'id' => 'registerJumplink',
             'href' => $this->entityFormPath,
@@ -1062,6 +899,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             'icon' => 'plus-circle',
         ))->addClass('head_button_clone');
 
+        // Build config button
         $moduleConfigLinkButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
             'id' => 'moduleConfigLink',
             'href' => $this->getModuleConfigUri(),
@@ -1069,25 +907,30 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             'icon' => 'cog',
         ))->addClass('ui-priority-secondary ui-button-float-right');
 
+        // Add buttons
         $buttons = $registerJumplinkButton->render() . $moduleConfigLinkButton->render();
 
+        // Render and append the table container
         $jumplinksTableContainer = $this->modules->get('InputfieldMarkup');
         $jumplinksTableContainer->value = $jumplinksTable->render() . $buttons;
-
         $jumplinksTab->append($jumplinksTableContainer);
 
+        // Add the Mapping Collections tab
         $mappingCollectionsTab = new InputfieldWrapper();
         $mappingCollectionsTab->attr('title', 'Mapping Collections');
         $mappingCollectionsTab->id = 'mappingCollections';
 
+        // Get Mapping Collections
         $mappingCollections = $this->db->query($this->sql->collection->selectAll);
 
+        // Setup the data table
         $mappingCollectionsTable = $this->modules->get('MarkupAdminDataTable');
         $mappingCollectionsTable->setEncodeEntities(false);
         $mappingCollectionsTable->setClass('jumplinks mapping-collections');
         $mappingCollectionsTable->setSortable(false);
         $mappingCollectionsTable->headerRow(array($this->_('Collection Name'), $this->_('Mappings'), $this->_('Created'), $this->_('Last Modified')));
 
+        // Setup the description markup
         if ($mappingCollections->num_rows === 0) {
             $pronoun = 'one';
             $head = $this->_("You don't have any collections installed.");
@@ -1095,25 +938,26 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             $head = $this->_n('You have one collection installed.', 'Your collections are listed below.', $mappingCollections->num_rows);
             $pronoun = $this->_n('it', 'one', $mappingCollections->num_rows);
         }
-
         $description = ($mappingCollections->num_rows === 0) ? '' : sprintf($this->_("To edit/uninstall %s, simply click on its Name."), $pronoun);
 
         $mappingCollectionsDescriptionMarkup = $this->modules->get('InputfieldMarkup');
         $mappingCollectionsDescriptionMarkup->value = "{$head} {$description}";
 
+        // Add the description markup.
         $mappingCollectionsTab->append($mappingCollectionsDescriptionMarkup);
 
+        // Work through each collection.
         while ($mappingCollection = $mappingCollections->fetch_object()) {
+            // Timestamps
             $userCreated = $this->users->get($mappingCollection->user_created)->name;
             $userUpdated = $this->users->get($mappingCollection->user_updated)->name;
-
             $created = wireRelativeTimeStr($mappingCollection->created_at) . " by {$userCreated}";
             $updated = wireRelativeTimeStr($mappingCollection->updated_at) . " by {$userUpdated}";
-
             if ($mappingCollection->created_at === $mappingCollection->updated_at) {
                 $updated = '';
             }
 
+            // Add the collection
             $mappingCollectionsTable->row(array(
                 $mappingCollection->collection_name => "{$this->mappingCollectionFormPath}?id={$mappingCollection->id}",
                 count(explode("\n", trim($mappingCollection->collection_mappings))),
@@ -1122,10 +966,13 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             ));
         }
 
+        // Install button label setup
         $installMappingCollectionButtonLabel = ($mappingCollections->num_rows === 1) ? $this->_('Install Another Mapping Collection') : $this->_('Install New Mapping Collection');
 
+        // Close the query
         $mappingCollections->close();
 
+        // Install button setup
         $installMappingCollectionButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
             'id' => 'installMappingCollection',
             'href' => $this->mappingCollectionFormPath,
@@ -1133,17 +980,20 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             'icon' => 'plus-circle',
         ));
 
+        // Add the button
         $buttons = $installMappingCollectionButton->render();
 
+        // Add the description and table.
         $mappingCollectionsTableContainer = $this->modules->get('InputfieldMarkup');
         $mappingCollectionsTableContainer->value = $mappingCollectionsTable->render() . $buttons;
-
         $mappingCollectionsTab->append($mappingCollectionsTableContainer);
 
+        // Add Import tab
         $importTab = new InputfieldWrapper();
         $importTab->attr('title', $this->_('Import'));
         $importTab->id = 'import';
 
+        // Setup description markup.
         $infoContainer = $this->modules->get('InputfieldMarkup');
         if ($this->modules->isInstalled('ProcessRedirects')) {
             $infoContainer->value = $this->_('To import your jumplinks, select an option below:');
@@ -1151,42 +1001,50 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             $infoContainer->value = $this->_('To import your jumplinks, click the button below:');
         }
 
+        // Add description markup.
         $importTab->append($infoContainer);
 
+        // Setup main container.
         $importContainer = $this->modules->get('InputfieldMarkup');
 
+        // Setup CSV button
         $importFromCSVButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
             'id' => 'importFromCSV',
             'href' => "{$this->importPath}",
             'value' => $this->_('Import from CSV'),
         ));
 
+        // Add button.
         $importContainer->value = $importFromCSVButton->render();
 
+        // If ProcessRedirects is installed, add the applicable Import button.
         if ($this->modules->isInstalled('ProcessRedirects')) {
-
             $importFromRedirectsButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
                 'id' => 'importFromRedirects',
                 'href' => "{$this->importPath}?type=redirects",
                 'value' => $this->_('Import from Redirects Module'),
             ))->addClass('ui-priority-secondary');
-
             $importContainer->value .= $importFromRedirectsButton->render();
-
         }
 
+        // Append the container.
         $importTab->append($importContainer);
 
+        // If the 404 monitor is enabled, add the tab and container.
         if ($this->enable404Monitor) {
 
+            // Add 404 Monitor tab.
             $notFoundMonitorTab = new InputfieldWrapper();
             $notFoundMonitorTab->attr('title', $this->_('404 Monitor'));
             $notFoundMonitorTab->id = 'notFoundMonitor';
 
+            // Get 404 hits.
             $notFoundEntities = $this->db->query($this->sql->notFoundMonitor->selectAll);
 
+            // Setup the container.
             $infoContainer = $this->modules->get('InputfieldMarkup');
 
+            // Setup the description.
             if ($notFoundEntities->num_rows === 0) {
                 $infoContainer->value = $this->_("There have been no '404 Not Found' hits on your site.");
             } else if ($notFoundEntities->num_rows === 1) {
@@ -1195,19 +1053,25 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                 $infoContainer->value = $this->_("Below are the last {$notFoundEntities->num_rows} '404 Not Found' hits. To create a jumplink for one, simply click on its Request URI.");
             }
 
+            // Add description to tab container.
             $notFoundMonitorTab->append($infoContainer);
 
+            // Setup the datatable.
             $notFoundMonitorTable = $this->modules->get('MarkupAdminDataTable');
             $notFoundMonitorTable->setEncodeEntities(false);
             $notFoundMonitorTable->setClass('jumplinks notFounds');
             $notFoundMonitorTable->setSortable(false);
             $notFoundMonitorTable->headerRow(array($this->_('Request URI'), $this->_('Referrer'), $this->_('User Agent'), $this->_('Date/Time')));
 
+            // Get the UA parser
             require_once __DIR__ . '/Classes/ParseUserAgent.php';
 
+            // Loop through each 404, formatting as we go along.
             while ($notFoundEntity = $notFoundEntities->fetch_object()) {
                 $userAgentParsed = ParseUserAgent::get($notFoundEntity->user_agent);
                 $source = urlencode($notFoundEntity->request_uri);
+
+                // Add the 404 row.
                 $notFoundMonitorTable->row(array(
                     $notFoundEntity->request_uri => "{$this->entityFormPath}?id=0&source={$source}",
                     (!is_null($notFoundEntity->referrer)) ? $notFoundEntity->referrer : '',
@@ -1216,8 +1080,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                 ));
             }
 
+            // Setup Clear Button
             $button = '';
-
             if ($notFoundEntities->num_rows > 0) {
                 $clearNotFoundLogButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
                     'id' => 'clearNotFoundLog',
@@ -1228,27 +1092,31 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                 $button = $clearNotFoundLogButton->render();
             }
 
+            // Close the query.
             $notFoundEntities->close();
 
+            // Add the data table and button.
             $notFoundMonitorTableContainer = $this->modules->get('InputfieldMarkup');
             $notFoundMonitorTableContainer->value = $notFoundMonitorTable->render() . $button;
 
+            // Add the 404 container.
             $notFoundMonitorTab->append($notFoundMonitorTableContainer);
         }
 
+        // Add all tabs
         $tabContainer
             ->append($jumplinksTab)
             ->append($mappingCollectionsTab)
             ->append($importTab);
-
         if ($this->enable404Monitor) {
             $tabContainer->append($notFoundMonitorTab);
         }
 
+        // Let backend know that we're adminstering jumplinks.
         $this->config->js("pjAdmin", true);
 
         // We have to wrap it in a form to prevent spacing underneath
-        // the tabs. This goes hand in hand with a rule in the stylesheet
+        // the tabs. This goes hand in hand with a rule in the stylesheet.
         return "<form id=\"pjTabs\">{$tabContainer->render()}{$this->helpLinks()}</form>";
     }
 
@@ -1258,7 +1126,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function ___executeEntity()
     {
-
         $this->injectAssets();
 
         // Get the ID if we're editing
@@ -1314,7 +1181,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
         $form->add($this->populateInputField($field, array(
             'name+id' => 'sourcePath',
             'label' => $this->_('Source'),
-            'description' => sprintf($this->_("Enter a URI relative to the root of your site. [See Examples](%1\$s/Examples)."), $this->moduleInfo['href']),
+            'description' => sprintf($this->_("Enter a URI relative to the root of your site. **[(see examples)](%1\$s/Examples)**"), $this->moduleInfo['href']),
             'required' => 1,
             'collapsed' => Inputfield::collapsedNever,
             'value' => isset($sourcePath) ? $sourcePath : '',
@@ -1327,6 +1194,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
         $destinationSelectorsFieldset = self::buildInputField('InputfieldFieldset', array(
             'label' => __('or select one using...'),
             'description' => $this->_("If you choose to not use either of the Page selectors below, be sure to enter a valid path above."),
+            'collapsed' => Inputfield::collapsedYes,
         ));
         $destinationPageField = $this->modules->get('InputfieldPageListSelect');
         $destinationPageAutoField = $this->modules->get('InputfieldPageAutocomplete');
@@ -1338,6 +1206,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule
             if ($isPage) {
                 $destinationPageField->value = $page->id;
                 $destinationPageAutoField->value = $page->id;
+                $destinationPathField->collapsed = Inputfield::collapsedYes;
+                $destinationSelectorsFieldset->collapsed = Inputfield::collapsedNo;
             } else {
                 $destinationSelectorsFieldset->collapsed = Inputfield::collapsedYes;
                 $destinationPathField->collapsed = Inputfield::collapsedBlank;
@@ -1350,8 +1220,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule
         // Destination Path field
         $destinationFieldset->add($this->populateInputField($destinationPathField, array(
             'name+id' => 'destinationUriUrl',
-            'label' => $this->_('Manually specify a destination'),
-            'description' => sprintf($this->_("Enter either a URI relative to the root of your site, an absolute URL, or a Page ID. [See Examples](%1\$s/Examples)."), $this->moduleInfo['href']),
+            'label' => $this->_('Specify a destination'),
+            'description' => sprintf($this->_("Enter either a URI relative to the root of your site, an absolute URL, or a Page ID. **[(see examples)](%1\$s/Examples)**"), $this->moduleInfo['href']),
             'notes' => sprintf($this->_("If you select a page from either of the Page selectors below, its identifier will be placed here."), $this->moduleInfo['href']),
             'required' => 1,
             'value' => isset($destinationUriUrl) ? $destinationUriUrl : '',
@@ -1536,7 +1406,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function add($source, $destination, $start = '', $end = '')
     {
-
         $this->commitJumplink((object) array(
             'sourcePath' => $source,
             'destinationUriUrl' => $destination,
@@ -1550,7 +1419,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function ___executeCommit()
     {
-
         // Just to be on the safe side...
         if ($this->input->post->id == null) {
             $this->session->redirect("../");
@@ -1586,7 +1454,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function ___executeMappingCollection()
     {
-
         $this->injectAssets();
 
         $this->setFuel('processHeadline', $this->_('Install New Mapping Collection'));
@@ -1703,7 +1570,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function commitMappingCollection($collectionName, $collectionData, $id = 0)
     {
-
         // Clean up name (alphas only)
         $collectionName = preg_replace('~[^a-z]~', '', strtolower($collectionName));
 
@@ -1716,7 +1582,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
         foreach ($mappings as $mapping) {
             $mapping = explode('=', $mapping);
 
-            $wildcardCleaning = $this->{self::wildcardCleaning};
+            $wildcardCleaning = $this->wildcardCleaning;
             if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
                 $mapping[1] = $this->cleanWildcard($mapping[1], ($wildcardCleaning === 'fullClean') ? false : true);
             }
@@ -1764,7 +1630,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function collection($name, $data)
     {
-
         $collectionData = "";
         $id = 0;
 
@@ -1795,7 +1660,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function ___executeCommitMappingCollection()
     {
-
         // Just to be on the safe side...
         if ($this->input->post->id == null) {
             $this->session->redirect("../");
@@ -1817,9 +1681,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
         }
 
         $this->commitMappingCollection($input->collectionName, $input->collectionData, $id);
-
         $this->message(sprintf($this->_("Mapping Collection '%s' saved."), $collectionName));
-
         $this->session->redirect("../");
     }
 
@@ -1829,9 +1691,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function ___executeImport()
     {
-
         $this->injectAssets();
-
         $this->setFuel('processHeadline', $this->_('Import Jumplinks'));
 
         // Prep the form
@@ -1849,13 +1709,10 @@ class ProcessJumplinks extends Process implements ConfigurableModule
 
         switch ($importType) {
             case 'redirects':
-
                 $this->config->js('pjImportRedirectsModule', true);
-
                 if (!$this->modules->isInstalled('ProcessRedirects')) {
                     $this->session->redirect('../');
                 }
-
                 if (!$this->redirectsImported || $redoing) {
                     // Information
                     $field = $this->modules->get('InputfieldMarkup');
@@ -1864,7 +1721,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                     } else {
                         $infoLabel = $this->_("You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Jumplinks. If there are any redirects you wish to exclude, simply uncheck the box in the first column");
                     }
-
                     $form->add($this->populateInputField($field, array(
                         'label' => $this->_('Import from the Redirects module'),
                         'value' => $infoLabel,
@@ -1909,11 +1765,8 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                 }
 
                 break;
-
             default: // type = csv
-
                 $this->config->js('pjImportCSVData', true);
-
                 // Information
                 $field = $this->modules->get('InputfieldTextarea');
                 $form->add($this->populateInputField($field, array(
@@ -1975,7 +1828,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function ___executeDoImport()
     {
-
         // Just to be on the safe side...
         if ($this->input->post->importType == null) {
             $this->session->redirect("../");
@@ -1987,7 +1839,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
         // ... and go!
         switch ($importType) {
             case 'csv':
-
                 // Require the CSV parser
                 require_once __DIR__ . '/Classes/ParseCSV.php';
 
@@ -2048,9 +1899,7 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                 $this->session->redirect('../');
 
                 break;
-
             case 'redirects':
-
                 // Fetch the importArray - make sure all values are integers.
                 $redirectsArray = implode(',', array_map('intval', $this->input->post->importArray));
 
@@ -2082,7 +1931,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
                 $this->session->redirect('../');
 
                 break;
-
             default:
                 $this->session->redirect('../');
         }
@@ -2098,7 +1946,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
         $this->db->query($this->sql->notFoundMonitor->deleteAll);
         $this->message($this->_('[Jumplinks] 404 Monitor cleared.'));
         $this->session->redirect('../');
-
     }
 
     /**
@@ -2106,7 +1953,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function ___install()
     {
-
         // Install tables (their schemas may not remain the same as updateDatabaseSchema() may change them)
         foreach (array('main', 'mc') as $schema) {
             $this->db->query($this->blueprint("schema-create-{$schema}"));
@@ -2120,7 +1966,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     public function ___uninstall()
     {
-
         // Uninstall tables
         $this->db->query($this->blueprint('schema-drop'));
         parent::___uninstall();
@@ -2132,7 +1977,6 @@ class ProcessJumplinks extends Process implements ConfigurableModule
      */
     protected function dd($mixed, $die = true)
     {
-
         header('Content-Type: text/plain');
         var_dump($mixed);
         $die && die;

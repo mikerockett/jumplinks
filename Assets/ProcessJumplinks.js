@@ -1,20 +1,25 @@
-/*--
- *  ProcessJumplinks - Main Script
+/**--
+ * JS: Main Script
  *
- *  Author: Mike Rockett
- *  Copyright (c) 2015, Mike Rockett. All Rights Reserved.
- *  Licence: MIT License - http://mit-license.org/
+ * ProcessJumplinks - a ProcessWire Module by Mike Rockett
+ * Manage permanent and temporary redirects. Uses named wildcards and mapping collections.
  *
- *  https://github.com/mikerockett/ProcessJumplinks/wiki
+ * Copyright (c) 2015, Mike Rockett. All Rights Reserved.
+ * Licence: MIT License - http://mit-license.org/
+ *
+ * @see https://github.com/mikerockett/ProcessJumplinks/wiki [Documentation]
+ * @see https://mods.pw/92 [Modules Directory Page]
+ * @see https://processwire.com/talk/topic/8697-jumplinks/ [Support/Discussion Thread]
+ * @see https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ [PayPal Donation]
  */
 
-$(function () {
+$(function() {
     'use strict';
 
     var $t = $("form#pjTabs");
 
     // Function: Get URL arg/param
-    var urlParam = function (param) {
+    var urlParam = function(param) {
         var paramName,
             url = window.location.search.substring(1),
             vars = url.split("&");
@@ -24,9 +29,9 @@ $(function () {
     };
 
     // Function: Show error dialog
-    var errorDialog = function (errors) {
+    var errorDialog = function(errors) {
         var errorString = '';
-        errors.map(function (message) {
+        errors.map(function(message) {
             errorString += '<li style="padding: 9px 24px; border-bottom: 1px solid #ececec">' + message + '</li>';
         });
         $('body').css('overflow', 'hidden');
@@ -41,11 +46,11 @@ $(function () {
                 title: 'Errors',
                 width: 550,
                 buttons: {
-                    'Close': function () {
+                    'Close': function() {
                         $(this).dialog('close');
                     }
                 },
-                close: function () {
+                close: function() {
                     $(this).dialog('destroy').remove();
                     $('body').css('overflow', 'auto');
                 }
@@ -53,7 +58,7 @@ $(function () {
     }
 
     // Check if we're on the module's admin page
-    config.pjAdmin && function () {
+    config.pjAdmin && function() {
 
         // Setup WireTabs on the module's admin page
         $t.find("script").remove();
@@ -73,22 +78,23 @@ $(function () {
     }();
 
     // Check if we're working with a jumplink
-    config.pjEntity && function () {
+    config.pjEntity && function() {
 
-        $('#destinationPage').bind('pageSelected', function (a, b) {
+        $('#destinationPage').on('pageSelected', function(a, b) {
             if (b.id > 0) {
                 $('input#destinationUriUrl').val('page:' + b.id)
-                $('#destinationPageAuto').val(b.title);
+                $('#destinationPageAuto').val(b.id);
+                $('#destinationPageAuto_input').attr('data-selectedlabel', b.title).val(b.title);
             }
         });
-        $('#destinationPageAuto').bind('change', function (b) {
+        $('#destinationPageAuto').on('change', function(b) {
             if (b.currentTarget.value) {
                 $('input#destinationUriUrl').val('page:' + b.currentTarget.value);
-                $('#destinationPage').val(b.currentTarget.value);
+                $('#destinationPage').val(b.currentTarget.value).parent().find('.label_title, .PageListSelectName').text($('#destinationPageAuto_input').attr('data-selectedlabel'));
             }
         });
 
-        $('button#saveJumplink').on('click', function () {
+        $('button#saveJumplink').on('click', function() {
 
             var $values = {
                     sourcePath: $('input#sourcePath').val(),
@@ -124,9 +130,9 @@ $(function () {
     }();
 
     // Check if we're working with a collection
-    config.pjCollection && function () {
+    config.pjCollection && function() {
 
-        $('button#installMappingCollection').on('click', function () {
+        $('button#installMappingCollection').on('click', function() {
 
             var $values = {
                     name: $('input#collectionName').val(),
@@ -156,9 +162,9 @@ $(function () {
     }();
 
     // Check if we're importing from CSV
-    config.pjImport && function () {
+    config.pjImport && function() {
 
-        $('button#doImport').on('click', function () {
+        $('button#doImport').on('click', function() {
 
             var $values = {
                     data: $('textarea#csvData').val(),
@@ -180,7 +186,7 @@ $(function () {
     }();
 
     // Detect if we're on the module's config page
-    config.pjModuleAdmin && function () {
+    config.pjModuleAdmin && function() {
 
         // Set initial vars for module's config page
         var classInputfieldTask = "InputfieldTask";
@@ -192,16 +198,16 @@ $(function () {
         $("a[href=#resetLegacyStatusCodes]")
             .removeAttr("target")
             .addClass(classInputfieldTask)
-            .on("click", function (event) {
+            .on("click", function(event) {
                 $("input#statusCodes").val(defaults.statusCodes), event.preventDefault();
             });
 
         // Set button vars for module's config page
 
-        var addButton = function (id, text, relHref) {
+        var addButton = function(id, text, relHref) {
             relHref = typeof relHref !== 'undefined' ? relHref : '';
             var $button = $("<button/>").attr('id', id).addClass("ui-button ui-widget ui-state-default ui-priority-secondary")
-                .on('click', function (event) {
+                .on('click', function(event) {
                     event.preventDefault();
                     window.location = config.pjAdminPageUrl + relHref;
                 }).appendTo(".Inputfield_submit_save_module .InputfieldContent");

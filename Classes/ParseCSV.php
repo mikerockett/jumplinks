@@ -4,7 +4,8 @@
  *  ParseCSV 0.4.3-beta
  *  https://github.com/parsecsv/parsecsv-for-php
  *
- *  [Mike Rockett] Removed un-necessary components for ProcessJumplinks
+ *  Changelog:
+ *  [mikerockett] Removed un-necessary components for ProcessJumplinks
  *
  *  @license MIT
  *
