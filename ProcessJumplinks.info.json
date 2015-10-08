@@ -1,6 +1,6 @@
 {
     "title": "Jumplinks",
-    "version": "1.3.2",
+    "version": "1.3.4",
     "author": "Mike Rockett",
     "summary": "Manage permanent and temporary redirects (jumplinks). Supports wildcard parameters.",
     "requires": "ProcessWire>=2.5.3",
