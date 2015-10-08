@@ -15,7 +15,7 @@
  * @see https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ [PayPal Donation]
  */
 
-class ProcessJumplinks extends Process implements ConfigurableModule
+class ProcessJumplinks extends Process
 {
 
     /** Schema version for current release */
