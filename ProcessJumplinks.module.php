@@ -110,8 +110,10 @@ class ProcessJumplinks extends Process
     protected function injectAssets()
     {
         // Inject script and style
-        $this->config->scripts->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.min.js');
-        $this->config->styles->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
+        $moduleAssetPath = "{$this->config->urls->ProcessJumplinks}Assets";
+        $this->config->scripts->add("{$moduleAssetPath}/ProcessJumplinks.min.js");
+        $this->config->styles->add("{$moduleAssetPath}/ProcessJumplinks.css");
+
         // Include WireTabs
         $this->modules->get('JqueryWireTabs');
     }
@@ -127,7 +129,7 @@ class ProcessJumplinks extends Process
         $this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
 
         // Get the correct table name for ProcessRedirects
-        $redirectsTableNameQuery = $this->database->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = :db_name AND TABLE_NAME LIKE :table_name");
+        $redirectsTableNameQuery = $this->database->prepare('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = :db_name AND TABLE_NAME LIKE :table_name');
         $redirectsTableNameQuery->execute(array(
             'db_name' => $this->config->dbName,
             'table_name' => $this->redirectsTableName,
@@ -176,7 +178,7 @@ class ProcessJumplinks extends Process
         parent::init();
 
         // Set the admin page URL for JS
-        $this->config->js("pjAdminPageUrl", $this->pages->get('name=jumplinks,template=admin')->url);
+        $this->config->js('pjAdminPageUrl', $this->pages->get('name=jumplinks,template=admin')->url);
 
         // Make sure schemas are up to date
         if ($this->schemaVersion < self::schemaVersion) {
@@ -224,15 +226,15 @@ class ProcessJumplinks extends Process
                     $statement = $this->blueprint("schema-update-v{$memoryVersion}");
                     break;
                 default:
-                    throw new WireException("[Jumplinks] Unrecognized database schema version: $memoryVersion");
+                    throw new WireException("[Jumplinks] Unrecognized database schema version: {$memoryVersion}");
             }
             if ($statement && $this->database->exec($statement) !== false) {
                 $configData = $this->modules->getModuleConfigData($this);
                 $configData['_schemaVersion'] = $memoryVersion;
                 $this->modules->saveModuleConfigData($this, $configData);
-                $this->message($this->_("[Jumplinks] Schema updates applied."));
+                $this->message($this->_('[Jumplinks] Schema updates applied.'));
             } else {
-                throw new WireException("[Jumplinks] Couldn't update database schema to version $memoryVersion");
+                throw new WireException("[Jumplinks] Couldn't update database schema to version {$memoryVersion}");
             }
         }
     }
@@ -248,9 +250,14 @@ class ProcessJumplinks extends Process
             $uri = "/{$uri}";
         }
 
-        return ($justTheLink)
-            ? $this->moduleInfo['href'] . $uri
-            : "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ\">Support Development</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">Need Help?</a><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Documentation</a></div>";
+        if ($justTheLink) {
+            return $this->moduleInfo['href'] . $uri;
+        } else {
+            $supportDevelopment = $this->_('Support Development');
+            $needHelp = $this->_('Need Help?');
+            $documentation = $this->_('Documentation');
+            return "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ\">{$supportDevelopment}</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">{$needHelp}</a><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">{$documentation}</a></div>";
+        }
     }
 
     /**
@@ -381,9 +388,11 @@ class ProcessJumplinks extends Process
      */
     protected function truncate($string, $length = 55)
     {
-        return (strlen($string) > $length)
-            ? substr($string, 0, $length) . " <span class=\"ellipses\" title=\"{$string}\">...</span>"
-            : $string;
+        if (strlen($string) > $length) {
+            return substr($string, 0, $length) . " <span class=\"ellipses\" title=\"{$string}\">...</span>";
+        } else {
+            return $string;
+        }
     }
 
     /**
@@ -392,9 +401,9 @@ class ProcessJumplinks extends Process
      * @param  array  $meta
      * @return Inputfield
      */
-    protected static function buildInputField($fieldNameId, $meta)
+    protected function buildInputField($fieldNameId, $meta)
     {
-        $field = wire('modules')->get($fieldNameId);
+        $field = $this->modules->get($fieldNameId);
 
         foreach ($meta as $metaNames => $metaInfo) {
             $metaNames = explode('+', $metaNames);
@@ -467,11 +476,11 @@ class ProcessJumplinks extends Process
     {
         if ($this->userHasDebugRights()) {
             if (!$this->headerSet) {
-                header("Content-Type: text/plain");
+                header('Content-Type: text/plain');
                 $this->headerSet = true;
             }
 
-            $indent = ($indent) ? "- " : '';
+            $indent = ($indent) ? '- ' : '';
             $break = ($break) ? "\n" : '';
 
             print str_replace('.pwpj', '', "{$indent}{$message}\n{$break}");
@@ -513,9 +522,9 @@ class ProcessJumplinks extends Process
             return false;
         }
 
-        $this->log("Page not found; scanning for jumplinks...");
+        $this->log('Page not found; scanning for jumplinks...');
 
-        $requestedUrlFirstPart = "http" . ((@$_SERVER['HTTPS'] == 'on') ? "s" : "") . "://{$_SERVER['HTTP_HOST']}";
+        $requestedUrlFirstPart = 'http' . ((@$_SERVER['HTTPS'] == 'on') ? 's' : '') . "://{$_SERVER['HTTP_HOST']}";
 
         // Do some logging
         $this->log('Checked at: ' . date('r'), true);
@@ -531,7 +540,7 @@ class ProcessJumplinks extends Process
         // Get the available wildcards, prepare for pattern match
         $availableWildcards = '';
         foreach ($this->wildcards as $wildcard => $expression) {
-            $availableWildcards .= "$wildcard|";
+            $availableWildcards .= "{$wildcard}|";
         }
 
         $availableWildcards = rtrim($availableWildcards, '|');
@@ -696,7 +705,7 @@ class ProcessJumplinks extends Process
                     }
                 }, $convertedWildcards);
 
-                $this->log("Original Destination Path:    $jumplink->destination", true);
+                $this->log("Original Destination Path:    {$jumplink->destination}", true);
 
                 // If a match was found, but the selector didn't return a page, then continue the loop
                 if ($selectorUsed && !$selectorMatched) {
@@ -704,7 +713,7 @@ class ProcessJumplinks extends Process
                     continue;
                 }
 
-                $this->log("Compiled Destination Path:    $convertedWildcards", true, true);
+                $this->log("Compiled Destination Path:    {$convertedWildcards}", true, true);
 
                 // Check for Timed Activation and determine if we're in the period specified
                 $time = time();
@@ -736,9 +745,9 @@ class ProcessJumplinks extends Process
                     // If it ends before it starts, then show the time it starts.
                     // Otherwise, show the period.
                     if ($dummyEnd) {
-                        $this->log(sprintf("Timed:      From %s onwards", date('r', $starts)), true);
+                        $this->log(sprintf('Timed:      From %s onwards', date('r', $starts)), true);
                     } else {
-                        $this->log(sprintf("Timed:      From %s to %s", date('r', $starts), date('r', $ends)), true);
+                        $this->log(sprintf('Timed:      From %s to %s', date('r', $starts), date('r', $ends)), true);
                     }
                 }
 
@@ -783,7 +792,7 @@ class ProcessJumplinks extends Process
         }
 
         // If all fails, say so.
-        $this->log("No matches, sorry. We'll let the 404 error page take over when Debug Mode is turned off.");
+        $this->log("No matches, sorry. We'll let your 404 error page take over when Debug Mode is turned off.");
         if ($this->userHasDebugRights()) {
             die();
         }
@@ -822,7 +831,7 @@ class ProcessJumplinks extends Process
         if ($jumplinks->num_rows == 0) {
             $description = $this->_("You don't have any jumplinks yet.");
         } else {
-            $description = $this->_n('You have one jumplink registered.', 'Your jumplinks are listed below.', $jumplinks->num_rows) . ' ' . sprintf($this->_("To edit/delete %s, simply click on its Source."), $pronoun);
+            $description = $this->_n('You have one jumplink registered.', 'Your jumplinks are listed below.', $jumplinks->num_rows) . ' ' . sprintf($this->_('To edit/delete %s, simply click on its Source.'), $pronoun);
         }
         $jumplinksDescriptionMarkup = $this->modules->get('InputfieldMarkup');
         $jumplinksDescriptionMarkup->value = $description;
@@ -861,7 +870,7 @@ class ProcessJumplinks extends Process
             // let the user know so that it may be deleted.
             if (strtotime($jumplink->last_hit) > $this->lowestDate &&
                 strtotime($jumplink->last_hit) < strtotime('-30 days')) {
-                $jumplinkHits .= "<span id=\"staleJumplink\"></span>";
+                $jumplinkHits .= '<span id="staleJumplink"></span>';
             }
             $hits = $hits + $jumplink->hits;
 
@@ -917,7 +926,7 @@ class ProcessJumplinks extends Process
 
         // Add the Mapping Collections tab
         $mappingCollectionsTab = new InputfieldWrapper();
-        $mappingCollectionsTab->attr('title', 'Mapping Collections');
+        $mappingCollectionsTab->attr('title', $this->_('Mapping Collections'));
         $mappingCollectionsTab->id = 'mappingCollections';
 
         // Get Mapping Collections
@@ -938,7 +947,7 @@ class ProcessJumplinks extends Process
             $head = $this->_n('You have one collection installed.', 'Your collections are listed below.', $mappingCollections->num_rows);
             $pronoun = $this->_n('it', 'one', $mappingCollections->num_rows);
         }
-        $description = ($mappingCollections->num_rows === 0) ? '' : sprintf($this->_("To edit/uninstall %s, simply click on its Name."), $pronoun);
+        $description = ($mappingCollections->num_rows === 0) ? '' : sprintf($this->_('To edit/uninstall %s, simply click on its Name.'), $pronoun);
 
         $mappingCollectionsDescriptionMarkup = $this->modules->get('InputfieldMarkup');
         $mappingCollectionsDescriptionMarkup->value = "{$head} {$description}";
@@ -951,8 +960,8 @@ class ProcessJumplinks extends Process
             // Timestamps
             $userCreated = $this->users->get($mappingCollection->user_created)->name;
             $userUpdated = $this->users->get($mappingCollection->user_updated)->name;
-            $created = wireRelativeTimeStr($mappingCollection->created_at) . " by {$userCreated}";
-            $updated = wireRelativeTimeStr($mappingCollection->updated_at) . " by {$userUpdated}";
+            $created = wireRelativeTimeStr($mappingCollection->created_at) . sprintf($this->_('by %s'), $userCreated);
+            $updated = wireRelativeTimeStr($mappingCollection->updated_at) . sprintf($this->_('by %s'), $userUpdated);
             if ($mappingCollection->created_at === $mappingCollection->updated_at) {
                 $updated = '';
             }
@@ -1113,7 +1122,7 @@ class ProcessJumplinks extends Process
         }
 
         // Let backend know that we're adminstering jumplinks.
-        $this->config->js("pjAdmin", true);
+        $this->config->js('pjAdmin', true);
 
         // We have to wrap it in a form to prevent spacing underneath
         // the tabs. This goes hand in hand with a rule in the stylesheet.
@@ -1131,7 +1140,7 @@ class ProcessJumplinks extends Process
         // Get the ID if we're editing
         $editingId = (isset($this->input->get->id)) ? $this->input->get->id : 0;
 
-        $this->setFuel('processHeadline', $this->_(($editingId > 0) ? 'Editing Jumplink' : 'Register New Jumplink'));
+        $this->setFuel('processHeadline', ($editingId > 0) ? $this->_('Editing Jumplink') : $this->_('Register New Jumplink'));
 
         if ($editingId > 0) {
             // Fetch the details and list vars
@@ -1181,19 +1190,19 @@ class ProcessJumplinks extends Process
         $form->add($this->populateInputField($field, array(
             'name+id' => 'sourcePath',
             'label' => $this->_('Source'),
-            'description' => sprintf($this->_("Enter a URI relative to the root of your site. **[(see examples)](%1\$s/Examples)**"), $this->moduleInfo['href']),
+            'description' => sprintf($this->_('Enter a URI relative to the root of your site. **[(see examples)](%1\$s/Examples)**'), $this->moduleInfo['href']),
             'required' => 1,
             'collapsed' => Inputfield::collapsedNever,
             'value' => isset($sourcePath) ? $sourcePath : '',
         )));
 
         // Destination fields
-        $destinationFieldset = self::buildInputField('InputfieldFieldset', array(
+        $destinationFieldset = $this->buildInputField('InputfieldFieldset', array(
             'label' => __('Destination'),
         ));
-        $destinationSelectorsFieldset = self::buildInputField('InputfieldFieldset', array(
+        $destinationSelectorsFieldset = $this->buildInputField('InputfieldFieldset', array(
             'label' => __('or select one using...'),
-            'notes' => $this->_("If you choose to not use either of the Page selectors below, be sure to enter a valid path above."),
+            'notes' => $this->_('If you choose to not use either of the Page selectors below, be sure to enter a valid path above.'),
             'collapsed' => Inputfield::collapsedYes,
         ));
         $destinationPageField = $this->modules->get('InputfieldPageListSelect');
@@ -1222,7 +1231,7 @@ class ProcessJumplinks extends Process
             'name+id' => 'destinationUriUrl',
             'label' => $this->_('Specify a destination'),
             'description' => sprintf($this->_("Enter either a URI relative to the root of your site, an absolute URL, or a Page ID. **[(see examples)](%1\$s/Examples)**"), $this->moduleInfo['href']),
-            'notes' => sprintf($this->_("If you select a page from either of the Page selectors below, its identifier will be placed here."), $this->moduleInfo['href']),
+            'notes' => sprintf($this->_('If you select a page from either of the Page selectors below, its identifier will be placed here.'), $this->moduleInfo['href']),
             'required' => 1,
             'value' => isset($destinationUriUrl) ? $destinationUriUrl : '',
         )));
@@ -1248,7 +1257,7 @@ class ProcessJumplinks extends Process
 
         // Timed Activation fieldset
         $fieldSet = $this->modules->get('InputfieldFieldset');
-        $fieldSet->label = 'Timed Activation';
+        $fieldSet->label = $this->_('Timed Activation');
         $fieldSet->collapsed = Inputfield::collapsedYes;
         $fieldSet->description = $this->_("If you'd like this jumplink to only function during a specific time-range, then select the start and end dates and times below.");
         $fieldSet->notes = $this->_("You don't have to specify both. If you only specify a start time, you're simply delaying activation. If you only specify an end time, then you're simply telling it when to stop.\nIf an End Date/Time is specified, a temporary redirect will be made (302 status code, as opposed to 301).");
@@ -1292,7 +1301,7 @@ class ProcessJumplinks extends Process
             );
             $lastHitFormatted = $this->_("This jumplink hasn't been hit yet.");
             if (strtotime($lastHit) > $this->lowestDate) {
-                $lastHitFormatted = $this->_("Last hit on: ") . $lastHit . " (" . wireRelativeTimeStr($lastHit) . ")";
+                $lastHitFormatted = sprintf($this->_('Last hit on: %s (%s)'), $lastHit, wireRelativeTimeStr($lastHit));
             }
 
             $form->add($this->populateInputField($field, array(
@@ -1421,7 +1430,7 @@ class ProcessJumplinks extends Process
     {
         // Just to be on the safe side...
         if ($this->input->post->id == null) {
-            $this->session->redirect("../");
+            $this->session->redirect('../');
         }
 
         $input = $this->input->post;
@@ -1437,15 +1446,15 @@ class ProcessJumplinks extends Process
                 'id' => $id,
             ));
             $this->message($this->_('Jumplink deleted.'));
-            $this->session->redirect("../");
+            $this->session->redirect('../');
         }
 
         // Otherwise, continue to commit jumplink to DB
         $this->commitJumplink($input, 0, $isUpdating, $id);
 
-        $this->message($this->_("Jumplink saved."));
+        $this->message($this->_('Jumplink saved.'));
 
-        $this->session->redirect("../");
+        $this->session->redirect('../');
     }
 
     /**
@@ -1469,7 +1478,7 @@ class ProcessJumplinks extends Process
             ));
             list($id, $collectionName, $collectionData, $userCreated, $userUpdated, $updatedAt, $createdAt) = $query->fetch();
 
-            $this->setFuel('processHeadline', $this->_("Editing Mapping Collection: $collectionName"));
+            $this->setFuel('processHeadline', $this->_("Editing Mapping Collection: {$collectionName}"));
         }
 
         // Prep the form
@@ -1501,7 +1510,7 @@ class ProcessJumplinks extends Process
         $form->add($this->populateInputField($field, array(
             'name+id' => 'collectionData',
             'label' => $this->_('Mapping Data'),
-            'description' => sprintf($this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names, but you can use named identifiers too. To learn more about how this feature works, please [read through the documentation](%s).'), $this->helpLinks("Mapping-Collections", true)),
+            'description' => sprintf($this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names, but you can use named identifiers too. To learn more about how this feature works, please [read through the documentation](%s).'), $this->helpLinks('Mapping-Collections', true)),
             'notes' => sprintf($this->_("To make things easier, you'll probably want to export your data from your old platform/framework in this format.\n**Note:** All **values** will be cleaned according to the 'Wildcard Cleaning' setting in the [module's configuration](%s)."), $this->getModuleConfigUri()),
             'required' => 1,
             'rows' => 10,
@@ -1648,7 +1657,7 @@ class ProcessJumplinks extends Process
 
         // Gather the data from the array
         foreach ($data as $key => $value) {
-            $collectionData .= "{$key}={$value}" . "\n";
+            $collectionData .= "{$key}={$value}\n";
         }
 
         // And send it off!
@@ -1662,7 +1671,7 @@ class ProcessJumplinks extends Process
     {
         // Just to be on the safe side...
         if ($this->input->post->id == null) {
-            $this->session->redirect("../");
+            $this->session->redirect('../');
         }
 
         $input = $this->input->post;
@@ -1677,12 +1686,12 @@ class ProcessJumplinks extends Process
                 'id' => $id,
             ));
             $this->message($this->_('Collection uninstalled.'));
-            $this->session->redirect("../");
+            $this->session->redirect('../');
         }
 
         $this->commitMappingCollection($input->collectionName, $input->collectionData, $id);
         $this->message(sprintf($this->_("Mapping Collection '%s' saved."), $collectionName));
-        $this->session->redirect("../");
+        $this->session->redirect('../');
     }
 
     /**
@@ -1717,9 +1726,9 @@ class ProcessJumplinks extends Process
                     // Information
                     $field = $this->modules->get('InputfieldMarkup');
                     if ($redoing) {
-                        $infoLabel = $this->_("If your last import failed, you can always try the import again. First, make sure that the jumplinks you imported have been deleted. Alternatively, just uncheck the ones that sucessfully imported the first time.");
+                        $infoLabel = $this->_('If your last import failed, you can always try the import again. First, make sure that the jumplinks you imported have been deleted. Alternatively, just uncheck the ones that sucessfully imported the first time.');
                     } else {
-                        $infoLabel = $this->_("You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Jumplinks. If there are any redirects you wish to exclude, simply uncheck the box in the first column");
+                        $infoLabel = $this->_('You have the Redirects module installed. As such, you can migrate your existing redirects from the module (below) to Jumplinks. If there are any redirects you wish to exclude, simply uncheck the box in the first column');
                     }
                     $form->add($this->populateInputField($field, array(
                         'label' => $this->_('Import from the Redirects module'),
@@ -1732,12 +1741,12 @@ class ProcessJumplinks extends Process
 
                 if ($this->redirectsImported && !$redoing) {
                     $importInfoMarkup->label = $this->_('Redirects already imported');
-                    $importInfoMarkup->value = $this->_("All your redirects from ProcessRedirects have already been imported. You can safely uninstall ProcessRedirects. However, if something went wrong during the import, you can always try again using the button below. Of course, this import facility will not appear once ProcessRedirects is uninstalled.");
+                    $importInfoMarkup->value = $this->_('All your redirects from ProcessRedirects have already been imported. You can safely uninstall ProcessRedirects. However, if something went wrong during the import, you can always try again using the button below. Of course, this import facility will not appear once ProcessRedirects is uninstalled.');
                     $form->add($importInfoMarkup);
                     $oopsButton = $this->modules->get('InputfieldButton');
                     $form->add($this->populateInputField($oopsButton, array(
                         'name+id' => 'oopsRedo',
-                        'value' => 'Something went wrong, let me try again',
+                        'value' => $this->_('Something went wrong, let me try again'),
                         'icon' => 'repeat',
                         'href' => '?type=redirects&redo=true',
                     )));
@@ -1782,7 +1791,7 @@ class ProcessJumplinks extends Process
                 $form->add($this->populateInputField($field, array(
                     'name+id' => 'csvHeadings',
                     'label' => $this->_('My CSV data contains headings'),
-                    'notes' => $this->_("No need to worry about what your headings are called. The importer simply ignores them when you check this box."),
+                    'notes' => $this->_('No need to worry about what your headings are called. The importer simply ignores them when you check this box.'),
                 )));
 
                 break;
@@ -1800,14 +1809,14 @@ class ProcessJumplinks extends Process
         if ($importType === 'redirects' && !$this->redirectsImported || $redoing) {
             $form->add($this->populateInputField($field, array(
                 'name+id' => 'doImport',
-                'value' => 'Import these Redirects',
+                'value' => $this->_('Import these Redirects'),
                 'icon' => 'arrow-right',
                 'type' => 'submit',
             ))->addClass('head_button_clone'));
         } else if ($importType !== 'redirects') {
             $form->add($this->populateInputField($field, array(
                 'name+id' => 'doImport',
-                'value' => 'Import Data',
+                'value' => $this->_('Import Data'),
                 'icon' => 'cloud-upload',
                 'type' => 'submit',
             ))->addClass('head_button_clone'));
@@ -1830,7 +1839,7 @@ class ProcessJumplinks extends Process
     {
         // Just to be on the safe side...
         if ($this->input->post->importType == null) {
-            $this->session->redirect("../");
+            $this->session->redirect('../');
         }
 
         // Get the type of import ...
@@ -1927,7 +1936,7 @@ class ProcessJumplinks extends Process
                 $configData['redirectsImported'] = true;
                 $this->modules->saveModuleConfigData($this, $configData);
 
-                $this->message('Redirects imported. You can now safely uninstall ProcessRedirects.');
+                $this->message($this->_('Redirects imported. You can now safely uninstall ProcessRedirects.'));
                 $this->session->redirect('../');
 
                 break;

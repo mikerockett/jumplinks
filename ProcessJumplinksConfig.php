@@ -103,7 +103,7 @@ class ProcessJumplinksConfig extends ModuleConfig
         $fieldset->add($this->buildInputField('InputfieldCheckbox', array(
             'name+id' => 'enhancedWildcardCleaning',
             'label' => $this->_('Enhanced Wildcard Cleaning'),
-            'description' => $this->_("When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
+            'description' => $this->_('When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below.'),
             'label2' => $this->_('Use Enhanced Wildcard Cleaning'),
             'notes' => $this->_("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'.\n**Note:** This feature only works when Wildcard Cleaning is enabled."),
             'columnWidth' => 50,
@@ -137,7 +137,7 @@ class ProcessJumplinksConfig extends ModuleConfig
             'name+id' => 'statusCodes',
             'columnWidth' => 50,
             'description' => $this->_('Only redirect if a request to it yields one of these HTTP status codes:'),
-            'notes' => $this->_("Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**"),
+            'notes' => $this->_('Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**'),
             'collapsed' => Inputfield::collapsedNever,
             'skipLabel' => Inputfield::skipLabelHeader,
             'spellcheck' => 'false',
@@ -175,13 +175,24 @@ class ProcessJumplinksConfig extends ModuleConfig
         )));
 
         // Support Thread
-        $supportLink = self::SUPPORT_HREF;
-        $wikiLink = self::WIKI_HREF;
+        $links = array(
+            'support' => self::SUPPORT_HREF,
+            'wiki' => self::WIKI_HREF,
+        );
+        $text = array(
+            'paragraph' => $this->_("Be sure to read the documentation, as it contains all the information you need to get started with Jumplinks. If you're having problems and unable to determine the cause(s) thereof, feel free to ask for help in the official support thread."),
+            'wiki' => $this->_('Read the Documentation'),
+            'support' => $this->_('Official Support Thread'),
+        );
         $fieldset->add($this->buildInputField('InputfieldMarkup', array(
             'id' => 'docsSupport',
             'label' => $this->_('Documentation & Support'),
             'value' => <<<HTML
-                <p>Be sure to <a href="{$wikiLink}">read the documentation</a>, as it contains all the information you need to get started with Jumplinks. If you're having problems and unable to determine the cause(s) thereof, feel free to <a href="{$supportLink}">ask for help in the official support thread</a>.</p>
+                <p>{$text['paragraph']}</p>
+                <div id="pjInputFieldLinks">
+                    <a target="_blank" href="{$links['wiki']}">{$text['wiki']}</a>
+                    <a target="_blank" href="{$links['support']}">{$text['support']}</a>
+                </div>
 HTML
 ,
             'collapsed' => Inputfield::collapsedYes,
@@ -192,16 +203,15 @@ HTML
         $fieldset->add($this->buildInputField('InputfieldMarkup', array(
             'id' => 'moduleRecommendations',
             'label' => $this->_('Module Recommendations'),
-            'description' => $this->_(""),
             'value' => <<<HTML
                 <p>{$moduleRecommendationPara}</p>
-                <div id="pjModuleRecommendations">
-                    <a href="http://mods.pw/5q">All In One Minify (AIOM+)</a>
-                    <a href="http://mods.pw/2J">Page Path History (core)</a>
-                    <a href="http://mods.pw/1V">XML Sitemap</a>
-                    <a href="http://mods.pw/8D">Markup SEO</a>
-                    <a href="http://mods.pw/6d">ProFields: AutoLinks</a>
-                    <a href="http://mods.pw/58">ProFields: ProCache</a>
+                <div id="pjInputFieldLinks">
+                    <a target="_blank" href="http://mods.pw/5q">All In One Minify (AIOM+)</a>
+                    <a target="_blank" href="http://mods.pw/2J">Page Path History (core)</a>
+                    <a target="_blank" href="http://mods.pw/1V">XML Sitemap</a>
+                    <a target="_blank" href="http://mods.pw/8D">Markup SEO</a>
+                    <a target="_blank" href="http://mods.pw/6d">ProFields: AutoLinks</a>
+                    <a target="_blank" href="http://mods.pw/58">ProFields: ProCache</a>
                 </div>
 HTML
 ,
@@ -209,12 +219,22 @@ HTML
         )));
 
         // Support Development
-        $supportDevelopmentPara = $this->_('Jumplinks is an open-source project, and is free to use. In fact, Jumplinks will always be open-source, and will always remain free to use. Forever. If you would like to support the development of Jumplinks, please make a small donation via PayPal using the button to the right.');
+        $text = array(
+            'paragraph' => $this->_('Jumplinks is an open-source project, and is free to use. In fact, Jumplinks will always be open-source, and will always remain free to use. Forever. If you would like to support the development of Jumplinks, please make a small donation via PayPal using the button to the right.'),
+            'openSource' => $this->_('Open Source Software'),
+            'freeSoftware' => $this->_('Free Software'),
+            'learnMore' => $this->_('Learn more about'),
+        );
         $fieldset->add($this->buildInputField('InputfieldMarkup', array(
             'id' => 'supportDevelopment',
             'label' => $this->_('Support Jumplinks Development'),
             'value' => <<<HTML
-                <p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ"><img src="{$this->config->urls->ProcessJumplinks}Assets/DonateButton.png" alt="PayPal" style="float:right;margin-left: 22px;"></a>{$supportDevelopmentPara}</p>
+                <p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ"><img src="{$this->config->urls->ProcessJumplinks}Assets/DonateButton.png" alt="PayPal" style="float:right;margin-left: 22px;"></a>{$text['paragraph']}</p>
+                <div id="pjInputFieldLinks">
+                    <span class="prefix">{$text['learnMore']}:</span>
+                    <a target="_blank" href="http://opensource.com/resources/what-open-source">{$text['openSource']}</a>
+                    <a target="_blank" href="https://en.wikipedia.org/wiki/Free_software">{$text['freeSoftware']}</a>
+                </div>
 HTML
 ,
             'collapsed' => Inputfield::collapsedNo,
