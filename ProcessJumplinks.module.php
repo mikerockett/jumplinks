@@ -250,7 +250,7 @@ class ProcessJumplinks extends Process
 
         return ($justTheLink)
             ? $this->moduleInfo['href'] . $uri
-            : "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ\">Donate via PayPal</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">Need Help?</a><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Documentation</a></div>";
+            : "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ\">Support Development</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">Need Help?</a><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">Documentation</a></div>";
     }
 
     /**
@@ -1193,7 +1193,7 @@ class ProcessJumplinks extends Process
         ));
         $destinationSelectorsFieldset = self::buildInputField('InputfieldFieldset', array(
             'label' => __('or select one using...'),
-            'description' => $this->_("If you choose to not use either of the Page selectors below, be sure to enter a valid path above."),
+            'notes' => $this->_("If you choose to not use either of the Page selectors below, be sure to enter a valid path above."),
             'collapsed' => Inputfield::collapsedYes,
         ));
         $destinationPageField = $this->modules->get('InputfieldPageListSelect');

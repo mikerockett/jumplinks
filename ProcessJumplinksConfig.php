@@ -21,7 +21,8 @@ class ProcessJumplinksConfig extends ModuleConfig
 	 * Documentation link
 	 * @const string
 	 */
-	const HREF = 'https://github.com/mikerockett/ProcessJumplinks/wiki';
+    const WIKI_HREF = 'https://github.com/mikerockett/ProcessJumplinks/wiki';
+	const SUPPORT_HREF = 'https://processwire.com/talk/topic/8697-jumplinks/';
 
     /**
      * Given a fieldtype, create, populate, and return an Inputfield
@@ -29,7 +30,7 @@ class ProcessJumplinksConfig extends ModuleConfig
      * @param  array  $meta
      * @return Inputfield
      */
-    protected static function buildInputField($fieldNameId, $meta)
+    protected function buildInputField($fieldNameId, $meta)
     {
         $field = wire('modules')->get($fieldNameId);
 
@@ -38,7 +39,6 @@ class ProcessJumplinksConfig extends ModuleConfig
             foreach ($metaNames as $metaName) {
                 $field->$metaName = $metaInfo;
             }
-
         }
 
         return $field;
@@ -69,31 +69,30 @@ class ProcessJumplinksConfig extends ModuleConfig
     public function getInputFields()
     {
         // Inject assets
-        wire('config')->scripts->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.min.js');
-        wire('config')->styles->add(wire('config')->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
+        $this->config->scripts->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.min.js');
+        $this->config->styles->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
 
         // Add JS config data
-        wire('config')->js('pjModuleAdmin', true);
-        wire('config')->js('pjOldRedirectsInstalled', wire('modules')->isInstalled('ProcessRedirects'));
+        $this->config->js('pjModuleAdmin', true);
+        $this->config->js('pjOldRedirectsInstalled', $this->modules->isInstalled('ProcessRedirects'));
 
         // Start inputfields
         $inputfields = parent::getInputfields();
 
         // Wildcard Cleaning Fieldset
-        $fieldset = self::buildInputField('InputfieldFieldset', array(
-            'label' => __('Wildcard Cleaning'),
-            'collapsed' => Inputfield::collapsedYes,
+        $fieldset = $this->buildInputField('InputfieldFieldset', array(
+            'label' => $this->_('Wildcard Cleaning'),
         ));
 
         // Wildcard Cleaning
-        $fieldset->add(self::buildInputField('InputfieldRadios', array(
+        $fieldset->add($this->buildInputField('InputfieldRadios', array(
             'name+id' => 'wildcardCleaning',
-            'description' => __("When set to 'Full Clean', each wildcard in a destination path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
-            'notes' => sprintf(__("**Note:** It's recommended that you keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). **[Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)**"), self::HREF),
+            'description' => $this->_("When set to 'Full Clean', each wildcard in a destination path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
+            'notes' => sprintf($this->_("**Note:** It's recommended that you keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). **[Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)**"), self::WIKI_HREF),
             'options' => array(
-                'fullClean' => __('Full Clean (default, recommended)'),
-                'semiClean' => __("Clean, but don't change case"),
-                'noClean' => __("Don't clean at all (not recommended)"),
+                'fullClean' => $this->_('Full Clean (default, recommended)'),
+                'semiClean' => $this->_("Clean, but don't change case"),
+                'noClean' => $this->_("Don't clean at all (not recommended)"),
             ),
             'columnWidth' => 50,
             'collapsed' => Inputfield::collapsedNever,
@@ -101,12 +100,12 @@ class ProcessJumplinksConfig extends ModuleConfig
         )));
 
         // Enhanced Wildcard Cleaning
-        $fieldset->add(self::buildInputField('InputfieldCheckbox', array(
+        $fieldset->add($this->buildInputField('InputfieldCheckbox', array(
             'name+id' => 'enhancedWildcardCleaning',
-            'label' => __('Enhanced Wildcard Cleaning'),
-            'description' => __("When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
-            'label2' => __('Use Enhanced Wildcard Cleaning'),
-            'notes' => __("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'.\n**Note:** This feature only works when Wildcard Cleaning is enabled."),
+            'label' => $this->_('Enhanced Wildcard Cleaning'),
+            'description' => $this->_("When enabled, wildcard cleaning goes a step further by means of breaking and hyphenating TitleCase wildcards, as well as those that contain abbreviations (ex: NASALaunch). Examples below."),
+            'label2' => $this->_('Use Enhanced Wildcard Cleaning'),
+            'notes' => $this->_("**Examples:** 'EnvironmentStudy' would become 'environment-study' and 'NASALaunch' would become 'nasa-launch'.\n**Note:** This feature only works when Wildcard Cleaning is enabled."),
             'columnWidth' => 50,
             'collapsed' => Inputfield::collapsedNever,
             'autocheck' => true,
@@ -115,30 +114,30 @@ class ProcessJumplinksConfig extends ModuleConfig
         $inputfields->add($fieldset);
 
         // Legacy Domain Fieldset
-        $fieldset = self::buildInputField('InputfieldFieldset', array(
-            'label' => __('Legacy Domain'),
-            'description' => sprintf(__('Only use this if you are performing a slow migration to ProcessWire, and would still like your visitors to access old content moved to a new location, like a subdomain or folder, for example. [Learn more about how this feature works](%s/Configuration#legacy-domain).'), self::HREF),
+        $fieldset = $this->buildInputField('InputfieldFieldset', array(
+            'label' => $this->_('Legacy Domain'),
+            'description' => sprintf($this->_('Only use this if you are performing a slow migration to ProcessWire, and would still like your visitors to access old content moved to a new location, like a subdomain or folder, for example. [Learn more about how this feature works](%s/Configuration#legacy-domain).'), self::WIKI_HREF),
             'collapsed' => Inputfield::collapsedYes,
         ));
 
         // Legacy Domain Name
-        $fieldset->add(self::buildInputField('InputfieldText', array(
+        $fieldset->add($this->buildInputField('InputfieldText', array(
             'name+id' => 'legacyDomain',
             'columnWidth' => 50,
-            'description' => __('Attempt any requested, unresolved Source paths on a legacy domain/URL.'),
-            'notes' => __("Enter a *full*, valid domain/URL. **Source Path won't be cleaned upon redirect**."),
-            'placeholder' => __('Examples: "http://legacy.domain.com/" or "http://domain.com/old/"'),
+            'description' => $this->_('Attempt any requested, unresolved Source paths on a legacy domain/URL.'),
+            'notes' => $this->_("Enter a *full*, valid domain/URL. **Source Path won't be cleaned upon redirect**."),
+            'placeholder' => $this->_('Examples: "http://legacy.domain.com/" or "http://domain.com/old/"'),
             'collapsed' => Inputfield::collapsedNever,
             'skipLabel' => Inputfield::skipLabelHeader,
             'spellcheck' => 'false',
         )));
 
         // Legacy Domain Status Codes
-        $fieldset->add(self::buildInputField('InputfieldText', array(
+        $fieldset->add($this->buildInputField('InputfieldText', array(
             'name+id' => 'statusCodes',
             'columnWidth' => 50,
-            'description' => __('Only redirect if a request to it yields one of these HTTP status codes:'),
-            'notes' => __("Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**"),
+            'description' => $this->_('Only redirect if a request to it yields one of these HTTP status codes:'),
+            'notes' => $this->_("Separate each code with a space. **[Use Default](#resetLegacyStatusCodes)**"),
             'collapsed' => Inputfield::collapsedNever,
             'skipLabel' => Inputfield::skipLabelHeader,
             'spellcheck' => 'false',
@@ -147,26 +146,81 @@ class ProcessJumplinksConfig extends ModuleConfig
         $inputfields->add($fieldset);
 
         // Log Not Found Hits
-        $inputfields->add(self::buildInputField('InputfieldCheckbox', array(
+        $inputfields->add($this->buildInputField('InputfieldCheckbox', array(
             'name+id' => 'enable404Monitor',
-            'label' => __('Enable 404 Monitor'),
-            'description' => __("If you'd like to monitor and log 404 hits so that you can later create jumplinks for them, check the box below."),
-            'label2' => __('Log 404 hits to the database'),
-            'notes' => __("This log will be displayed on the Jumplinks setup page in a separate tab (limited to the last 100).\n**Note:** Turning this off will not delete any existing records from the database."),
+            'label' => $this->_('Enable 404 Monitor'),
+            'description' => $this->_("If you'd like to monitor and log 404 hits so that you can later create jumplinks for them, check the box below."),
+            'label2' => $this->_('Log 404 hits to the database'),
+            'notes' => $this->_("This log will be displayed on the Jumplinks setup page in a separate tab (limited to the last 100).\n**Note:** Turning this off will not delete any existing records from the database."),
             'collapsed' => Inputfield::collapsedBlank,
             'autocheck' => true,
         )));
 
+        // Info & Support
+        $fieldset = $this->buildInputField('InputfieldFieldset', array(
+            'label' => $this->_('Info & Support'), // Hidden
+            'collapsed' => Inputfield::collapsedNo,
+            'skipLabel' => Inputfield::skipLabelHeader,
+        ));
+
         // Debug Mode
-        $inputfields->add(self::buildInputField('InputfieldCheckbox', array(
+        $fieldset->add($this->buildInputField('InputfieldCheckbox', array(
             'name+id' => 'moduleDebug',
-            'label' => __('Debug Mode'),
-            'description' => __("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
-            'label2' => __('Turn debug mode on'),
-            'notes' => __("**Notes:** Hits won't be affected when debug mode is turned on. Also, only those that have permission to manage jumplinks will be shown the debug logs."),
+            'label' => $this->_('Debug Mode'),
+            'description' => $this->_("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
+            'label2' => $this->_('Turn debug mode on'),
+            'notes' => $this->_("**Notes:** Hits won't be affected when debug mode is turned on. Also, only those that have permission to manage jumplinks will be shown the debug logs."),
             'collapsed' => Inputfield::collapsedBlank,
             'autocheck' => true,
         )));
+
+        // Support Thread
+        $supportLink = self::SUPPORT_HREF;
+        $wikiLink = self::WIKI_HREF;
+        $fieldset->add($this->buildInputField('InputfieldMarkup', array(
+            'id' => 'docsSupport',
+            'label' => $this->_('Documentation & Support'),
+            'value' => <<<HTML
+                <p>Be sure to <a href="{$wikiLink}">read the documentation</a>, as it contains all the information you need to get started with Jumplinks. If you're having problems and unable to determine the cause(s) thereof, feel free to <a href="{$supportLink}">ask for help in the official support thread</a>.</p>
+HTML
+,
+            'collapsed' => Inputfield::collapsedYes,
+        )));
+
+        // Module Recommendations
+        $moduleRecommendationPara = $this->_('Jumplinks complements your SEO-toolkit, which should comprise of the following modules as well:');
+        $fieldset->add($this->buildInputField('InputfieldMarkup', array(
+            'id' => 'moduleRecommendations',
+            'label' => $this->_('Module Recommendations'),
+            'description' => $this->_(""),
+            'value' => <<<HTML
+                <p>{$moduleRecommendationPara}</p>
+                <div id="pjModuleRecommendations">
+                    <a href="http://mods.pw/5q">All In One Minify (AIOM+)</a>
+                    <a href="http://mods.pw/2J">Page Path History (core)</a>
+                    <a href="http://mods.pw/1V">XML Sitemap</a>
+                    <a href="http://mods.pw/8D">Markup SEO</a>
+                    <a href="http://mods.pw/6d">ProFields: AutoLinks</a>
+                    <a href="http://mods.pw/58">ProFields: ProCache</a>
+                </div>
+HTML
+,
+            'collapsed' => Inputfield::collapsedYes,
+        )));
+
+        // Support Development
+        $supportDevelopmentPara = $this->_('Jumplinks is an open-source project, and is free to use. In fact, Jumplinks will always be open-source, and will always remain free to use. Forever. If you would like to support the development of Jumplinks, please make a small donation via PayPal using the button to the right.');
+        $fieldset->add($this->buildInputField('InputfieldMarkup', array(
+            'id' => 'supportDevelopment',
+            'label' => $this->_('Support Jumplinks Development'),
+            'value' => <<<HTML
+                <p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ"><img src="{$this->config->urls->ProcessJumplinks}Assets/DonateButton.png" alt="PayPal" style="float:right;margin-left: 22px;"></a>{$supportDevelopmentPara}</p>
+HTML
+,
+            'collapsed' => Inputfield::collapsedNo,
+        )));
+
+        $inputfields->add($fieldset);
 
         return $inputfields;
     }
