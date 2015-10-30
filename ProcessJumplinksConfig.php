@@ -69,8 +69,9 @@ class ProcessJumplinksConfig extends ModuleConfig
     public function getInputFields()
     {
         // Inject assets
-        $this->config->scripts->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.min.js');
-        $this->config->styles->add($this->config->urls->ProcessJumplinks . 'Assets/ProcessJumplinks.css');
+        $moduleAssetPath = "{$this->config->urls->ProcessJumplinks}Assets";
+        $this->config->scripts->add("{$moduleAssetPath}/ProcessJumplinks.min.js");
+        $this->config->styles->add("{$moduleAssetPath}/ProcessJumplinks.css");
 
         // Add JS config data
         $this->config->js('pjModuleAdmin', true);
