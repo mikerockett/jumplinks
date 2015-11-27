@@ -293,7 +293,7 @@ class ProcessJumplinks extends Process
      * @param  bool   $http
      * @return string
      */
-    protected function compileDestinationUrl($destination, $renderForOutput = false)
+    protected function compileDestinationUrl($destination, $renderForOutput = false, $httpUrl = true)
     {
         $pageIdentifier = 'page:';
         $usingPageIdentifier = substr($destination, 0, 5) === $pageIdentifier;
@@ -320,7 +320,7 @@ class ProcessJumplinks extends Process
 
             // If it's a valid page, then get its URL
             if ($page->id) {
-                $destination = ltrim($page->path, '/');
+                $destination = ($httpUrl ? $page->httpUrl : ltrim($page->path, '/'));
                 if (empty($destination)) {
                     $destination = '/';
                 }
@@ -842,7 +842,7 @@ class ProcessJumplinks extends Process
         while ($jumplink = $jumplinks->fetch_object()) {
             // Source and Destination
             $jumplink->source = htmlentities($jumplink->source);
-            $jumplink->destination = $this->compileDestinationUrl($jumplink->destination, true);
+            $jumplink->destination = $this->compileDestinationUrl($jumplink->destination, true, false);
 
             // Timed Activation columns
             if (strtotime($jumplink->date_start) < $this->lowestDate) {
