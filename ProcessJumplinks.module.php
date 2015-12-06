@@ -1190,7 +1190,7 @@ class ProcessJumplinks extends Process
         $form->add($this->populateInputField($field, array(
             'name+id' => 'sourcePath',
             'label' => $this->_('Source'),
-            'description' => sprintf($this->_('Enter a URI relative to the root of your site. **[(see examples)](%1\$s/Examples)**'), $this->moduleInfo['href']),
+            'description' => sprintf($this->_("Enter a URI relative to the root of your site. **[(see examples)](%1\$s/Examples)**"), $this->moduleInfo['href']),
             'required' => 1,
             'collapsed' => Inputfield::collapsedNever,
             'value' => isset($sourcePath) ? $sourcePath : '',
