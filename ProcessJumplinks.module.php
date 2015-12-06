@@ -1951,7 +1951,6 @@ class ProcessJumplinks extends Process
      */
     public function ___executeClearNotFoundLog()
     {
-
         $this->db->query($this->sql->notFoundMonitor->deleteAll);
         $this->message($this->_('[Jumplinks] 404 Monitor cleared.'));
         $this->session->redirect('../');
