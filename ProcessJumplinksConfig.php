@@ -17,12 +17,12 @@
 
 class ProcessJumplinksConfig extends ModuleConfig
 {
-	/**
-	 * Documentation link
-	 * @const string
-	 */
+    /**
+     * Documentation link
+     * @const string
+     */
     const WIKI_HREF = 'https://github.com/mikerockett/ProcessJumplinks/wiki';
-	const SUPPORT_HREF = 'https://processwire.com/talk/topic/8697-jumplinks/';
+    const SUPPORT_HREF = 'https://processwire.com/talk/topic/8697-jumplinks/';
 
     /**
      * Given a fieldtype, create, populate, and return an Inputfield
@@ -195,8 +195,8 @@ class ProcessJumplinksConfig extends ModuleConfig
                     <a target="_blank" href="{$links['support']}">{$text['support']}</a>
                 </div>
 HTML
-,
-            'collapsed' => Inputfield::collapsedYes,
+            ,
+            'collapsed'=>Inputfield::collapsedYes,
         )));
 
         // Module Recommendations
@@ -215,8 +215,8 @@ HTML
                     <a target="_blank" href="http://mods.pw/58">ProFields: ProCache</a>
                 </div>
 HTML
-,
-            'collapsed' => Inputfield::collapsedYes,
+            ,
+            'collapsed'=>Inputfield::collapsedYes,
         )));
 
         // Support Development
@@ -237,8 +237,8 @@ HTML
                     <a target="_blank" href="https://en.wikipedia.org/wiki/Free_software">{$text['freeSoftware']}</a>
                 </div>
 HTML
-,
-            'collapsed' => Inputfield::collapsedNo,
+            ,
+            'collapsed'=>Inputfield::collapsedNo,
         )));
 
         $inputfields->add($fieldset);
