@@ -1320,7 +1320,18 @@ class ProcessJumplinks extends Process
                 )),
             )));
 
-            // Add Delete button
+            // Add Clear Hit Counter checkbox
+            $field = $this->modules->get('InputfieldCheckbox');
+            $form->add($this->populateInputField($field, array(
+                'name' => 'clearhits',
+                'label' => $this->_('Clear Hit Counter'),
+                'icon' => 'times',
+                'description' => $this->_("If you'd like to clear the hit counter for this jumplink, check the box below."),
+                'label2' => $this->_('Clear Hit Counter'),
+                'collapsed' => Inputfield::collapsedYes,
+            )));
+
+            // Add Delete checkbox
             $field = $this->modules->get('InputfieldCheckbox');
             $form->add($this->populateInputField($field, array(
                 'name' => 'delete',
@@ -1439,14 +1450,25 @@ class ProcessJumplinks extends Process
         $id = (int) $input->id;
         $isUpdating = ($id !== 0);
 
-        // If we're updating, check if we should delete
-        if ($isUpdating && $input->delete) {
-            $query = $this->database->prepare($this->sql->entity->dropOne);
-            $query->execute(array(
-                'id' => $id,
-            ));
-            $this->message($this->_('Jumplink deleted.'));
-            $this->session->redirect('../');
+        // If we're updating:
+        if ($isUpdating) {
+            // Check if the jumplink needs to be deleted.
+            if ($input->delete) {
+                $this->database->prepare($this->sql->entity->dropOne)->execute(array(
+                    'id' => $id,
+                ));
+                $this->message($this->_('Jumplink deleted.'));
+                $this->session->redirect('../');
+            }
+
+            // Check if we're clearing hits for this jumplink.
+            if ($input->clearhits) {
+                $this->database->prepare($this->sql->entity->updateHits)->execute(array(
+                    'hits' => 0,
+                    'id' => $id,
+                ));
+                $this->message($this->_('Jumplink hits cleared.'));
+            }
         }
 
         // Otherwise, continue to commit jumplink to DB
