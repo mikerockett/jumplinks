@@ -1,6 +1,6 @@
 ![ProcessJumplinks](https://processwire.com/talk/uploads/monthly_08_2015/post-2289-0-28760000-1440693905.png)
 
-**Current Version:** 1.3.5<br>
+**Current Version:** 1.3.6<br>
 **Compatible with:** ProcessWire 2.6.1+
 
 ---
@@ -11,7 +11,7 @@ Jumplinks is a Process module intended for ProcessWire 2.6.1+ which serves as an
 
 ### What it does
 
-The module manages your permanent and temporary redirects (jumplinks) - useful for when you're migrating over to ProcessWire from another CMS/platform. Each jumplink supports named/typed and smart wildcards, so that you need not create multiple redirects for articles or blog entries.
+The module manages your permanent and temporary redirects (jumplinks) - useful for when you're migrating over to ProcessWire from another CMS/platform. Each jumplink supports named/typed and smart wildcards so you don't have to create multiple redirects for articles or blog entries.
 
 ---
 
