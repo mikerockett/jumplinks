@@ -498,12 +498,21 @@ class ProcessJumplinks extends Process
      */
     protected function log404($request)
     {
+        $canLog = true;
 
-        $this->database->prepare($this->sql->notFoundMonitor->insert)->execute(array(
-            'request_uri' => $request,
-            'referrer' => @$_SERVER['HTTP_REFERER'],
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-        ));
+        // MarkupSitemapXML exception
+        if ($this->modules->isInstalled('MarkupSitemapXML') && stripos($request, 'sitemap.xml') !== false) {
+            $canLog = false;
+        }
+
+        // Log the 404 if it matches specific criteria
+        if ($canLog) {
+            $this->database->prepare($this->sql->notFoundMonitor->insert)->execute(array(
+                'request_uri' => $request,
+                'referrer' => @$_SERVER['HTTP_REFERER'],
+                'user_agent' => @$_SERVER['HTTP_USER_AGENT'],
+            ));
+        }
     }
 
     /**
@@ -512,7 +521,6 @@ class ProcessJumplinks extends Process
      */
     protected function scanAndRedirect()
     {
-
         $jumplinks = $this->db->query($this->sql->entity->selectAll);
 
         $request = $this->request;
