@@ -1230,7 +1230,6 @@ class ProcessJumplinks extends Process
                 $destinationPathField->collapsed = Inputfield::collapsedBlank;
             }
         } else {
-            $destinationPageField->collapsed = Inputfield::collapsedYes;
             $destinationPageAutoField->collapsed = Inputfield::collapsedYes;
         }
 
@@ -1328,16 +1327,18 @@ class ProcessJumplinks extends Process
                 )),
             )));
 
-            // Add Clear Hit Counter checkbox
-            $field = $this->modules->get('InputfieldCheckbox');
-            $form->add($this->populateInputField($field, array(
-                'name' => 'clearhits',
-                'label' => $this->_('Clear Hit Counter'),
-                'icon' => 'times',
-                'description' => $this->_("If you'd like to clear the hit counter for this jumplink, check the box below."),
-                'label2' => $this->_('Clear Hit Counter'),
-                'collapsed' => Inputfield::collapsedYes,
-            )));
+            // Add Clear Hit Counter checkbox if there are hits
+            if ($hits > 0) {
+                $field = $this->modules->get('InputfieldCheckbox');
+                $form->add($this->populateInputField($field, array(
+                    'name' => 'clearhits',
+                    'label' => $this->_('Clear Hit Counter'),
+                    'icon' => 'times',
+                    'description' => $this->_("If you'd like to clear the hit counter for this jumplink, check the box below."),
+                    'label2' => $this->_('Clear Hit Counter'),
+                    'collapsed' => Inputfield::collapsedYes,
+                )));
+            }
 
             // Add Delete checkbox
             $field = $this->modules->get('InputfieldCheckbox');
