@@ -1,17 +1,13 @@
 ![ProcessJumplinks](https://processwire.com/talk/uploads/monthly_08_2015/post-2289-0-28760000-1440693905.png)
 
-**Current Version:** 1.3.7-dev<br>
+**Current Version:** 1.5.0<br>
 **Compatible with:** ProcessWire 2.6.1+
 
 ---
 
-### What it is
+### Introduction
 
-Jumplinks is a Process module intended for ProcessWire 2.6.1+ which serves as an enhanced version of the original [ProcessRedirects](http://modules.processwire.com/modules/process-redirects/) by [Antti Peisa](https://twitter.com/apeisa).
-
-### What it does
-
-The module manages your permanent and temporary redirects (jumplinks) - useful for when you're migrating over to ProcessWire from another CMS/platform. Each jumplink supports named/typed and smart wildcards so you don't have to create multiple redirects for articles or blog entries.
+Jumplinks is an enhanced version of the original [ProcessRedirects](http://modules.processwire.com/modules/process-redirects/) by [Antti Peisa](https://twitter.com/apeisa). The Process module manages your permanent and temporary redirects (jumplinks), useful for when you're migrating over to ProcessWire from another system/platform. Each jumplink supports wildcards, shortening the time needed to create redirects.
 
 ---
 
@@ -29,13 +25,10 @@ The module manages your permanent and temporary redirects (jumplinks) - useful f
 
 ---
 
-### Documentation
+### Useful Links
 
-You can view the documentation **[here](https://github.com/mikerockett/ProcessJumplinks/wiki)**.
-
-### Support
-
-Need help with something? **[Ask in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
+* You can view the documentation **[here](https://github.com/mikerockett/ProcessJumplinks/wiki)**.
+* Need help with something? **[Ask in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
 
 ---
 
