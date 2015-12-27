@@ -968,8 +968,8 @@ class ProcessJumplinks extends Process
             // Timestamps
             $userCreated = $this->users->get($mappingCollection->user_created)->name;
             $userUpdated = $this->users->get($mappingCollection->user_updated)->name;
-            $created = wireRelativeTimeStr($mappingCollection->created_at) . sprintf($this->_('by %s'), $userCreated);
-            $updated = wireRelativeTimeStr($mappingCollection->updated_at) . sprintf($this->_('by %s'), $userUpdated);
+            $created = wireRelativeTimeStr($mappingCollection->created_at) . sprintf($this->_(' by %s'), $userCreated);
+            $updated = wireRelativeTimeStr($mappingCollection->updated_at) . sprintf($this->_(' by %s'), $userUpdated);
             if ($mappingCollection->created_at === $mappingCollection->updated_at) {
                 $updated = '';
             }
