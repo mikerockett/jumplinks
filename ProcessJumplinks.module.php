@@ -96,7 +96,7 @@ class ProcessJumplinks extends Process
     protected $smartWildcards = array(
         'all' => 'all',
         'ext' => 'ext',
-        'name|title|page|post|user|model|entry' => 'segment',
+        'name|title|page|post|user|model|entry|segment' => 'segment',
         'path|segments' => 'segments',
         'year|month|day|id|num' => 'num',
     );
