@@ -12,7 +12,7 @@ The `Process` module manages your permanent and temporary redirects (we'll call 
 
 Each jumplink supports [wildcards](http://rockett.pw/jumplinks/wildcards), shortening the time needed to create them.
 
-Unlike similar modules for other platforms, wildcards in Jumplinks are much easier to work with, as Regular Expressions are not fully exposed. Instead, parameters wrapped in `[curly braces}` are used - these are described in the documentation.
+Unlike similar modules for other platforms, wildcards in Jumplinks are much easier to work with, as Regular Expressions are not fully exposed. Instead, parameters wrapped in `{curly braces}` are used - these are described in the documentation.
 
 ---
 
