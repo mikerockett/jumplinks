@@ -4,7 +4,7 @@
     "author": "Mike Rockett",
     "summary": "Manage permanent and temporary redirects. Uses named wildcards and mapping collections.",
     "requires": "ProcessWire>=2.6.1",
-    "href": "https://github.com/mikerockett/ProcessJumplinks/wiki",
+    "href": "https://github.com/rockettpw/jumplinks",
     "license": "MIT",
     "hreflicense": "http://mit-license.org/",
     "autoload": true,

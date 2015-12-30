@@ -1,13 +1,20 @@
-![ProcessJumplinks](https://processwire.com/talk/uploads/monthly_08_2015/post-2289-0-28760000-1440693905.png)
+## Jumplinks for ProcessWire
 
-**Current Version:** 1.5.0<br>
-**Compatible with:** ProcessWire 2.6.1+
+**Current Release:** 1.5.0 Stable
+
+As of version 1.5, Jumplinks requires at least ProcessWire 2.6.1 to run. At the time of writing this, version 3 on the development branch is also supported.
 
 ---
 
-### Introduction
+Jumplinks is an enhanced version of the original [ProcessRedirects](http://modules.processwire.com/modules/process-redirects/) by [Antti Peisa](https://twitter.com/apeisa).
 
-Jumplinks is an enhanced version of the original [ProcessRedirects](http://modules.processwire.com/modules/process-redirects/) by [Antti Peisa](https://twitter.com/apeisa). The Process module manages your permanent and temporary redirects (jumplinks), useful for when you're migrating over to ProcessWire from another system/platform. Each jumplink supports wildcards, shortening the time needed to create redirects.
+The `Process` module manages your permanent and temporary redirects (we'll call these "jumplinks" from now on, unless in reference to redirects from another module), useful for when you're migrating over to ProcessWire from another system/platform.
+
+Each jumplink supports [wildcards](http://rockett.pw/jumplinks/wildcards), shortening the time needed to create them.
+
+Unlike similar modules for other platforms, wildcards in Jumplinks are much easier to work with, as Regular Expressions are not fully exposed. Instead, parameters wrapped in `[curly braces}` are used - these are described in the documentation.
+
+---
 
 ### Quick Installation
 
@@ -16,14 +23,16 @@ Jumplinks is an enhanced version of the original [ProcessRedirects](http://modul
 
 ### Manual Installation
 
-1. Download the module from [here](https://github.com/mikerockett/ProcessJumplinks/archive/master.zip)
+1. Download the module from [here](https://github.com/rockettpw/jumplinks/archive/master.zip)
 2. Copy the *ProcessJumplinks* folder to `site/modules`
 3. Go to *Modules* in your admin panel, and find *ProcessJumplinks*. If it's not listed, you'll need to click *Refresh*.
 4. Install the module and configure it, if needed.
 
-### Docs & Support
+---
 
-You can view the documentation **[here](https://github.com/mikerockett/ProcessJumplinks/wiki)**, and get support **[in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
+### Documentation & Support
+
+You can view the documentation **[here](https://rockett.pw/jumplinks)**, and get support **[in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
 
 ### Contributing & License
 
