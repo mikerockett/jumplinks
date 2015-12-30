@@ -55,6 +55,7 @@ class ProcessJumplinksConfig extends ModuleConfig
             'enhancedWildcardCleaning' => false,
             'legacyDomain' => '',
             'enable404Monitor' => false,
+            'disableIndexPhpMatching' => false,
             'moduleDebug' => false,
             'redirectsImported' => false,
             'statusCodes' => '200 301 302',
@@ -149,10 +150,21 @@ class ProcessJumplinksConfig extends ModuleConfig
         // Log Not Found Hits
         $inputfields->add($this->buildInputField('InputfieldCheckbox', array(
             'name+id' => 'enable404Monitor',
-            'label' => $this->_('Enable 404 Monitor'),
+            'label' => $this->_('404 Monitor'),
             'description' => $this->_("If you'd like to monitor and log 404 hits so that you can later create jumplinks for them, check the box below."),
             'label2' => $this->_('Log 404 hits to the database'),
             'notes' => $this->_("This log will be displayed on the Jumplinks setup page in a separate tab (limited to the last 100).\n**Note:** Turning this off will not delete any existing records from the database."),
+            'collapsed' => Inputfield::collapsedBlank,
+            'autocheck' => true,
+        )));
+
+        // Disable index.php matching
+        $inputfields->add($this->buildInputField('InputfieldCheckbox', array(
+            'name+id' => 'disableIndexPhpMatching',
+            'label' => $this->_('Disable index.php matching'),
+            'description' => $this->_("Jumplinks supports the matching and redirecting `/index.php/oldpage` requests. When requests like these are made, Jumplinks automatically redirects them to `/index.php.pwpj/oldpage` - this is part of the 'magic sauce' that allows Jumplinks to handle these requests. However, the feature isn't very helpful when you don't need it, as those automatic redirects remain when jumplinks have not been defined for them.\n\nIf you don't need this feature, then you can safely disable it entirely by checking the box below:"),
+            'label2' => $this->_("Don't match these requests"),
+            'notes' => $this->_("Note that any registered jumplinks that start with `index.php/` will not be matched."),
             'collapsed' => Inputfield::collapsedBlank,
             'autocheck' => true,
         )));

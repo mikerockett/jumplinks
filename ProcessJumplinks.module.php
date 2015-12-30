@@ -198,13 +198,15 @@ class ProcessJumplinks extends Process
         // Magic ahead: Replace index.php with a dummy do we can scan such requests.
         // But first, redirect requests to index.php/ so we don't have any legacy domain false positives,
         // such as remote 301s used to trim trailing slashes.
-        $indexExpression = "~^index.php(\?|\/)~";
-        if (preg_match($indexExpression, $this->request)) {
-            $this->session->redirect(preg_replace(
-                $indexExpression,
-                "{$this->config->urls->root}index.php.pwpj\\1",
-                $this->request
-            ));
+        if (!$this->disableIndexPhpMatching) {
+            $indexExpression = "~^index.php(\?|\/)~";
+            if (preg_match($indexExpression, $this->request)) {
+                $this->session->redirect(preg_replace(
+                    $indexExpression,
+                    "{$this->config->urls->root}index.php.pwpj\\1",
+                    $this->request
+                ));
+            }
         }
 
         // Hook prior to the pageNotFound event ...
@@ -590,10 +592,12 @@ class ProcessJumplinks extends Process
             // Prepare the Source Path for matching:
             // First, escape ? (and reverse /\?) & :, and rename index.php so we can make use of such requests.
             // Then, convert '[character]' to 'character?' for matching.
+            $indexPhp = ($this->disableIndexPhpMatching) ? 'index.php' : 'index.php.pwpj';
             $source = preg_replace('~\[([a-z0-9\/])\]~i', "\\1?", str_replace(
                 array('?', '/\?', '&', ':', 'index.php'),
                 array('\?', '/?', '\&', '\:', 'index.php.pwpj'),
-                $jumplink->source));
+                $jumplink->source
+            ));
 
             // Reverse : escaping for wildcards
             $source = preg_replace("~\{([a-z]+)\\\:([a-z]+)\}~i", "{\\1:\\2}", $source);
