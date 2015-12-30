@@ -595,7 +595,7 @@ class ProcessJumplinks extends Process
             $indexPhp = ($this->disableIndexPhpMatching) ? 'index.php' : 'index.php.pwpj';
             $source = preg_replace('~\[([a-z0-9\/])\]~i', "\\1?", str_replace(
                 array('?', '/\?', '&', ':', 'index.php'),
-                array('\?', '/?', '\&', '\:', 'index.php.pwpj'),
+                array('\?', '/?', '\&', '\:', $indexPhp),
                 $jumplink->source
             ));
 
