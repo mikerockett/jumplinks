@@ -32,7 +32,7 @@ Unlike similar modules for other platforms, wildcards in Jumplinks are much easi
 
 ### Documentation & Support
 
-You can view the documentation **[here](https://rockett.pw/jumplinks)**, and get support **[in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
+You can view the documentation **[here](http://rockett.pw/jumplinks)**, and get support **[in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
 
 ### Contributing & License
 
