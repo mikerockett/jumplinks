@@ -9,7 +9,7 @@
  * Copyright (c) 2015, Mike Rockett. All Rights Reserved.
  * Licence: MIT License - http://mit-license.org/
  *
- * @see https://github.com/mikerockett/ProcessJumplinks/wiki [Documentation]
+ * @see https://github.com/rockettpw/jumplinks [Documentation]
  * @see https://mods.pw/92 [Modules Directory Page]
  * @see https://processwire.com/talk/topic/8697-jumplinks/ [Support/Discussion Thread]
  * @see https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ [PayPal Donation]
@@ -190,11 +190,11 @@ class ProcessJumplinksConfig extends ModuleConfig
         // Support Thread
         $links = array(
             'support' => self::SUPPORT_HREF,
-            'wiki' => self::DOCS_HREF,
+            'docs' => self::DOCS_HREF,
         );
         $text = array(
             'paragraph' => $this->_("Be sure to read the documentation, as it contains all the information you need to get started with Jumplinks. If you're having problems and unable to determine the cause(s) thereof, feel free to ask for help in the official support thread."),
-            'wiki' => $this->_('Read the Documentation'),
+            'docs' => $this->_('Read the Documentation'),
             'support' => $this->_('Official Support Thread'),
         );
         $fieldset->add($this->buildInputField('InputfieldMarkup', array(
@@ -203,7 +203,7 @@ class ProcessJumplinksConfig extends ModuleConfig
             'value' => <<<HTML
                 <p>{$text['paragraph']}</p>
                 <div id="pjInputFieldLinks">
-                    <a target="_blank" href="{$links['wiki']}">{$text['wiki']}</a>
+                    <a target="_blank" href="{$links['docs']}">{$text['docs']}</a>
                     <a target="_blank" href="{$links['support']}">{$text['support']}</a>
                 </div>
 HTML
