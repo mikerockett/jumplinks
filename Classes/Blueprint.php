@@ -9,7 +9,7 @@
  * Copyright (c) 2015, Mike Rockett. All Rights Reserved.
  * Licence: MIT License - http://mit-license.org/
  *
- * https://github.com/mikerockett/ProcessJumplinks/wiki
+ * http://rockett.pw/jumplinks
  *
  */
 
