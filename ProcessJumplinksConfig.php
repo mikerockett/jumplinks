@@ -9,7 +9,7 @@
  * Copyright (c) 2015, Mike Rockett. All Rights Reserved.
  * Licence: MIT License - http://mit-license.org/
  *
- * @see https://github.com/rockettpw/jumplinks [Documentation]
+ * @see https://rockett.pw/jumplinks [Documentation]
  * @see https://mods.pw/92 [Modules Directory Page]
  * @see https://processwire.com/talk/topic/8697-jumplinks/ [Support/Discussion Thread]
  * @see https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ [PayPal Donation]
@@ -21,7 +21,7 @@ class ProcessJumplinksConfig extends ModuleConfig
      * Documentation link
      * @const string
      */
-    const DOCS_HREF = 'https://github.com/rockettpw/jumplinks';
+    const DOCS_HREF = 'https://rockett.pw/jumplinks';
     const SUPPORT_HREF = 'https://processwire.com/talk/topic/8697-jumplinks/';
 
     /**
