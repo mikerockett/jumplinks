@@ -21,7 +21,7 @@ class ProcessJumplinksConfig extends ModuleConfig
      * Documentation link
      * @const string
      */
-    const WIKI_HREF = 'https://github.com/mikerockett/ProcessJumplinks/wiki';
+    const DOCS_HREF = 'https://github.com/rockettpw/jumplinks';
     const SUPPORT_HREF = 'https://processwire.com/talk/topic/8697-jumplinks/';
 
     /**
@@ -90,7 +90,7 @@ class ProcessJumplinksConfig extends ModuleConfig
         $fieldset->add($this->buildInputField('InputfieldRadios', array(
             'name+id' => 'wildcardCleaning',
             'description' => $this->_("When set to 'Full Clean', each wildcard in a destination path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
-            'notes' => sprintf($this->_("**Note:** It's recommended that you keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). **[Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)**"), self::WIKI_HREF),
+            'notes' => sprintf($this->_("**Note:** It's recommended that you keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). **[Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)**"), self::DOCS_HREF),
             'options' => array(
                 'fullClean' => $this->_('Full Clean (default, recommended)'),
                 'semiClean' => $this->_("Clean, but don't change case"),
@@ -118,7 +118,7 @@ class ProcessJumplinksConfig extends ModuleConfig
         // Legacy Domain Fieldset
         $fieldset = $this->buildInputField('InputfieldFieldset', array(
             'label' => $this->_('Legacy Domain'),
-            'description' => sprintf($this->_('Only use this if you are performing a slow migration to ProcessWire, and would still like your visitors to access old content moved to a new location, like a subdomain or folder, for example. [Learn more about how this feature works](%s/Configuration#legacy-domain).'), self::WIKI_HREF),
+            'description' => sprintf($this->_('Only use this if you are performing a slow migration to ProcessWire, and would still like your visitors to access old content moved to a new location, like a subdomain or folder, for example. [Learn more about how this feature works](%s/Configuration#legacy-domain).'), self::DOCS_HREF),
             'collapsed' => Inputfield::collapsedYes,
         ));
 
@@ -190,7 +190,7 @@ class ProcessJumplinksConfig extends ModuleConfig
         // Support Thread
         $links = array(
             'support' => self::SUPPORT_HREF,
-            'wiki' => self::WIKI_HREF,
+            'wiki' => self::DOCS_HREF,
         );
         $text = array(
             'paragraph' => $this->_("Be sure to read the documentation, as it contains all the information you need to get started with Jumplinks. If you're having problems and unable to determine the cause(s) thereof, feel free to ask for help in the official support thread."),
