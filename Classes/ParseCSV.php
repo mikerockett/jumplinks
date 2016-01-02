@@ -1,6 +1,24 @@
 <?php
 
 /**
+ * Jumplinks for ProcessWire
+ * Manage permanent and temporary redirects. Uses named wildcards and mapping collections.
+ *
+ * Process module for ProcessWire 2.6.1+
+ *
+ * @author Mike Rockett
+ * @copyright (c) 2015, Mike Rockett. All Rights Reserved.
+ * @license MIT License - http://mit-license.org/
+ *
+ * @see Documentation:     http://rockett.pw/jumplinks
+ * @see Modules Directory: https://mods.pw/92
+ * @see Forum Thred:       https://processwire.com/talk/topic/8697-jumplinks/
+ * @see PayPal Donation:   https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ
+ */
+
+/**
+ * (this file)
+ *
  *  ParseCSV 0.4.3-beta
  *  https://github.com/parsecsv/parsecsv-for-php
  *

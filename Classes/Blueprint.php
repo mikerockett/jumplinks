@@ -1,16 +1,29 @@
 <?php
 
 /**
- * ProcessJumplinks - a ProcessWire Module by Mike Rockett
- * Manage permanent and temporary redirects. Supports wildcards.
+ * Jumplinks for ProcessWire
+ * Manage permanent and temporary redirects. Uses named wildcards and mapping collections.
  *
- * Compatible with ProcessWire 2.5.3 - 2.6.0
+ * Process module for ProcessWire 2.6.1+
  *
- * Copyright (c) 2015, Mike Rockett. All Rights Reserved.
- * Licence: MIT License - http://mit-license.org/
+ * @author Mike Rockett
+ * @copyright (c) 2015, Mike Rockett. All Rights Reserved.
+ * @license MIT License - http://mit-license.org/
  *
- * http://rockett.pw/jumplinks
+ * @see Documentation:     http://rockett.pw/jumplinks
+ * @see Modules Directory: https://mods.pw/92
+ * @see Forum Thred:       https://processwire.com/talk/topic/8697-jumplinks/
+ * @see PayPal Donation:   https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ
+ */
+
+/**
+ * (this file)
+ * Blueprint
+ * Handle blueprint templates with simple var replacements.
  *
+ * @author Mike Rockett <mike@rockett.pw>
+ * @copyright (c) 2015, Mike Rockett. All Rights Reserved.
+ * @license MIT License - http://mit-license.org/
  */
 
 class Blueprint
