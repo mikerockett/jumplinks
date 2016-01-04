@@ -126,8 +126,10 @@ class ProcessJumplinks extends Process
      */
     public function __construct()
     {
+        // Set the lowest allowable date
         $this->lowestDate = strtotime($this->lowestDate);
 
+        // Get the module info
         $this->moduleInfo = wire('modules')->getModuleInfo($this, array('verbose' => true));
 
         // Get the correct table name for ProcessRedirects
@@ -144,6 +146,8 @@ class ProcessJumplinks extends Process
             }
         }
 
+        // Set the SQL statements for use elsewhere.
+        // These are kept in one place for ease of reference.
         $this->sql = (object) array(
             'entity' => (object) array(
                 'selectAll' => "SELECT * FROM {$this->tableName} ORDER BY source",
@@ -177,13 +181,13 @@ class ProcessJumplinks extends Process
      */
     public function init()
     {
-
         parent::init();
 
         // Set the admin page URL for JS
         $this->config->js('pjAdminPageUrl', $this->pages->get('name=jumplinks,template=admin')->url);
 
-        // Make sure schemas are up to date
+        // Make sure schemas are up to date.
+        // This process will be changed to ___upgrade() when the minimum PW version is 2.7.1.
         if ($this->schemaVersion < self::SCHEMA_VERSION) {
             $this->updateDatabaseSchema();
         }
@@ -224,6 +228,7 @@ class ProcessJumplinks extends Process
      */
     private function updateDatabaseSchema()
     {
+        // Loop through each version, applying the applicable Blueprint for each one.
         while ($this->_schemaVersion < self::SCHEMA_VERSION) {
             ++$this->_schemaVersion;
             $memoryVersion = $this->_schemaVersion;
@@ -235,6 +240,7 @@ class ProcessJumplinks extends Process
                     throw new WireException("[Jumplinks] Unrecognized database schema version: {$memoryVersion}");
             }
             if ($statement && $this->database->exec($statement) !== false) {
+                // Now set the version name for later comparison.
                 $configData = $this->modules->getModuleConfigData($this);
                 $configData['_schemaVersion'] = $memoryVersion;
                 $this->modules->saveModuleConfigData($this, $configData);
@@ -252,10 +258,13 @@ class ProcessJumplinks extends Process
      */
     protected function helpLinks($uri = '', $justTheLink = false)
     {
+        // Prepend a slash to the URI.
         if (!empty($uri)) {
             $uri = "/{$uri}";
         }
 
+        // If only the link is required, then return it.
+        // Otherwise, format it along with all the other links.
         if ($justTheLink) {
             return $this->moduleInfo['href'] . $uri;
         } else {
@@ -1493,9 +1502,7 @@ class ProcessJumplinks extends Process
 
         // Otherwise, continue to commit jumplink to DB
         $this->commitJumplink($input, 0, $isUpdating, $id);
-
         $this->message($this->_('Jumplink saved.'));
-
         $this->session->redirect('../');
     }
 
