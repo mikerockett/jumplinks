@@ -20,7 +20,7 @@ class ProcessJumplinks extends Process
 {
 
     /** Schema version for current release */
-    const schemaVersion = 4;
+    const SCHEMA_VERSION = 4;
 
     /** NULL Date **/
     const NULL_DATE = '0000-00-00 00:00:00';
@@ -184,7 +184,7 @@ class ProcessJumplinks extends Process
         $this->config->js('pjAdminPageUrl', $this->pages->get('name=jumplinks,template=admin')->url);
 
         // Make sure schemas are up to date
-        if ($this->schemaVersion < self::schemaVersion) {
+        if ($this->schemaVersion < self::SCHEMA_VERSION) {
             $this->updateDatabaseSchema();
         }
 
@@ -224,7 +224,7 @@ class ProcessJumplinks extends Process
      */
     private function updateDatabaseSchema()
     {
-        while ($this->_schemaVersion < self::schemaVersion) {
+        while ($this->_schemaVersion < self::SCHEMA_VERSION) {
             ++$this->_schemaVersion;
             $memoryVersion = $this->_schemaVersion;
             switch (true) {
