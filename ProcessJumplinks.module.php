@@ -106,7 +106,7 @@ class ProcessJumplinks extends Process
      * Inject assets (used as assets are automatically inserted when
      * using the same name as the module, but the get thrown in before
      * JS dependencies. WireTabs also gets thrown in.)
-     * @return [type] [description]
+     * @return void
      */
     protected function injectAssets()
     {
@@ -122,6 +122,7 @@ class ProcessJumplinks extends Process
     /**
      * Class constructor
      * Init moduleInfo, sql
+     * @return void
      */
     public function __construct()
     {
@@ -172,6 +173,7 @@ class ProcessJumplinks extends Process
     /**
      * Module initialisation
      * @hook ProcessPageView::pageNotFound to scanAndRedirect
+     * @return void
      */
     public function init()
     {
@@ -218,6 +220,7 @@ class ProcessJumplinks extends Process
      * Update database schema
      * This method applies incremental updates until latest schema version is
      * reached, while also keeping schemaVersion config setting up to date.
+     * @return void
      */
     private function updateDatabaseSchema()
     {
@@ -277,12 +280,11 @@ class ProcessJumplinks extends Process
 
         $blueprint = new Blueprint($name);
 
+        // Set the data
         $data = array_filter($data);
-
         if (empty($data)) {
             $data = array('table-name' => $this->tableName);
         }
-
         $blueprint->hydrate($data);
 
         return (string) $blueprint->build();
@@ -521,6 +523,7 @@ class ProcessJumplinks extends Process
     /**
      * The fun part.
      * @caller Hook: ProcessPageView::pageNotFound
+     * @return void
      */
     protected function scanAndRedirect()
     {
@@ -1378,6 +1381,7 @@ class ProcessJumplinks extends Process
      * @param  int    $hits     = 0
      * @param  bool   $updating = false
      * @param  int    $id       = 0
+     * @return void
      */
     protected function commitJumplink($input, $hits = 0, $updating = false, $id = 0)
     {
@@ -1437,6 +1441,7 @@ class ProcessJumplinks extends Process
      * @param String $destination
      * @param String $start
      * @param String $end
+     * @return void
      */
     public function add($source, $destination, $start = '', $end = '')
     {
@@ -1450,6 +1455,7 @@ class ProcessJumplinks extends Process
 
     /**
      * Admin Route: Commit new jumplink or update existing
+     * @return void
      */
     public function ___executeCommit()
     {
@@ -1612,6 +1618,7 @@ class ProcessJumplinks extends Process
      * @param  String $collectionName
      * @param  Array  $data
      * @param  int    $id
+     * @return void
      */
     protected function commitMappingCollection($collectionName, $collectionData, $id = 0)
     {
@@ -1672,6 +1679,7 @@ class ProcessJumplinks extends Process
      * API call to create a new collection, or add to an existing one
      * @param String $name
      * @param Array $data
+     * @return void
      */
     public function collection($name, $data)
     {
@@ -1702,6 +1710,7 @@ class ProcessJumplinks extends Process
 
     /**
      * Admin Route: Commit new mapping collection or update existing
+     * @return void
      */
     public function ___executeCommitMappingCollection()
     {
@@ -1870,6 +1879,7 @@ class ProcessJumplinks extends Process
 
     /**
      * Admin Route: Do an import based on data sent.
+     * @return void
      */
     public function ___executeDoImport()
     {
@@ -1984,6 +1994,7 @@ class ProcessJumplinks extends Process
 
     /**
      * Admin Route: Clear the 404 log.
+     * @return void
      */
     public function ___executeClearNotFoundLog()
     {
@@ -1994,6 +2005,7 @@ class ProcessJumplinks extends Process
 
     /**
      * Install the module
+     * @return void
      */
     public function ___install()
     {
@@ -2007,6 +2019,7 @@ class ProcessJumplinks extends Process
 
     /**
      * Uninstall the module
+     * @return void
      */
     public function ___uninstall()
     {
@@ -2018,6 +2031,7 @@ class ProcessJumplinks extends Process
     /**
      * Dump and die
      * @param  Mixed $mixed Anything
+     * @return void
      */
     protected function dd($mixed, $die = true)
     {
