@@ -56,7 +56,6 @@ class ProcessJumplinksConfig extends ModuleConfig
             'enhancedWildcardCleaning' => false,
             'legacyDomain' => '',
             'enable404Monitor' => false,
-            'disableIndexPhpMatching' => false,
             'moduleDebug' => false,
             'redirectsImported' => false,
             'statusCodes' => '200 301 302',
@@ -91,7 +90,7 @@ class ProcessJumplinksConfig extends ModuleConfig
         $fieldset->add($this->buildInputField('InputfieldRadios', array(
             'name+id' => 'wildcardCleaning',
             'description' => $this->_("When set to 'Full Clean', each wildcard in a destination path will be automatically cleaned, or 'slugged', so that it is lower-case, and uses hyphens as word separators."),
-            'notes' => sprintf($this->_("**Note:** It's recommended that you keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). **[Learn more about Wildcard Cleaning](%s/Configuration#wildcard-cleaning)**"), self::DOCS_HREF),
+            'notes' => sprintf($this->_("**Note:** It's recommended that you keep this set to 'Full Clean', unless you have a module installed that uses different path formats (such as TitleCase with underscores or hyphens). **[Learn more about Wildcard Cleaning](%s/config#wildcard-cleaning)**"), self::DOCS_HREF),
             'options' => array(
                 'fullClean' => $this->_('Full Clean (default, recommended)'),
                 'semiClean' => $this->_("Clean, but don't change case"),
@@ -119,7 +118,7 @@ class ProcessJumplinksConfig extends ModuleConfig
         // Legacy Domain Fieldset
         $fieldset = $this->buildInputField('InputfieldFieldset', array(
             'label' => $this->_('Legacy Domain'),
-            'description' => sprintf($this->_('Only use this if you are performing a slow migration to ProcessWire, and would still like your visitors to access old content moved to a new location, like a subdomain or folder, for example. [Learn more about how this feature works](%s/Configuration#legacy-domain).'), self::DOCS_HREF),
+            'description' => sprintf($this->_('Only use this if you are performing a slow migration to ProcessWire, and would still like your visitors to access old content moved to a new location, like a subdomain or folder, for example. [Learn more about how this feature works](%s/config#legacy-domain).'), self::DOCS_HREF),
             'collapsed' => Inputfield::collapsedYes,
         ));
 
@@ -155,17 +154,6 @@ class ProcessJumplinksConfig extends ModuleConfig
             'description' => $this->_("If you'd like to monitor and log 404 hits so that you can later create jumplinks for them, check the box below."),
             'label2' => $this->_('Log 404 hits to the database'),
             'notes' => $this->_("This log will be displayed on the Jumplinks setup page in a separate tab (limited to the last 100).\n**Note:** Turning this off will not delete any existing records from the database."),
-            'collapsed' => Inputfield::collapsedBlank,
-            'autocheck' => true,
-        )));
-
-        // Disable index.php matching
-        $inputfields->add($this->buildInputField('InputfieldCheckbox', array(
-            'name+id' => 'disableIndexPhpMatching',
-            'label' => $this->_('Disable index.php matching'),
-            'description' => $this->_("Jumplinks supports the matching and redirecting `/index.php/oldpage` requests. When requests like these are made, Jumplinks automatically redirects them to `/index.php.pwpj/oldpage` - this is part of the 'magic sauce' that allows Jumplinks to handle these requests. However, the feature isn't very helpful when you don't need it, as those automatic redirects remain when jumplinks have not been defined for them.\n\nIf you don't need this feature, then you can safely disable it entirely by checking the box below:"),
-            'label2' => $this->_("Don't match these requests"),
-            'notes' => $this->_("Note that any registered jumplinks that start with `index.php/` will not be matched."),
             'collapsed' => Inputfield::collapsedBlank,
             'autocheck' => true,
         )));

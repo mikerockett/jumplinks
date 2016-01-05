@@ -196,24 +196,11 @@ class ProcessJumplinks extends Process
         // as we won't be needing it for comparison.
         $this->request = ltrim(@$_SERVER['REQUEST_URI'], '/');
 
-        // If a request is made to the index.php file, with a slash,
-        // then redirect to root (mod_rewrite is a PW requirement)
-        if ($this->request === 'index.php/' || $this->request === 'index.php') {
-            $this->session->redirect($this->config->urls->root);
-        }
-
-        // Magic ahead: Replace index.php with a dummy do we can scan such requests.
-        // But first, redirect requests to index.php/ so we don't have any legacy domain false positives,
-        // such as remote 301s used to trim trailing slashes.
-        if (!$this->disableIndexPhpMatching) {
-            $indexExpression = "~^index.php(\?|\/)~";
-            if (preg_match($indexExpression, $this->request)) {
-                $this->session->redirect(preg_replace(
-                    $indexExpression,
-                    "{$this->config->urls->root}index.php.pwpj\\1",
-                    $this->request
-                ));
-            }
+        // Trim out index.php from the beginning of the URI if it is suffixed with a path.
+        // ProcessWire doesn't support these anyway.
+        $indexRequest = "~^index\.php(/.*)$~i";
+        if (preg_match($indexRequest, $this->request)) {
+            $this->session->redirect(preg_replace($indexRequest, "\\1", $this->request));
         }
 
         // Hook prior to the pageNotFound event ...
@@ -605,14 +592,13 @@ class ProcessJumplinks extends Process
             // Prepare the Source Path for matching:
             // First, escape ? (and reverse /\?) & :, and rename index.php so we can make use of such requests.
             // Then, convert '[character]' to 'character?' for matching.
-            $indexPhp = ($this->disableIndexPhpMatching) ? 'index.php' : 'index.php.pwpj';
             $source = preg_replace('~\[([a-z0-9\/])\]~i', "\\1?", str_replace(
-                array('?', '/\?', '&', ':', 'index.php'),
-                array('\?', '/?', '\&', '\:', $indexPhp),
+                array('?', '/\?', '&', ':'),
+                array('\?', '/?', '\&', '\:'),
                 $jumplink->source
             ));
 
-            // Reverse : escaping for wildcards
+            // Reverse ':' escaping for wildcards
             $source = preg_replace("~\{([a-z]+)\\\:([a-z]+)\}~i", "{\\1:\\2}", $source);
 
             if ($source !== $jumplink->source) {
@@ -1215,7 +1201,7 @@ class ProcessJumplinks extends Process
         $form->add($this->populateInputField($field, array(
             'name+id' => 'sourcePath',
             'label' => $this->_('Source'),
-            'description' => sprintf($this->_("Enter a URI relative to the root of your site. **[(see examples)](%1\$s/Examples)**"), $this->moduleInfo['href']),
+            'description' => sprintf($this->_("Enter a URI relative to the root of your site. **[(see examples)](%1\$s/examples)**"), $this->moduleInfo['href']),
             'required' => 1,
             'collapsed' => Inputfield::collapsedNever,
             'value' => isset($sourcePath) ? $sourcePath : '',
@@ -1254,8 +1240,8 @@ class ProcessJumplinks extends Process
         $destinationFieldset->add($this->populateInputField($destinationPathField, array(
             'name+id' => 'destinationUriUrl',
             'label' => $this->_('Specify a destination'),
-            'description' => sprintf($this->_("Enter either a URI relative to the root of your site, an absolute URL, or a Page ID. **[(see examples)](%1\$s/Examples)**"), $this->moduleInfo['href']),
-            'notes' => sprintf($this->_('If you select a page from either of the Page selectors below, its identifier will be placed here.'), $this->moduleInfo['href']),
+            'description' => sprintf($this->_("Enter either a URI relative to the root of your site, an absolute URL, or a Page ID. **[(see examples)](%1\$s/examples)**"), $this->moduleInfo['href']),
+            'notes' => $this->_('If you select a page from either of the Page selectors below, its identifier will be placed here.'),
             'required' => 1,
             'value' => isset($destinationUriUrl) ? $destinationUriUrl : '',
         )));
