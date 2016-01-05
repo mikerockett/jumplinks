@@ -590,7 +590,7 @@ class ProcessJumplinks extends Process
             $this->log("Original Source Path:         {$jumplink->source}", true);
 
             // Prepare the Source Path for matching:
-            // First, escape ? (and reverse /\?) & :, and rename index.php so we can make use of such requests.
+            // First, escape ? (and reverse /\?) & :
             // Then, convert '[character]' to 'character?' for matching.
             $source = preg_replace('~\[([a-z0-9\/])\]~i', "\\1?", str_replace(
                 array('?', '/\?', '&', ':'),
