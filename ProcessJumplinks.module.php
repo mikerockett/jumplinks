@@ -192,12 +192,9 @@ class ProcessJumplinks extends Process
             $this->updateDatabaseSchema();
         }
 
-        // Set the request (URI), and trim off the leading slash,
-        // as we won't be needing it for comparison.
-        $this->request = ltrim(@$_SERVER['REQUEST_URI'], '/');
-
         // Trim out index.php from the beginning of the URI if it is suffixed with a path.
         // ProcessWire doesn't support these anyway.
+        $this->request = ltrim(@$_SERVER['REQUEST_URI'], '/');
         $indexRequest = "~^index\.php(/.*)$~i";
         if (preg_match($indexRequest, $this->request)) {
             $this->session->redirect(preg_replace($indexRequest, "\\1", $this->request));
@@ -473,7 +470,7 @@ class ProcessJumplinks extends Process
      * @param  bool   $break
      * @param  bool   $die
      */
-    protected function log($message, $indent = false, $break = false, $die = false)
+    protected function log($message, $message2 = null, $extraLine = false)
     {
         if ($this->userHasDebugRights()) {
             if (!$this->headerSet) {
@@ -481,14 +478,18 @@ class ProcessJumplinks extends Process
                 $this->headerSet = true;
             }
 
-            $indent = ($indent) ? '- ' : '';
-            $break = ($break) ? "\n" : '';
-
-            print str_replace('.pwpj', '', "{$indent}{$message}\n{$break}");
-
-            if ($die) {
-                die();
+            if (is_null($message2)) {
+                $output = $message;
+            } else {
+                $message = str_pad("- $message:", 30);
+                $output = $message . $message2;
             }
+
+            if ($extraLine) {
+                $output .= "\n";
+            }
+
+            print "$output\n";
         }
     }
 
@@ -521,28 +522,33 @@ class ProcessJumplinks extends Process
      * @caller Hook: ProcessPageView::pageNotFound
      * @return void
      */
-    protected function scanAndRedirect()
+    protected function scanAndRedirect(HookEvent $event)
     {
+        // Get the current request
+        $request = ltrim($event->arguments(1), '/');
+
+        // Fetch all jumplinks
         $jumplinks = $this->db->query($this->sql->entity->selectAll);
 
-        $request = $this->request;
-
+        // If there aren't any, then log the hit and break out
         if ($jumplinks->num_rows === 0) {
             $this->log404($request);
             return false;
         }
 
-        $this->log('Page not found; scanning for jumplinks...');
+        // Otherwise, start logging...
+        $this->log('404 Page Not Found');
 
-        $requestedUrlFirstPart = 'http' . ((@$_SERVER['HTTPS'] == 'on') ? 's' : '') . "://{$_SERVER['HTTP_HOST']}";
+        // Get the home page URL - this is the same as the site root.
+        $siteRoot = rtrim($this->pages->get(1)->httpUrl, '/');
 
-        // Do some logging
-        $this->log('Checked at: ' . date('r'), true);
-        $this->log("Requested URL: {$requestedUrlFirstPart}/{$request}", true);
-        $this->log("PW Version: {$this->config->version}\n\n== START ==", true, true);
+        // Do some intro logging
+        $this->log(sprintf('Checked %s', date('r')));
+        $this->log("Request: {$siteRoot}/{$request}");
+        $this->log("ProcessWire Version: {$this->config->version}", null, true);
+        $this->log('Scanning for jumplinks...', null, true);
 
         $rootUrl = $this->config->urls->root;
-
         if ($rootUrl !== '/') {
             $request = substr($request, strlen($rootUrl) - 1);
         }
@@ -552,7 +558,6 @@ class ProcessJumplinks extends Process
         foreach ($this->wildcards as $wildcard => $expression) {
             $availableWildcards .= "{$wildcard}|";
         }
-
         $availableWildcards = rtrim($availableWildcards, '|');
 
         // Assign the wildcard pattern check
@@ -584,10 +589,13 @@ class ProcessJumplinks extends Process
 
             // Log the activation periods for debugging
             if ($starts || $ends) {
-                $this->log(sprintf("Timed Activation:             %s to %s {$message}", date('r', $starts), date('r', $ends)), true);
+                $this->log('Timed Activation (Starts)', date('r', $starts));
+                if (!$dummyEnd) {
+                    $this->log('Timed Activation (Ends)', date('r', $ends));
+                }
             }
 
-            $this->log("Original Source Path:         {$jumplink->source}", true);
+            $this->log('Original Source Path', $jumplink->source);
 
             // Prepare the Source Path for matching:
             // First, escape ? (and reverse /\?) & :
@@ -602,7 +610,7 @@ class ProcessJumplinks extends Process
             $source = preg_replace("~\{([a-z]+)\\\:([a-z]+)\}~i", "{\\1:\\2}", $source);
 
             if ($source !== $jumplink->source) {
-                $this->log("Escaped Source Path:          {$source}", true);
+                $this->log('Escaped Source Path', $source);
             }
 
             // Compile the destination URL
@@ -634,10 +642,10 @@ class ProcessJumplinks extends Process
 
             // Some more logging
             if ($hasSmartWildcards) {
-                $this->log("After Smart Wildcards:        {$source}", true);
+                $this->log('After Smart Wildcards', $source);
             }
 
-            $this->log("Compiled Source Path:         {$computedWildcards}", true);
+            $this->log('Compiled Source Path', $computedWildcards);
 
             // If the request matches the source currently being checked:
             if (preg_match("~^$computedWildcards$~i", $request)) {
@@ -670,7 +678,6 @@ class ProcessJumplinks extends Process
                             if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
                                 $captures[$c] = $this->cleanWildcard($captures[$c], ($wildcardCleaning === 'fullClean') ? false : true);
                             }
-
                         }
                         $openingTag = (preg_match($paramSkipCleanCheck, $result)) ? '{!' : '{';
                         $result = str_replace($openingTag . $value . '}', $captures[$c], $result);
@@ -679,7 +686,7 @@ class ProcessJumplinks extends Process
                         // Swap out any mapping wildcards with their uncleaned values
                         $value = preg_quote($value);
                         $result = preg_replace("~\{{$value}\|([a-z]+)\}~i", "($uncleanedCapture|\\1)", $result);
-                        $this->log("> Wildcard Check:             {$c}> {$value} = {$uncleanedCapture} -> {$captures[$c]}", true);
+                        $this->log("- Wildcard Check", "{$c}> {$value} = {$uncleanedCapture} -> {$captures[$c]}");
                     }
 
                     // Trim the result of trailing slashes, and
@@ -716,15 +723,15 @@ class ProcessJumplinks extends Process
                     }
                 }, $convertedWildcards);
 
-                $this->log("Original Destination Path:    {$jumplink->destination}", true);
+                $this->log('Original Destination Path', $jumplink->destination);
 
                 // If a match was found, but the selector didn't return a page, then continue the loop
                 if ($selectorUsed && !$selectorMatched) {
-                    $this->log("\nWhilst a match was found, the selector you specified didn't return a page. So, this jumplink will be skipped.", false, true);
+                    $this->log("\nWhilst a match was found, the selector you specified didn't return a page. As a result, this jumplink will be skipped.");
                     continue;
                 }
 
-                $this->log("Compiled Destination Path:    {$convertedWildcards}", true, true);
+                $this->log('Compiled Destination Path', $convertedWildcards, true);
 
                 // Check for Timed Activation and determine if we're in the period specified
                 $time = time();
@@ -748,17 +755,17 @@ class ProcessJumplinks extends Process
 
                 // Otherwise, continue logging
                 $type = ($starts) ? '302, temporary' : '301, permanent';
-                $this->log("Match found! We'll do the following redirect ({$type}) when Debug Mode has been turned off:", false, true);
-                $this->log("From URL:   {$requestedUrlFirstPart}/{$request}", true);
-                $this->log("To URL:     {$convertedWildcards}", true);
+                $this->log("Match found! We'll do the following redirect ({$type}) when Debug Mode has been turned off:", null, true);
+                $this->log('From URL', "{$siteRoot}/{$request}");
+                $this->log('To URL', "{$convertedWildcards}");
 
                 if ($starts || $ends) {
                     // If it ends before it starts, then show the time it starts.
                     // Otherwise, show the period.
                     if ($dummyEnd) {
-                        $this->log(sprintf('Timed:      From %s onwards', date('r', $starts)), true);
+                        $this->log('Timed', sprintf('From %s onwards', date('r', $starts)));
                     } else {
-                        $this->log(sprintf('Timed:      From %s to %s', date('r', $starts), date('r', $ends)), true);
+                        $this->log('Timed', sprintf('From %s to %s', date('r', $starts), date('r', $ends)));
                     }
                 }
 
@@ -770,7 +777,7 @@ class ProcessJumplinks extends Process
 
             // If there were no available redirect definitions,
             // then inform the debugger.
-            $this->log("\nNo match there...", false, true);
+            $this->log("\nNo match there...", null, true);
         }
 
         // Considering we don't have one available, let's check to see if the Source Path
@@ -793,7 +800,7 @@ class ProcessJumplinks extends Process
                 }
 
                 $this->log("Found Source Path on Legacy Domain (with status code {$status}); redirect allowed to:");
-                $this->log($domainRequest, true, false, true);
+                $this->log("> {$domainRequest}");
             }
         }
 
