@@ -192,9 +192,11 @@ class ProcessJumplinks extends Process
             $this->updateDatabaseSchema();
         }
 
+        // Get the current request
+        $this->request = ltrim(@$_SERVER['REQUEST_URI'], '/');
+
         // Trim out index.php from the beginning of the URI if it is suffixed with a path.
         // ProcessWire doesn't support these anyway.
-        $this->request = ltrim(@$_SERVER['REQUEST_URI'], '/');
         $indexRequest = "~^index\.php(/.*)$~i";
         if (preg_match($indexRequest, $this->request)) {
             $this->session->redirect(preg_replace($indexRequest, "\\1", $this->request));
@@ -522,10 +524,10 @@ class ProcessJumplinks extends Process
      * @caller Hook: ProcessPageView::pageNotFound
      * @return void
      */
-    protected function scanAndRedirect(HookEvent $event)
+    protected function scanAndRedirect()
     {
         // Get the current request
-        $request = ltrim($event->arguments(1), '/');
+        $request = $this->request;
 
         // Fetch all jumplinks
         $jumplinks = $this->db->query($this->sql->entity->selectAll);
