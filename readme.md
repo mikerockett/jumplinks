@@ -1,6 +1,6 @@
 ## Jumplinks for ProcessWire
 
-**Current Release:** 1.5.1
+**Current Release:** 1.5.2
 
 As of version 1.5.0, Jumplinks requires at least ProcessWire 2.6.1 to run. At the time of writing this, version 3 on the development branch is also supported.
 
