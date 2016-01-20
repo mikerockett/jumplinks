@@ -302,11 +302,11 @@ class ProcessJumplinks extends Process
         if (!$usingPageIdentifier) {
             // Check to see if we're working with an absolute URL
             // and if we're currently using HTTPS
-            $hasScheme = (bool) parse_url($destination, PHP_URL_SCHEME);
+            $hasScheme = $this->destinationHasScheme($destination);
             $https = ($this->config->https) ? 's' : '';
 
             // If URL is absolute, then skip the prefix, otherwise build it
-            $prefix = ($hasScheme) ? '' : "http{$https}://{$this->config->httpHost}/";
+            $prefix = ($hasScheme) ? '' : "http{$https}://{$this->config->httpHost}{$this->pages->get(1)->url}";
 
             // If we're rendering for backend output, truncate and return the destination.
             // Otherwise, return the full destination.
@@ -1394,7 +1394,7 @@ class ProcessJumplinks extends Process
             false === strpos($input->destinationUriUrl, '{') &&
             false === strpos($input->destinationUriUrl, '}')
         );
-        $isRelative = !(bool) parse_url($input->destinationUriUrl, PHP_URL_SCHEME);
+        $isRelative = !$this->destinationHasScheme($input->destinationUriUrl);
 
         // If the Destination Path's URI matches that of a page, use a page ID instead
         if ($noWildcards && $isRelative) {
@@ -1405,7 +1405,7 @@ class ProcessJumplinks extends Process
 
         // Escape Source and Destination (Sanitised) Paths
         $source = ltrim($this->db->escape_string($input->sourcePath), '/');
-        $destination = ltrim($this->db->escape_string($this->sanitizer->url($input->destinationUriUrl)), '/');
+        $destination = ltrim($this->db->escape_string($input->destinationUriUrl), '/');
 
         // Prepare dates (times) for database entry
         $start = (!isset($input->dateStart) || empty($input->dateStart)) ? self::NULL_DATE : date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart)));
@@ -1437,6 +1437,14 @@ class ProcessJumplinks extends Process
             $dataBind['user_created'] = $userCreated;
         }
         $query->execute($dataBind);
+    }
+
+    /**
+     * Check if a $destination contains a scheme
+     */
+    protected function destinationHasScheme($destination)
+    {
+        return preg_match("~^(?:f|ht)tps?://~i", $destination);
     }
 
     /**
