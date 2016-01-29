@@ -301,12 +301,10 @@ class ProcessJumplinks extends Process
         // Check if we're not using a page identifier or selector
         if (!$usingPageIdentifier) {
             // Check to see if we're working with an absolute URL
-            // and if we're currently using HTTPS
-            $hasScheme = $this->destinationHasScheme($destination);
-            $https = ($this->config->https) ? 's' : '';
+            $isAbsolute = $this->destinationHasScheme($destination);
 
             // If URL is absolute, then skip the prefix, otherwise build it
-            $prefix = ($hasScheme) ? '' : "http{$https}://{$this->config->httpHost}{$this->pages->get(1)->url}";
+            $prefix = ($isAbsolute) ? '' : $this->config->urls->root;
 
             // If we're rendering for backend output, truncate and return the destination.
             // Otherwise, return the full destination.
@@ -530,10 +528,10 @@ class ProcessJumplinks extends Process
         $request = $this->request;
 
         // Fetch all jumplinks
-        $jumplinks = $this->db->query($this->sql->entity->selectAll);
+        $jumplinks = $this->database->query($this->sql->entity->selectAll);
 
         // If there aren't any, then log the hit and break out
-        if ($jumplinks->num_rows === 0) {
+        if ($jumplinks->rowCount() === 0) {
             $this->log404($request);
             return false;
         }
@@ -566,7 +564,7 @@ class ProcessJumplinks extends Process
         $pattern = '~\{!?([a-z]+):(' . $availableWildcards . ')\}~';
 
         // Begin the loop
-        while ($jumplink = $jumplinks->fetch_object()) {
+        while ($jumplink = $jumplinks->fetchObject()) {
 
             $starts = (strtotime($jumplink->date_start) > $this->lowestDate) ? strtotime($jumplink->date_start) : false;
             $ends = (strtotime($jumplink->date_end) > $this->lowestDate) ? strtotime($jumplink->date_end) : false;
@@ -653,9 +651,9 @@ class ProcessJumplinks extends Process
             if (preg_match("~^$computedWildcards$~i", $request)) {
 
                 // For the purposes of mapping, fetch all the collections and compile them
-                $collections = $this->db->query($this->sql->collection->selectAll);
+                $collections = $this->database->query($this->sql->collection->selectAll);
                 $compiledCollections = new StdClass();
-                while ($collection = $collections->fetch_object()) {
+                while ($collection = $collections->fetchObject()) {
                     $collectionData = explode("\n", $collection->collection_mappings);
                     $compiledCollectionData = array();
                     foreach ($collectionData as $mapping) {
@@ -828,7 +826,7 @@ class ProcessJumplinks extends Process
         $this->injectAssets();
 
         // Get Jumplinks
-        $jumplinks = $this->db->query($this->sql->entity->selectAll);
+        $jumplinks = $this->database->query($this->sql->entity->selectAll);
 
         // Set Page title
         $this->setFuel('processHeadline', $this->_('Manage Jumplinks'));
@@ -847,11 +845,11 @@ class ProcessJumplinks extends Process
         $jumplinksTable->headerRow(array($this->_('Source'), $this->_('Destination'), $this->_('Start'), $this->_('End'), $this->_('Hits')));
 
         // Setup and add the tab description markup
-        $pronoun = $this->_n('it', 'one', $jumplinks->num_rows);
-        if ($jumplinks->num_rows == 0) {
+        $pronoun = $this->_n('it', 'one', $jumplinks->rowCount());
+        if ($jumplinks->rowCount() == 0) {
             $description = $this->_("You don't have any jumplinks yet.");
         } else {
-            $description = $this->_n('You have one jumplink registered.', 'Your jumplinks are listed below.', $jumplinks->num_rows) . ' ' . sprintf($this->_('To edit/delete %s, simply click on its Source.'), $pronoun);
+            $description = $this->_n('You have one jumplink registered.', 'Your jumplinks are listed below.', $jumplinks->rowCount()) . ' ' . sprintf($this->_('To edit/delete %s, simply click on its Source.'), $pronoun);
         }
         $jumplinksDescriptionMarkup = $this->modules->get('InputfieldMarkup');
         $jumplinksDescriptionMarkup->value = $description;
@@ -859,7 +857,7 @@ class ProcessJumplinks extends Process
 
         // Work through each jumplink, formatting data as we go along.
         $hits = 0;
-        while ($jumplink = $jumplinks->fetch_object()) {
+        while ($jumplink = $jumplinks->fetchObject()) {
             // Source and Destination
             $jumplink->source = htmlentities($jumplink->source);
             $jumplink->destination = $this->compileDestinationUrl($jumplink->destination, true, false);
@@ -905,7 +903,7 @@ class ProcessJumplinks extends Process
         }
 
         // Register button setup
-        switch ($jumplinks->num_rows) {
+        switch ($jumplinks->rowCount()) {
             case 0:
                 $registerJumplinkButtonLabel = $this->_('Register First Jumplink');
                 break;
@@ -916,9 +914,6 @@ class ProcessJumplinks extends Process
                 $registerJumplinkButtonLabel = $this->_('Register New Jumplink');
                 break;
         }
-
-        // Close the query
-        $jumplinks->close();
 
         // Build Register button
         $registerJumplinkButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
@@ -950,7 +945,7 @@ class ProcessJumplinks extends Process
         $mappingCollectionsTab->id = 'mappingCollections';
 
         // Get Mapping Collections
-        $mappingCollections = $this->db->query($this->sql->collection->selectAll);
+        $mappingCollections = $this->database->query($this->sql->collection->selectAll);
 
         // Setup the data table
         $mappingCollectionsTable = $this->modules->get('MarkupAdminDataTable');
@@ -960,14 +955,14 @@ class ProcessJumplinks extends Process
         $mappingCollectionsTable->headerRow(array($this->_('Collection Name'), $this->_('Mappings'), $this->_('Created'), $this->_('Last Modified')));
 
         // Setup the description markup
-        if ($mappingCollections->num_rows === 0) {
+        if ($mappingCollections->rowCount() === 0) {
             $pronoun = 'one';
             $head = $this->_("You don't have any collections installed.");
         } else {
-            $head = $this->_n('You have one collection installed.', 'Your collections are listed below.', $mappingCollections->num_rows);
-            $pronoun = $this->_n('it', 'one', $mappingCollections->num_rows);
+            $head = $this->_n('You have one collection installed.', 'Your collections are listed below.', $mappingCollections->rowCount());
+            $pronoun = $this->_n('it', 'one', $mappingCollections->rowCount());
         }
-        $description = ($mappingCollections->num_rows === 0) ? '' : sprintf($this->_('To edit/uninstall %s, simply click on its Name.'), $pronoun);
+        $description = ($mappingCollections->rowCount() === 0) ? '' : sprintf($this->_('To edit/uninstall %s, simply click on its Name.'), $pronoun);
 
         $mappingCollectionsDescriptionMarkup = $this->modules->get('InputfieldMarkup');
         $mappingCollectionsDescriptionMarkup->value = "{$head} {$description}";
@@ -976,7 +971,7 @@ class ProcessJumplinks extends Process
         $mappingCollectionsTab->append($mappingCollectionsDescriptionMarkup);
 
         // Work through each collection.
-        while ($mappingCollection = $mappingCollections->fetch_object()) {
+        while ($mappingCollection = $mappingCollections->fetchObject()) {
             // Timestamps
             $userCreated = $this->users->get($mappingCollection->user_created)->name;
             $userUpdated = $this->users->get($mappingCollection->user_updated)->name;
@@ -996,10 +991,7 @@ class ProcessJumplinks extends Process
         }
 
         // Install button label setup
-        $installMappingCollectionButtonLabel = ($mappingCollections->num_rows === 1) ? $this->_('Install Another Mapping Collection') : $this->_('Install New Mapping Collection');
-
-        // Close the query
-        $mappingCollections->close();
+        $installMappingCollectionButtonLabel = ($mappingCollections->rowCount() === 1) ? $this->_('Install Another Mapping Collection') : $this->_('Install New Mapping Collection');
 
         // Install button setup
         $installMappingCollectionButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
@@ -1068,18 +1060,18 @@ class ProcessJumplinks extends Process
             $notFoundMonitorTab->id = 'notFoundMonitor';
 
             // Get 404 hits.
-            $notFoundEntities = $this->db->query($this->sql->notFoundMonitor->selectAll);
+            $notFoundEntities = $this->database->query($this->sql->notFoundMonitor->selectAll);
 
             // Setup the container.
             $infoContainer = $this->modules->get('InputfieldMarkup');
 
             // Setup the description.
-            if ($notFoundEntities->num_rows === 0) {
+            if ($notFoundEntities->rowCount() === 0) {
                 $infoContainer->value = $this->_("There have been no '404 Not Found' hits on your site.");
-            } else if ($notFoundEntities->num_rows === 1) {
+            } else if ($notFoundEntities->rowCount() === 1) {
                 $infoContainer->value = $this->_("Below is the last '404 Not Found' hit. To create a jumplink for it, simply click on its Request URI.");
             } else {
-                $infoContainer->value = $this->_("Below are the last {$notFoundEntities->num_rows} '404 Not Found' hits. To create a jumplink for one, simply click on its Request URI.");
+                $infoContainer->value = $this->_("Below are the last {$notFoundEntities->rowCount()} '404 Not Found' hits. To create a jumplink for one, simply click on its Request URI.");
             }
 
             // Add description to tab container.
@@ -1096,7 +1088,7 @@ class ProcessJumplinks extends Process
             require_once __DIR__ . '/Classes/ParseUserAgent.php';
 
             // Loop through each 404, formatting as we go along.
-            while ($notFoundEntity = $notFoundEntities->fetch_object()) {
+            while ($notFoundEntity = $notFoundEntities->fetchObject()) {
                 $userAgentParsed = ParseUserAgent::get($notFoundEntity->user_agent);
                 $source = urlencode($notFoundEntity->request_uri);
 
@@ -1111,7 +1103,7 @@ class ProcessJumplinks extends Process
 
             // Setup Clear Button
             $button = '';
-            if ($notFoundEntities->num_rows > 0) {
+            if ($notFoundEntities->rowCount() > 0) {
                 $clearNotFoundLogButton = $this->populateInputField($this->modules->get('InputfieldButton'), array(
                     'id' => 'clearNotFoundLog',
                     'href' => $this->clearNotFoundLogPath,
@@ -1120,9 +1112,6 @@ class ProcessJumplinks extends Process
                 ));
                 $button = $clearNotFoundLogButton->render();
             }
-
-            // Close the query.
-            $notFoundEntities->close();
 
             // Add the data table and button.
             $notFoundMonitorTableContainer = $this->modules->get('InputfieldMarkup');
@@ -1404,8 +1393,8 @@ class ProcessJumplinks extends Process
         }
 
         // Escape Source and Destination (Sanitised) Paths
-        $source = ltrim($this->db->escape_string($input->sourcePath), '/');
-        $destination = ltrim($this->db->escape_string($input->destinationUriUrl), '/');
+        $source = ltrim($input->sourcePath, '/');
+        $destination = ltrim($input->destinationUriUrl, '/');
 
         // Prepare dates (times) for database entry
         $start = (!isset($input->dateStart) || empty($input->dateStart)) ? self::NULL_DATE : date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $input->dateStart)));
@@ -1812,9 +1801,9 @@ class ProcessJumplinks extends Process
                     $redirectsTable->setSortable(false);
                     $redirectsTable->headerRow(array($this->_('Import'), $this->_('Redirect From'), $this->_('Redirect To'), $this->_('Hits')));
 
-                    $jumplinks = $this->db->query("SELECT * FROM {$this->redirectsTableName} ORDER BY redirect_from");
+                    $jumplinks = $this->database->query("SELECT * FROM {$this->redirectsTableName} ORDER BY redirect_from");
 
-                    while ($jumplink = $jumplinks->fetch_object()) {
+                    while ($jumplink = $jumplinks->fetchObject()) {
                         $redirectsTable->row(array(
                             "<input type=\"checkbox\" name=\"importArray[]\" checked value=\"{$jumplink->id}\">",
                             $jumplink->redirect_from,
@@ -1942,8 +1931,6 @@ class ProcessJumplinks extends Process
                                 break;
                         }
 
-                        $jumplink[$cols[$col - 1]] = $this->db->escape_string($value);
-
                     }
 
                     if ($col === 2) {
@@ -2008,7 +1995,7 @@ class ProcessJumplinks extends Process
      */
     public function ___executeClearNotFoundLog()
     {
-        $this->db->query($this->sql->notFoundMonitor->deleteAll);
+        $this->database->exec($this->sql->notFoundMonitor->deleteAll);
         $this->message($this->_('[Jumplinks] 404 Monitor cleared.'));
         $this->session->redirect('../');
     }
@@ -2021,7 +2008,7 @@ class ProcessJumplinks extends Process
     {
         // Install tables (their schemas may not remain the same as updateDatabaseSchema() may change them)
         foreach (array('main', 'mc') as $schema) {
-            $this->db->query($this->blueprint("schema-create-{$schema}"));
+            $this->database->exec($this->blueprint("schema-create-{$schema}"));
         }
 
         parent::___install();
@@ -2034,7 +2021,7 @@ class ProcessJumplinks extends Process
     public function ___uninstall()
     {
         // Uninstall tables
-        $this->db->query($this->blueprint('schema-drop'));
+        $this->database->exec($this->blueprint('schema-drop'));
         parent::___uninstall();
     }
 
