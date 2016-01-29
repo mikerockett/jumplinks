@@ -1,4 +1,4 @@
-CREATE TABLE <table-name>_mc (
+CREATE TABLE IF NOT EXISTS <table-name>_mc (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     collection_name VARCHAR(255) NOT NULL,
     collection_mappings LONGTEXT NOT NULL,

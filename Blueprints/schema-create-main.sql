@@ -1,4 +1,4 @@
-CREATE TABLE <table-name> (
+CREATE TABLE IF NOT EXISTS <table-name> (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     source VARCHAR(512) NOT NULL,
     destination VARCHAR(512) NOT NULL,
