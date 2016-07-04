@@ -1147,7 +1147,8 @@ class ProcessJumplinks extends Process
         $this->injectAssets();
 
         // Get the ID if we're editing
-        $editingId = (isset($this->input->get->id)) ? $this->input->get->id : 0;
+        $editingId = $this->input->get->id;
+		$editingId = (isset($editingId) AND $editingId > 0 AND is_numeric($editingId)) ? $editingId : 0;
 
         $this->setFuel('processHeadline', ($editingId > 0) ? $this->_('Editing Jumplink') : $this->_('Register New Jumplink'));
 
@@ -1509,7 +1510,8 @@ class ProcessJumplinks extends Process
         $this->setFuel('processHeadline', $this->_('Install New Mapping Collection'));
 
         // Get the ID if we're editing
-        $editingId = (isset($this->input->get->id)) ? $this->input->get->id : 0;
+        $editingId = $this->input->get->id;
+		$editingId = (isset($editingId) AND $editingId > 0 AND is_numeric($editingId)) ? $editingId : 0;
 
         if ($editingId) {
             // Fetch the details and list vars
