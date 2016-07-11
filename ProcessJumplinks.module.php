@@ -1191,9 +1191,9 @@ class ProcessJumplinks extends Process
             )));
         }
 
-        if ($editingId == 0 && isset($this->input->get->source)) {
-            $sourcePath = urldecode($this->input->get->source);
-        }
+        if ($editingId == 0 && $this->input->get->source != "") {
+		    $sourcePath = urldecode($this->input->get->source);
+		}
 
         // Source Path field
         $field = $this->modules->get('InputfieldText');
