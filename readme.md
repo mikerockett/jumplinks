@@ -4,7 +4,7 @@
 
 As of version 1.5.0, Jumplinks requires at least ProcessWire 2.6.1 to run. At the time of writing this, version 3 on the development branch is also supported.
 
-**In Development:** Jumplinks 2, a complete rewrite, is in the works. You can track the status of behind-closed-doors development [here](/rockettpw/jumplinks/issues/14). Once an alpha-candidate is ready, it will be pushed to its own branch with the details. Documentation will follow shortly thereafter.
+**In Development:** Jumplinks 2, a complete rewrite, is in the works. You can track the status of behind-closed-doors development [here](https://github.com/rockettpw/jumplinks/issues/14). Once an alpha-candidate is ready, it will be pushed to its own branch with the details. Documentation will follow shortly thereafter.
 
 ---
 
