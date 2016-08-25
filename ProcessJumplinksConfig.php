@@ -76,6 +76,7 @@ class ProcessJumplinksConfig extends ModuleConfig
 
         // Add JS config data
         $this->config->js('pjModuleAdmin', true);
+        $this->config->js('pjAdminPageUrl', $this->pages->get('name=jumplinks,template=admin')->url);
         $this->config->js('pjOldRedirectsInstalled', $this->modules->isInstalled('ProcessRedirects'));
 
         // Start inputfields

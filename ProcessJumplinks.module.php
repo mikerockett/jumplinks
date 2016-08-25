@@ -183,9 +183,6 @@ class ProcessJumplinks extends Process
     {
         parent::init();
 
-        // Set the admin page URL for JS
-        $this->config->js('pjAdminPageUrl', $this->pages->get('name=jumplinks,template=admin')->url);
-
         // Make sure schemas are up to date.
         // This process will be changed to ___upgrade() when the minimum PW version is 2.7.1.
         if ($this->schemaVersion < self::SCHEMA_VERSION) {
