@@ -602,6 +602,10 @@ class ProcessJumplinks extends Process
                 array('\?', '/?', '\&', '\:'),
                 $jumplink->source
             ));
+            // As a workaround for query strings attached to trailing slashes
+            // ensure that slashes are not made optional in the middle of the source.
+            // Refer: https://processwire.com/talk/topic/8697-jumplinks/?do=findComment&comment=126551
+            $source = preg_replace('~(.+)/\?(.+)~', '\\1/\?\\2', $source);
 
             // Reverse ':' escaping for wildcards
             $source = preg_replace("~\{([a-z]+)\\\:([a-z]+)\}~i", "{\\1:\\2}", $source);
