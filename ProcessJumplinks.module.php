@@ -564,7 +564,7 @@ class ProcessJumplinks extends Process
         while ($jumplink = $jumplinks->fetchObject()) {
 
             // If the jumplink source starts with a double-exclamation mark, then it is disabled
-            if (substr($jumplink->source, 0, 4) === "!!") {
+            if (substr($jumplink->source, 0, 2) === "!!") {
                 continue;
             }
 
