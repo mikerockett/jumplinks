@@ -563,6 +563,11 @@ class ProcessJumplinks extends Process
         // Begin the loop
         while ($jumplink = $jumplinks->fetchObject()) {
 
+            // If the jumplink source starts with a double-exclamation mark, then it is disabled
+            if (substr($jumplink->source, 0, 4) === "!!") {
+                continue;
+            }
+
             $starts = (strtotime($jumplink->date_start) > $this->lowestDate) ? strtotime($jumplink->date_start) : false;
             $ends = (strtotime($jumplink->date_end) > $this->lowestDate) ? strtotime($jumplink->date_end) : false;
 
