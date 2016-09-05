@@ -52,6 +52,7 @@ class ProcessJumplinksConfig extends ModuleConfig
     public function getDefaults()
     {
         return array(
+            'moduleDisable' => false,
             '_schemaVersion' => 1, // Initial schema
             'enhancedWildcardCleaning' => false,
             'legacyDomain' => '',
@@ -173,6 +174,17 @@ class ProcessJumplinksConfig extends ModuleConfig
             'description' => $this->_("If you run into any problems with your jumplinks, you can turn on debug mode. Once turned on, you'll be shown a scan log when a 404 Page Not Found is hit. That will give you an indication of what may be going wrong. If it doesn't, and you can't figure it out, then paste your log into the support thread on the forums."),
             'label2' => $this->_('Turn debug mode on'),
             'notes' => $this->_("**Notes:** Hits won't be affected when debug mode is turned on. Also, only those that have permission to manage jumplinks will be shown the debug logs."),
+            'collapsed' => Inputfield::collapsedBlank,
+            'autocheck' => true,
+        )));
+
+        // Disable module
+        $fieldset->add($this->buildInputField('InputfieldCheckbox', array(
+            'name+id' => 'moduleDisable',
+            'label' => $this->_('Disable Module'),
+            'description' => $this->_("If you would like to temporarily disable the module, check the box below."),
+            'label2' => $this->_('Disable Jumplinks'),
+            'notes' => $this->_("**Notes:** This does not retract your ability to create/edit/remove jumplinks and other data; it simply removes the 404 hook to the ProcessJumplinks module."),
             'collapsed' => Inputfield::collapsedBlank,
             'autocheck' => true,
         )));

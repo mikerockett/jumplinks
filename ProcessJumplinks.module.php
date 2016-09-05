@@ -200,7 +200,9 @@ class ProcessJumplinks extends Process
         }
 
         // Hook prior to the pageNotFound event ...
-        $this->addHookBefore('ProcessPageView::pageNotFound', $this, 'scanAndRedirect', array('priority' => 10));
+        if ($this->moduleDisable == false) {
+            $this->addHookBefore('ProcessPageView::pageNotFound', $this, 'scanAndRedirect', array('priority' => 10));
+        }
     }
 
     /**
