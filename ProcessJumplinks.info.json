@@ -1,6 +1,6 @@
 {
     "title": "Jumplinks",
-    "version": "1.5.42",
+    "version": "1.5.43",
     "author": "Mike Rockett",
     "summary": "Manage permanent and temporary redirects. Uses named wildcards and mapping collections.",
     "requires": "ProcessWire>=2.6.1",
