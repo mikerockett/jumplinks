@@ -722,7 +722,7 @@ class ProcessJumplinks extends Process
                 $selectorUsed = false;
                 $selectorMatched = false;
 
-                $convertedWildcards = preg_replace_callback("~\[\[([\w-_\/\s=\",.']+)\]\]~i", function ($selectorCaptures) use (&$selectorUsed, &$selectorMatched) {
+                $convertedWildcards = preg_replace_callback("~\[\[([\w-_\/\s=\",.'|@]+)\]\]~i", function ($selectorCaptures) use (&$selectorUsed, &$selectorMatched) {
                     $selectorUsed = true;
                     $page = $this->pages->get($selectorCaptures[1]);
                     if ($page->id > 0) {
