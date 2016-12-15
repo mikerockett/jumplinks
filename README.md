@@ -1,6 +1,6 @@
 ## Jumplinks for ProcessWire
 
-[![GitHub tag](https://img.shields.io/github/release/rockettpw/jumplinks.svg?maxAge=2592000&style=flat-square)](https://github.com/rockettpw/jumplinks/releases) [![license](https://img.shields.io/github/license/rockettpw/jumplinks.svg?maxAge=2592000&style=flat-square)](https://github.com/rockettpw/jumplinks/blob/master/LICENSE.md) [![v2](https://img.shields.io/badge/v2-pending-lightgray.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/issues/14) 
+[![GitHub tag](https://img.shields.io/badge/release-1.5.44-blue.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/releases) [![license](https://img.shields.io/github/license/rockettpw/jumplinks.svg?maxAge=2592000&style=flat-square)](https://github.com/rockettpw/jumplinks/blob/master/LICENSE.md) [![v2](https://img.shields.io/badge/v2-pending-lightgray.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/issues/14) 
 
 As of version 1.5.0, Jumplinks requires at least ProcessWire 2.6.1 to run. At the time of writing this, version 3 on the development branch is also supported.
 
