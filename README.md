@@ -1,6 +1,6 @@
 ## Jumplinks for ProcessWire
 
-[![GitHub tag](https://img.shields.io/badge/release-1.5.44-blue.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/releases) [![license](https://img.shields.io/github/license/rockettpw/jumplinks.svg?maxAge=2592000&style=flat-square)](https://github.com/rockettpw/jumplinks/blob/master/LICENSE.md) [![v2](https://img.shields.io/badge/v2-pending-lightgray.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/issues/14) 
+[![GitHub tag](https://img.shields.io/badge/release-1.5.44-blue.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/releases) [![license](https://img.shields.io/github/license/rockettpw/jumplinks.svg?maxAge=2592000&style=flat-square)](https://github.com/rockettpw/jumplinks/blob/master/LICENSE.md) [![v2](https://img.shields.io/badge/v2-pending-lightgray.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/issues/14)
 
 As of version 1.5.0, Jumplinks requires at least ProcessWire 2.6.1 to run. At the time of writing this, version 3 on the development branch is also supported.
 
@@ -12,7 +12,7 @@ Jumplinks is an enhanced version of the original [ProcessRedirects](http://modul
 
 The `Process` module manages your permanent and temporary redirects (we'll call these "jumplinks" from now on, unless in reference to redirects from another module), useful for when you're migrating over to ProcessWire from another system/platform.
 
-Each jumplink supports [wildcards](http://rockett.pw/jumplinks/wildcards), shortening the time needed to create them.
+Each jumplink supports [wildcards](https://rockett.pw/jumplinks/wildcards), shortening the time needed to create them.
 
 Unlike similar modules for other platforms, wildcards in Jumplinks are much easier to work with, as Regular Expressions are not fully exposed. Instead, parameters wrapped in `{curly braces}` are used - these are described in the documentation.
 
@@ -34,10 +34,10 @@ Unlike similar modules for other platforms, wildcards in Jumplinks are much easi
 
 ### Documentation & Support
 
-You can view the documentation **[here](http://rockett.pw/jumplinks)**, and get support **[in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
+You can view the documentation **[here](https://rockett.pw/jumplinks)**, and get support **[in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
 
 ### Contributing & License
 
 If you have any issues to report (such as a bug or oversight), please use the [issue tracker](https://github.com/mikerockett/ProcessJumplinks/issues).
 
-Module is released under the **[MIT License](http://mit-license.org/)**.
+Module is released under the **[MIT License](https://mit-license.org/)**.
