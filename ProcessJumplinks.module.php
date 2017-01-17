@@ -150,11 +150,11 @@ class ProcessJumplinks extends Process
         // These are kept in one place for ease of reference.
         $this->sql = (object) array(
             'entity' => (object) array(
-                'selectAll' => "SELECT * FROM {$this->tableName} ORDER BY source",
+                'selectAll' => "SELECT * FROM {$this->tableName} ORDER BY `source`",
                 'selectOne' => "SELECT * FROM {$this->tableName} WHERE id = :id",
                 'dropOne' => "DELETE FROM {$this->tableName} WHERE id = :id",
-                'insert' => "INSERT INTO {$this->tableName} SET source = :source, destination = :destination, hits = :hits, date_start = :date_start, date_end = :date_end, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
-                'update' => "UPDATE {$this->tableName} SET source = :source, destination = :destination, date_start = :date_start, date_end = :date_end, user_updated = :user_updated, updated_at = CURRENT_TIMESTAMP WHERE id = :id",
+                'insert' => "INSERT INTO {$this->tableName} SET `source` = :source, destination = :destination, hits = :hits, date_start = :date_start, date_end = :date_end, user_created = :user_created, user_updated = :user_updated, created_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP ON DUPLICATE KEY UPDATE id = id",
+                'update' => "UPDATE {$this->tableName} SET `source` = :source, destination = :destination, date_start = :date_start, date_end = :date_end, user_updated = :user_updated, updated_at = CURRENT_TIMESTAMP WHERE id = :id",
                 'updateHits' => "UPDATE {$this->tableName} SET hits = :hits WHERE id = :id",
                 'updateLastHitDate' => "UPDATE {$this->tableName} SET last_hit = :last_hit WHERE id = :id",
             ),
