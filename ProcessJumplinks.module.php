@@ -655,6 +655,7 @@ class ProcessJumplinks extends Process
 
             $this->log('Compiled Source Path', $computedWildcards);
 
+
             // If the request matches the source currently being checked:
             if (preg_match("~^$computedWildcards$~i", $request)) {
 
@@ -672,6 +673,9 @@ class ProcessJumplinks extends Process
                 }
 
                 // Iterate through each source wildcard:
+                if ($computedWildcards=='(.*)') {
+                    $computedWildcards = '(.+)';
+                };
                 $convertedWildcards = preg_replace_callback("~$computedWildcards~i", function ($captures) use ($destination, $computedReplacements) {
                     $result = $destination;
 
@@ -681,6 +685,9 @@ class ProcessJumplinks extends Process
                         // Check for destination wildcards that don't need to be cleaned
                         $paramSkipCleanCheck = "~\{!$value\}~i";
                         $uncleanedCapture = $captures[$c];
+                        if (empty($uncleanedCapture)) {
+                            continue;
+                        }
                         if (!preg_match($paramSkipCleanCheck, $result)) {
                             $wildcardCleaning = $this->wildcardCleaning;
                             if ($wildcardCleaning === 'fullClean' || $wildcardCleaning === 'semiClean') {
@@ -730,6 +737,7 @@ class ProcessJumplinks extends Process
                         return ltrim($page->url, '/');
                     }
                 }, $convertedWildcards);
+
 
                 $this->log('Original Destination Path', $jumplink->destination);
 

@@ -13,3 +13,5 @@ $RECYCLE.BIN/
 
 # Blimey!
 *.sublime-*
+
+.phpintel/
