@@ -241,7 +241,7 @@ class ProcessJumplinks extends Process
      * @param  string $uri
      * @return string
      */
-    protected function helpLinks($uri = '', $justTheLink = false)
+    protected function helpLinks($uri = '', $justTheLink = false, $title = null)
     {
         // Prepend a slash to the URI.
         if (!empty($uri)) {
@@ -253,10 +253,13 @@ class ProcessJumplinks extends Process
         if ($justTheLink) {
             return $this->moduleInfo['href'] . $uri;
         } else {
-            $supportDevelopment = $this->_('Support Development');
-            $needHelp = $this->_('Need Help?');
+            $supportDevelopment = $this->_('Support Jumplinks’ Development');
+            $needHelp = $this->_('Forum Support Thread');
             $documentation = $this->_('Documentation');
-            return "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ\">{$supportDevelopment}</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">{$needHelp}</a><a target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">{$documentation}</a></div>";
+            if ($title !== null) {
+                $documentation = $this->_('Documentation on ') . $title;
+            }
+            return "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ\">{$supportDevelopment}</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">{$needHelp}</a><a style=\"font-weight:700\" target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">{$documentation}</a></div>";
         }
     }
 
@@ -1382,7 +1385,7 @@ class ProcessJumplinks extends Process
         $this->config->js('pjEntity', true);
 
         // Return the rendered page
-        return $form->render() . $this->helpLinks('Working-with-Jumplinks');
+        return $form->render() . $this->helpLinks('getting-started', false, 'Getting Started with Jumplinks');
     }
 
     /**
@@ -1569,7 +1572,7 @@ class ProcessJumplinks extends Process
         $form->add($this->populateInputField($field, array(
             'name+id' => 'collectionData',
             'label' => $this->_('Mapping Data'),
-            'description' => sprintf($this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names, but you can use named identifiers too. To learn more about how this feature works, please [read through the documentation](%s).'), $this->helpLinks('Mapping-Collections', true)),
+            'description' => sprintf($this->_('Enter each mapping for this collection, one per line, in the following format: key=value. You will more than likely make use of this feature if you are mapping IDs to URL-friendly names, but you can use named identifiers too. To learn more about how this feature works, please [read through the documentation](%s).'), $this->helpLinks('collections', true)),
             'notes' => sprintf($this->_("To make things easier, you'll probably want to export your data from your old platform/framework in this format.\n**Note:** All **values** will be cleaned according to the 'Wildcard Cleaning' setting in the [module's configuration](%s)."), $this->getModuleConfigUri()),
             'required' => 1,
             'rows' => 10,
@@ -1627,7 +1630,7 @@ class ProcessJumplinks extends Process
         $this->config->js('pjCollection', true);
 
         // Return the rendered page
-        return $form->render() . $this->helpLinks('Mapping-Collections');
+        return $form->render() . $this->helpLinks('collections', false, 'Mapping Collections');
     }
 
     /**
@@ -1763,7 +1766,6 @@ class ProcessJumplinks extends Process
     public function ___executeImport()
     {
         $this->injectAssets();
-        $this->setFuel('processHeadline', $this->_('Import Jumplinks'));
 
         // Prep the form
         $form = $this->modules->get('InputfieldForm');
@@ -1780,6 +1782,7 @@ class ProcessJumplinks extends Process
 
         switch ($importType) {
             case 'redirects':
+                $this->setFuel('processHeadline', $this->_('Import Jumplinks from ProcessRedirects'));
                 $this->config->js('pjImportRedirectsModule', true);
                 if (!$this->modules->isInstalled('ProcessRedirects')) {
                     $this->session->redirect('../');
@@ -1837,23 +1840,54 @@ class ProcessJumplinks extends Process
 
                 break;
             default: // type = csv
+                $this->setFuel('processHeadline', $this->_('Import Jumplinks from CSV'));
                 $this->config->js('pjImportCSVData', true);
-                // Information
-                $field = $this->modules->get('InputfieldTextarea');
-                $form->add($this->populateInputField($field, array(
-                    'name+id' => 'csvData',
-                    'label' => $this->_('Import from CSV'),
-                    'description' => sprintf($this->_("Paste in your old redirects below, where each one is on its own line. You may use any standard delimeter you like (comma, colon, semi-colon, period, pipe, or tab), so long as it is consistent throughout. Any URI/URL that contains the delimter must be wrapped in double quotes. **Note:** Please ensure that there are no empty lines!\n\n**Column Order:** *Source*, *Destination*, *Time Start*, *Time End*. The last two columns are optional - when used, they should contain any valid date/time string. However, if they are used in one line, then all other lines should have blank entries for these columns.\n\nFor examples, see the **[documentation](%s)**."), $this->helpLinks("Importing#importing-from-{$importType}", true)),
-                    'notes' => $this->_("**Conversion Notes:**\n1. Any encoded ampersands (**&amp;amp;**) will be converted to **&amp;**.\n2. If the source or destination of a redirect contains leading slashes, they will be stripped."),
-                    'rows' => 15,
-                )));
-
                 // Headings
                 $field = $this->modules->get('InputfieldCheckbox');
                 $form->add($this->populateInputField($field, array(
                     'name+id' => 'csvHeadings',
-                    'label' => $this->_('My CSV data contains headings'),
+                    'label2' => $this->_('My CSV data contains headings'),
+                    'label' => $this->_('Ignore Headings'),
                     'notes' => $this->_('No need to worry about what your headings are called. The importer simply ignores them when you check this box.'),
+                    'columnWidth' => 30,
+                )));
+                // Delims
+                $field = $this->modules->get('InputfieldSelect');
+                $form->add($this->populateInputField($field, array(
+                    'name+id' => 'csvDelimiter',
+                    'options' => array(
+                        ',' => 'Comma (,)',
+                        ';' => 'Semicolon (;)',
+                        '|' => 'Pipe (|)',
+                    ),
+                    'label' => $this->_('Select the delimiter your CSV data uses.'),
+                    'notes' => $this->_('Previously, this was auto detected. However, the CSV parser has been changed to something more robust with less bugs.'),
+                    'columnWidth' => 30,
+                    'defaultValue' => ',',
+                    'required' => true,
+                )));
+                // Enclosure char
+                $field = $this->modules->get('InputfieldSelect');
+                $form->add($this->populateInputField($field, array(
+                    'name+id' => 'csvEnclosure',
+                    'options' => array(
+                        '"' => 'Double-quotes (")',
+                        "'" => "Single-quotes (')",
+                    ),
+                    'label' => $this->_('Select the enclosure character your CSV data uses.'),
+                    'notes' => $this->_('More often than not, cells are enclosed in double-quotes. If you are using single-quotes instead, set this option accordingly.'),
+                    'columnWidth' => 40,
+                    'defaultValue' => '"',
+                    'required' => true,
+                )));
+                // Information
+                $field = $this->modules->get('InputfieldTextarea');
+                $form->add($this->populateInputField($field, array(
+                    'name+id' => 'csvData',
+                    'label' => $this->_('CSV Data'),
+                    'description' => $this->_("Paste in your old redirects below, where each one is on its own line containing values separated by the chosen delimiter above. Any URI/URL that contains the chosen delimiter must be wrapped the enclosure character chosen above.\n\n**Column Order:** *Source*, *Destination*, *Time Start*, *Time End*. The last two columns are optional and do not need to be included where not required. If you need to specify the ending time, simply use an empty cell for the starting time (`source,destination,,end`).\n\nNote that the documentation is currently outdated as the CSV parser was changed in Jumplinks 1.5.48."),
+                    'notes' => $this->_("**Conversion Notes:**\n1. Any encoded ampersands (**&amp;amp;**) will be converted to **&amp;**.\n2. If the source or destination of a redirect contains leading slashes, they will be stripped.\n3. Empty lines will be discarded."),
+                    'rows' => 15,
                 )));
 
                 break;
@@ -1891,7 +1925,7 @@ class ProcessJumplinks extends Process
 
         $this->config->js('pjImport', true);
 
-        return $form->render() . $this->helpLinks("Importing#importing-from-{$importType}");
+        return $form->render() . $this->helpLinks("importing#comma-separated-values-csv", false, "Importing from CSV");
     }
 
     /**
@@ -1911,65 +1945,37 @@ class ProcessJumplinks extends Process
         // ... and go!
         switch ($importType) {
             case 'csv':
-                // Require the CSV parser
-                require_once __DIR__ . '/Classes/ParseCSV.php';
-
-                // Prepare the parser
-                $csv = new ParseCSV();
-                $csv->heading = $this->input->post->csvHeadings;
-                $csv->auto($this->input->post->csvData);
-
-                $cols = array('source', 'destination', 'date_start', 'date_end');
-
-                // Loop through each row and column to cleanse
-                // data and insert into table
-                foreach ($csv->data as $key => $row) {
-                    $jumplink = array();
-                    $col = 0;
-                    foreach ($row as $value) {
-                        ++$col;
-                        if ($col >= 4) {
-                            continue;
+                // Require the CSV reader
+                require_once __DIR__ . '/Classes/LeagueCsv/autoload.php';
+                $reader = League\Csv\Reader::createFromString($this->input->post->csvData);
+                $reader->setDelimiter($this->input->post->csvDelimiter);
+                $reader->setEnclosure($this->input->post->csvEnclosure);
+                $columns = array('source', 'destination', 'starts', 'ends');
+                foreach ($reader->fetchAssoc($columns) as $row) {
+                    $nullCellCount = 0;
+                    foreach ($row as $key => $value) {
+                        if ($value === null) {
+                            $nullCellCount++;
                         }
-
-                        $value = ltrim($value, '/');
-
-                        // check which col we're working with
-                        // and cleanse accordingly
-                        switch ($col) {
-                            case 1: // source
-                                $value = str_replace('&amp;', '&', $value);
-                                break;
-                            case 2: // destination
-                                $value = str_replace('&amp;', '&', $this->sanitizer->url($value));
-                                break;
-                            case 3: // time start
-                            case 4: // time end
-                                $value = empty($value) ? self::NULL_DATE : "'" . date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $value))) . "'";
-                                break;
-                        }
-
-                        $jumplink[$cols[$col - 1]] = $this->db->escape_string($value);
-
                     }
-
-                    if ($col === 2) {
-                        $jumplink[$cols[2]] = self::NULL_DATE;
-                        $jumplink[$cols[3]] = self::NULL_DATE;
+                    if ($nullCellCount === 4) continue;
+                    foreach ($columns as $column) {
+                        $row[$column] = ltrim($row[$column], '/');
                     }
-
-                    $jumplinkData = (object) array(
-                        'sourcePath' => $jumplink['source'],
-                        'destinationUriUrl' => $jumplink['destination'],
-                        'dateStart' => $jumplink['date_start'],
-                        'dateEnd' => $jumplink['date_end'],
-                    );
-                    $this->commitJumplink($jumplinkData, 0);
+                    $jumplink = (object) [
+                        'sourcePath' => str_replace('&amp;', '&', $this->db->escape_string($row['source'])),
+                        'destinationUriUrl' => str_replace('&amp;', '&', $this->sanitizer->url($this->db->escape_string($row['destination']))),
+                    ];
+                    if ($row['starts'] !== null && !empty($row['starts'])) {
+                        $jumplink->dateStart = $this->db->escape_string($row['starts']);
+                    }
+                    if ($row['ends'] !== null && !empty($row['ends'])) {
+                        $jumplink->dateEnd = $this->db->escape_string($row['ends']);
+                    }
+                    $this->commitJumplink($jumplink, 0);
                 }
-
                 $this->message('Redirects imported from CSV.');
                 $this->session->redirect('../');
-
                 break;
             case 'redirects':
                 // Fetch the importArray - make sure all values are integers.
