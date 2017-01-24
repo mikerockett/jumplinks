@@ -1949,6 +1949,8 @@ class ProcessJumplinks extends Process
                                 break;
                         }
 
+                        $jumplink[$cols[$col - 1]] = $this->db->escape_string($value);
+
                     }
 
                     if ($col === 2) {
