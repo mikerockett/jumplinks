@@ -13,7 +13,7 @@
  * @see Documentation:     http://rockett.pw/jumplinks
  * @see Modules Directory: https://mods.pw/92
  * @see Forum Thred:       https://processwire.com/talk/topic/8697-jumplinks/
- * @see PayPal Donation:   https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ
+ * @see Donate:            https://rockett.pw/donate
  */
 
 class ProcessJumplinks extends Process
@@ -259,7 +259,7 @@ class ProcessJumplinks extends Process
             if ($title !== null) {
                 $documentation = $this->_('Documentation on ') . $title;
             }
-            return "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ\">{$supportDevelopment}</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">{$needHelp}</a><a style=\"font-weight:700\" target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">{$documentation}</a></div>";
+            return "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://rockett.pw/donate\">{$supportDevelopment}</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">{$needHelp}</a><a style=\"font-weight:700\" target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">{$documentation}</a></div>";
         }
     }
 

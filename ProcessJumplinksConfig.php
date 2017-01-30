@@ -13,7 +13,7 @@
  * @see Documentation:     http://rockett.pw/jumplinks
  * @see Modules Directory: https://mods.pw/92
  * @see Forum Thred:       https://processwire.com/talk/topic/8697-jumplinks/
- * @see PayPal Donation:   https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ
+ * @see Donate:            https://rockett.pw/donate
  */
 
 class ProcessJumplinksConfig extends ModuleConfig
@@ -244,7 +244,7 @@ HTML
             'id' => 'supportDevelopment',
             'label' => $this->_('Support Jumplinks Development'),
             'value' => <<<HTML
-                <p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ"><img src="{$this->config->urls->ProcessJumplinks}Assets/DonateButton.png" alt="PayPal" style="float:right;margin-left: 22px;"></a>{$text['paragraph']}</p>
+                <p><a href="https://rockett.pw/donate"><img src="{$this->config->urls->ProcessJumplinks}Assets/DonateButton.png" alt="PayPal" style="float:right;margin-left: 22px;"></a>{$text['paragraph']}</p>
                 <div id="pjInputFieldLinks">
                     <span class="prefix">{$text['learnMore']}:</span>
                     <a target="_blank" href="http://opensource.com/resources/what-open-source">{$text['openSource']}</a>

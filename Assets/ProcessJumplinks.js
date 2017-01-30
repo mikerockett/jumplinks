@@ -11,7 +11,7 @@
  * @see Documentation:     http://rockett.pw/jumplinks
  * @see Modules Directory: https://mods.pw/92
  * @see Forum Thred:       https://processwire.com/talk/topic/8697-jumplinks/
- * @see PayPal Donation:   https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L8F6FFYK6ENBQ
+ * @see Donate:            https://rockett.pw/donate
  */
 
 $(function() {
