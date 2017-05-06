@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS <table-name> (
     `user_updated` INT UNSIGNED DEFAULT 0,
     `date_start` TIMESTAMP NULL,
     `date_end` TIMESTAMP NULL,
-    `created_at` TIMESTAMP,
-    `updated_at` TIMESTAMP,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(id)
 ) ENGINE = MyISAM DEFAULT CHARSET=utf8;
