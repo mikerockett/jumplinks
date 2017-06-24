@@ -10,10 +10,14 @@ When submitting possible-bug reports to the issue tracker, please be sure to inc
 
 1. Your ProcessWire version
 2. Your Jumplinks version
-3. Steps to reproduce the issue you're encountering
-4. If the issue is UI/UX-related, please upload a screenshot
+3. Your PHP version
+4. Steps to reproduce the issue you're encountering
+5. If the issue is UI/UX-related, please upload a screenshot
 
-Optionally, feel free to mention any suggestions you may have to fix the issue.
+The following is optional:
+
+1. Your MySQL version (provided the issue is database related)
+2. Feel free to mention any suggestions you may have to fix the issue
 
 > **Note:** If you find a security vulnerability, do NOT open an issue. Email github@rockett.pw instead.
 
