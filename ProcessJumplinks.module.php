@@ -1963,14 +1963,14 @@ class ProcessJumplinks extends Process
                         $row[$column] = ltrim($row[$column], '/');
                     }
                     $jumplink = (object) [
-                        'sourcePath' => str_replace('&amp;', '&', $this->db->escape_string($row['source'])),
-                        'destinationUriUrl' => str_replace('&amp;', '&', $this->sanitizer->url($this->db->escape_string($row['destination']))),
+                        'sourcePath' => str_replace('&amp;', '&', $this->database->escape_string($row['source'])),
+                        'destinationUriUrl' => str_replace('&amp;', '&', $this->sanitizer->url($this->database->escape_string($row['destination']))),
                     ];
                     if ($row['starts'] !== null && !empty($row['starts'])) {
-                        $jumplink->dateStart = $this->db->escape_string($row['starts']);
+                        $jumplink->dateStart = $this->database->escape_string($row['starts']);
                     }
                     if ($row['ends'] !== null && !empty($row['ends'])) {
-                        $jumplink->dateEnd = $this->db->escape_string($row['ends']);
+                        $jumplink->dateEnd = $this->database->escape_string($row['ends']);
                     }
                     $this->commitJumplink($jumplink, 0);
                 }
