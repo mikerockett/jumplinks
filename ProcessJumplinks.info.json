@@ -6,7 +6,7 @@
     "requires": "ProcessWire>=2.6.1, PHP>=5.4.0",
     "href": "http://rockett.pw/jumplinks",
     "hrefsupport": "https://processwire.com/talk/topic/8697-jumplinks/",
-    "license": "MIT",
+    "license": "ISC",
     "hreflicense": "http://mit-license.org/",
     "autoload": true,
     "icon": "rocket",

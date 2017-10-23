@@ -1,6 +1,8 @@
 ## Jumplinks for ProcessWire
 
-[![GitHub tag](https://img.shields.io/badge/release-1.5.48-blue.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/releases) [![license](https://img.shields.io/github/license/rockettpw/jumplinks.svg?maxAge=2592000&style=flat-square)](https://github.com/rockettpw/jumplinks/blob/master/LICENSE.md) [![v2](https://img.shields.io/badge/v2-pending-lightgray.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/issues/14)
+[![GitHub tag](https://img.shields.io/badge/release-1.5.48-blue.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/releases)
+[![license](https://img.shields.io/github/license/rockettpw/jumplinks.svg?maxAge=2592000&style=flat-square)](https://github.com/rockettpw/jumplinks/blob/master/LICENSE.md)
+[![v2](https://img.shields.io/badge/v2-pending-lightgray.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/issues/14)
 
 As of version 1.5.0, Jumplinks requires at least ProcessWire 2.6.1 to run. At the time of writing this, version 3 on the development branch is also supported.
 
@@ -40,4 +42,4 @@ You can view the documentation **[here](https://rockett.pw/jumplinks)**, and get
 
 If you have any issues to report (such as a bug or oversight), please use the [issue tracker](https://github.com/mikerockett/ProcessJumplinks/issues).
 
-Module is released under the **[MIT License](https://mit-license.org/)**.
+Module is released under the **[ISC License](LICENSE.md)**. The CSV package by The League of Extraordinary Packages is licensed under the [MIT License](https://github.com/thephpleague/csv/blob/master/LICENSE).

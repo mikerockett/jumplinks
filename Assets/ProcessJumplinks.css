@@ -6,7 +6,7 @@
  *
  * @author Mike Rockett
  * @copyright (c) 2015, Mike Rockett. All Rights Reserved.
- * @license MIT License - http://mit-license.org/
+ * @license ISC
  *
  * @see Documentation:     http://rockett.pw/jumplinks
  * @see Modules Directory: https://mods.pw/92
