@@ -1,6 +1,6 @@
 ## Jumplinks for ProcessWire
 
-[![GitHub tag](https://img.shields.io/badge/release-1.5.48-blue.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/releases)
+![Shield: Tagged Release](https://img.shields.io/github/release/rockettpw/jumplinks.svg?style=flat-square)
 [![license](https://img.shields.io/github/license/rockettpw/jumplinks.svg?maxAge=2592000&style=flat-square)](https://github.com/rockettpw/jumplinks/blob/master/LICENSE.md)
 [![v2](https://img.shields.io/badge/v2-pending-lightgray.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/issues/14)
 
