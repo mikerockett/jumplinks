@@ -8,7 +8,7 @@
  * @copyright (c) 2015, Mike Rockett. All Rights Reserved.
  * @license ISC
  *
- * @see Documentation:     http://rockett.pw/jumplinks
+ * @see Documentation:     https://jumplinks.rockett.pw
  * @see Modules Directory: https://mods.pw/92
  * @see Forum Thred:       https://processwire.com/talk/topic/8697-jumplinks/
  * @see Donate:            https://rockett.pw/donate

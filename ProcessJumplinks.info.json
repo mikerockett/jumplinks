@@ -1,23 +1,23 @@
 {
-    "title": "Jumplinks",
-    "version": "1.5.49",
-    "author": "Mike Rockett",
-    "summary": "Manage permanent and temporary redirects. Uses named parameters, mapping collections, and page selectors.",
-    "requires": "ProcessWire>=2.6.1, PHP>=5.4.0",
-    "href": "http://rockett.pw/jumplinks",
-    "hrefsupport": "https://processwire.com/talk/topic/8697-jumplinks/",
-    "license": "ISC",
-    "autoload": true,
-    "icon": "rocket",
-    "permanent": false,
-    "singular": true,
-    "permission": "jumplinks-admin",
-    "permissions": {
-        "jumplinks-admin": "Administer Jumplinks"
-    },
-    "page": {
-        "name": "jumplinks",
-        "parent": "setup",
-        "title": "Jumplinks"
-    }
+  "title": "Jumplinks",
+  "version": "1.5.49",
+  "author": "Mike Rockett",
+  "summary": "Manage permanent and temporary redirects. Uses named parameters, mapping collections, and page selectors.",
+  "requires": "ProcessWire>=2.6.1, PHP>=5.4.0",
+  "href": "https://jumplinks.rockett.pw",
+  "hrefsupport": "https://processwire.com/talk/topic/8697-jumplinks/",
+  "license": "ISC",
+  "autoload": true,
+  "icon": "rocket",
+  "permanent": false,
+  "singular": true,
+  "permission": "jumplinks-admin",
+  "permissions": {
+    "jumplinks-admin": "Administer Jumplinks"
+  },
+  "page": {
+    "name": "jumplinks",
+    "parent": "setup",
+    "title": "Jumplinks"
+  }
 }

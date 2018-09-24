@@ -10,7 +10,7 @@
  * @copyright (c) 2015, Mike Rockett. All Rights Reserved.
  * @license ISC
  *
- * @see Documentation:     http://rockett.pw/jumplinks
+ * @see Documentation:     https://jumplinks.rockett.pw
  * @see Modules Directory: https://mods.pw/92
  * @see Forum Thred:       https://processwire.com/talk/topic/8697-jumplinks/
  * @see Donate:            https://rockett.pw/donate
@@ -28,65 +28,71 @@
 
 class Blueprint
 {
+  /**
+   * @var mixed
+   */
+  protected $file;
 
-    protected $file;
-    protected $vars = array();
+  /**
+   * @var array
+   */
+  protected $vars = [];
 
-    /**
-     * @param string $file
-     */
-    public function __construct($file)
-    {
-        $this->file = $this->findBlueprint("/../Blueprints/$file");
+  /**
+   * @param string $file
+   */
+  public function __construct($file)
+  {
+    $this->file = $this->findBlueprint("/../Blueprints/$file");
+  }
+
+  /**
+   * @param string $file
+   */
+  protected function findBlueprint($file)
+  {
+    $extensions = ['sql', 'html'];
+
+    if (file_exists(__DIR__ . $file)) {
+      return file_get_contents(__DIR__ . $file);
     }
 
-    /**
-     * @param string $file
-     */
-    protected function findBlueprint($file)
-    {
-        $extensions = array('sql', 'html');
-
-        if (file_exists(__DIR__ . $file)) {
-            return file_get_contents(__DIR__ . $file);
-        }
-
-        foreach ($extensions as $extension) {
-            $withExt = "{$file}.{$extension}";
-            if (file_exists(__DIR__ . $withExt)) {
-                return file_get_contents(__DIR__ . $withExt);
-            }
-        }
-
-        throw new Exception('Blueprint not found: ' . __DIR__ . $file);
+    foreach ($extensions as $extension) {
+      $withExt = "{$file}.{$extension}";
+      if (file_exists(__DIR__ . $withExt)) {
+        return file_get_contents(__DIR__ . $withExt);
+      }
     }
 
-    /**
-     * @param string $key
-     * @param string $value
-     */
-    public function set($key, $value)
-    {
-        $this->vars[$key] = $value;
-    }
+    throw new Exception('Blueprint not found: ' . __DIR__ . $file);
+  }
 
-    /**
-     * @param array $data
-     */
-    public function hydrate($data = array())
-    {
-        $this->vars = $data;
-    }
+  /**
+   * @param string $key
+   * @param string $value
+   */
+  public function set($key, $value)
+  {
+    $this->vars[$key] = $value;
+  }
 
-    /**
-     * @return mixed
-     */
-    public function build()
-    {
-        foreach ($this->vars as $key => $value) {
-            $tagToReplace = "<$key>";
-            $this->file = str_replace($tagToReplace, $value, $this->file);
-        }
-        return $this->file;
+  /**
+   * @param array $data
+   */
+  public function hydrate($data = [])
+  {
+    $this->vars = $data;
+  }
+
+  /**
+   * @return mixed
+   */
+  public function build()
+  {
+    foreach ($this->vars as $key => $value) {
+      $tagToReplace = "<$key>";
+      $this->file = str_replace($tagToReplace, $value, $this->file);
     }
+    return $this->file;
+  }
 }

@@ -14,7 +14,7 @@ Jumplinks is an enhanced version of the original [ProcessRedirects](http://modul
 
 The `Process` module manages your permanent and temporary redirects (we'll call these "jumplinks" from now on, unless in reference to redirects from another module), useful for when you're migrating over to ProcessWire from another system/platform.
 
-Each jumplink supports [wildcards](https://rockett.pw/jumplinks/wildcards), shortening the time needed to create them.
+Each jumplink supports [wildcards](https://jumplinks.rockett.pw/wildcards), shortening the time needed to create them.
 
 Unlike similar modules for other platforms, wildcards in Jumplinks are much easier to work with, as Regular Expressions are not fully exposed. Instead, parameters wrapped in `{curly braces}` are used - these are described in the documentation.
 
@@ -36,7 +36,7 @@ Unlike similar modules for other platforms, wildcards in Jumplinks are much easi
 
 ### Documentation & Support
 
-You can view the documentation **[here](https://rockett.pw/jumplinks)**, and get support **[in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
+You can view the documentation **[here](https://jumplinks.rockett.pw)**, and get support **[in the forums](https://processwire.com/talk/topic/8697-jumplinks/)**.
 
 ### Contributing & License
 
