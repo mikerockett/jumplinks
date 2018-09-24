@@ -1,14 +1,6 @@
-## Jumplinks for ProcessWire
+## Jumplinks v1 for ProcessWire
 
-![Shield: Tagged Release](https://img.shields.io/github/release/rockettpw/jumplinks.svg?style=flat-square)
-[![license](https://img.shields.io/github/license/rockettpw/jumplinks.svg?maxAge=2592000&style=flat-square)](https://github.com/rockettpw/jumplinks/blob/master/LICENSE.md)
-[![v2](https://img.shields.io/badge/v2-pending-lightgray.svg?style=flat-square)](https://github.com/rockettpw/jumplinks/issues/14)
-
-As of version 1.5.0, Jumplinks requires at least ProcessWire 2.6.1 to run. At the time of writing this, version 3 on the development branch is also supported.
-
-**In Development:** Jumplinks 2, a complete rewrite, is in the works. You can track the status of behind-closed-doors development [here](https://github.com/rockettpw/jumplinks/issues/14). Once an alpha-candidate is ready, it will be pushed to its own branch with the details. Documentation will follow shortly thereafter.
-
----
+> Jumplinks 2, a complete rewrite, is in the works. Once an alpha-candidate is ready, the repo will be opened up for testing.
 
 Jumplinks is an enhanced version of the original [ProcessRedirects](http://modules.processwire.com/modules/process-redirects/) by [Antti Peisa](https://twitter.com/apeisa).
 
@@ -17,6 +9,8 @@ The `Process` module manages your permanent and temporary redirects (we'll call 
 Each jumplink supports [wildcards](https://jumplinks.rockett.pw/wildcards), shortening the time needed to create them.
 
 Unlike similar modules for other platforms, wildcards in Jumplinks are much easier to work with, as Regular Expressions are not fully exposed. Instead, parameters wrapped in `{curly braces}` are used - these are described in the documentation.
+
+As of version 1.5.0, Jumplinks requires at least ProcessWire 2.6.1 to run. At the time of writing this, version 3 on the development branch is also supported.
 
 ---
 
@@ -27,7 +21,7 @@ Unlike similar modules for other platforms, wildcards in Jumplinks are much easi
 
 ### Manual Installation
 
-1. Download the module from [here](https://github.com/rockettpw/jumplinks/archive/master.zip)
+1. Download the module from [here](https://gitlab.com/rockettpw/seo/jumplinks-one/-/archive/master/jumplinks-one-master.zip)
 2. Copy the *ProcessJumplinks* folder to `site/modules`
 3. Go to *Modules* in your admin panel, and find *ProcessJumplinks*. If it's not listed, you'll need to click *Refresh*.
 4. Install the module and configure it, if needed.
@@ -40,6 +34,6 @@ You can view the documentation **[here](https://jumplinks.rockett.pw)**, and get
 
 ### Contributing & License
 
-If you have any issues to report (such as a bug or oversight), please use the [issue tracker](https://github.com/mikerockett/ProcessJumplinks/issues).
+If you have any issues to report (such as a bug or oversight), please use the [issue tracker](https://gitlab.com/rockettpw/seo/jumplinks-one/issues).
 
 Module is released under the **[ISC License](LICENSE.md)**. The CSV package by The League of Extraordinary Packages is licensed under the [MIT License](https://github.com/thephpleague/csv/blob/master/LICENSE).
