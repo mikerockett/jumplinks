@@ -205,8 +205,8 @@ class ProcessJumplinksConfig extends ModuleConfig
             'value' => <<<HTML
                 <p>{$text['paragraph']}</p>
                 <div id="pjInputFieldLinks">
-                    <a target="_blank" href="{$links['docs']}">{$text['docs']}</a>
-                    <a target="_blank" href="{$links['support']}">{$text['support']}</a>
+                    <a target="_blank" rel="noopener noreferrer" href="{$links['docs']}">{$text['docs']}</a>
+                    <a target="_blank" rel="noopener noreferrer" href="{$links['support']}">{$text['support']}</a>
                 </div>
 HTML
             ,
@@ -221,12 +221,12 @@ HTML
             'value' => <<<HTML
                 <p>{$moduleRecommendationPara}</p>
                 <div id="pjInputFieldLinks">
-                    <a target="_blank" href="http://mods.pw/5q">All In One Minify (AIOM+)</a>
-                    <a target="_blank" href="http://mods.pw/2J">Page Path History (core)</a>
-                    <a target="_blank" href="http://mods.pw/1V">XML Sitemap</a>
-                    <a target="_blank" href="http://mods.pw/8D">Markup SEO</a>
-                    <a target="_blank" href="http://mods.pw/6d">ProFields: AutoLinks</a>
-                    <a target="_blank" href="http://mods.pw/58">ProFields: ProCache</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/5q">All In One Minify (AIOM+)</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/2J">Page Path History (core)</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/1V">XML Sitemap</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/8D">Markup SEO</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/6d">ProFields: AutoLinks</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/58">ProFields: ProCache</a>
                 </div>
 HTML
             ,
@@ -247,8 +247,8 @@ HTML
                 <p><a href="https://rockett.pw/donate"><img src="{$this->config->urls->ProcessJumplinks}Assets/DonateButton.png" alt="PayPal" style="float:right;margin-left: 22px;"></a>{$text['paragraph']}</p>
                 <div id="pjInputFieldLinks">
                     <span class="prefix">{$text['learnMore']}:</span>
-                    <a target="_blank" href="http://opensource.com/resources/what-open-source">{$text['openSource']}</a>
-                    <a target="_blank" href="https://en.wikipedia.org/wiki/Free_software">{$text['freeSoftware']}</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://opensource.com/resources/what-open-source">{$text['openSource']}</a>
+                    <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Free_software">{$text['freeSoftware']}</a>
                 </div>
 HTML
             ,
