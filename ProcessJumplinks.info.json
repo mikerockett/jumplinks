@@ -1,6 +1,6 @@
 {
   "title": "Jumplinks",
-  "version": "1.5.50",
+  "version": "1.5.51",
   "author": "Mike Rockett",
   "summary": "Manage permanent and temporary redirects. Uses named parameters, mapping collections, and page selectors.",
   "requires": "ProcessWire>=2.6.1, PHP>=5.4.0",
