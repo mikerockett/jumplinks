@@ -226,12 +226,12 @@ HTML
       'value' => <<<HTML
                 <p>{$moduleRecommendationPara}</p>
                 <div id="pjInputFieldLinks">
-                    <a target="_blank" href="http://mods.pw/5q">All In One Minify (AIOM+)</a>
-                    <a target="_blank" href="http://mods.pw/2J">Page Path History (core)</a>
-                    <a target="_blank" href="http://mods.pw/1V">XML Sitemap</a>
-                    <a target="_blank" href="http://mods.pw/8D">Markup SEO</a>
-                    <a target="_blank" href="http://mods.pw/6d">ProFields: AutoLinks</a>
-                    <a target="_blank" href="http://mods.pw/58">ProFields: ProCache</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/5q">All In One Minify (AIOM+)</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/2J">Page Path History (core)</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/1V">XML Sitemap</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/8D">Markup SEO</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/6d">ProFields: AutoLinks</a>
+                    <a target="_blank" rel="noopener noreferrer" href="http://mods.pw/58">ProFields: ProCache</a>
                 </div>
 HTML
       ,
