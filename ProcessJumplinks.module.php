@@ -270,7 +270,7 @@ class ProcessJumplinks extends Process
       if ($title !== null) {
         $documentation = $this->_('Documentation on ') . $title;
       }
-      return "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" href=\"https://rockett.pw/donate\">{$supportDevelopment}</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">{$needHelp}</a><a style=\"font-weight:700\" target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">{$documentation}</a></div>";
+      return "<div class=\"pjHelpLink\"><a class=\"paypal\" target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://rockett.pw/donate\">{$supportDevelopment}</a><a target=\"_blank\" href=\"https://processwire.com/talk/topic/8697-jumplinks/\">{$needHelp}</a><a style=\"font-weight:700\" target=\"_blank\" href=\"{$this->moduleInfo['href']}{$uri}\">{$documentation}</a></div>";
     }
   }
 
