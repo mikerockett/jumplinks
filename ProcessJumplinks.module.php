@@ -382,7 +382,7 @@ class ProcessJumplinks extends Process
     }
 
     $input = trim($input, '-');
-    $input = preg_replace('~[^-\w\/]+~', '', $input);
+    $input = preg_replace('~[^\-\w\/]+~', '', $input);
     if (!$noLower) {
       $input = strtolower($input);
     }
@@ -730,7 +730,7 @@ class ProcessJumplinks extends Process
         }, $request);
 
         // Perform any mappings
-        $convertedWildcards = preg_replace_callback("~\(([\w-_\/]+)\|([a-z]+)\)~i", function ($mapCaptures) use ($compiledCollections) {
+        $convertedWildcards = preg_replace_callback("~\(([\w\-_\/]+)\|([a-z]+)\)~i", function ($mapCaptures) use ($compiledCollections) {
           // If we have a match, bring it in
           // Otherwise, fill the mapping wildcard with the original data
           if (isset($compiledCollections->{$mapCaptures[2]}[$mapCaptures[1]])) {
@@ -744,7 +744,7 @@ class ProcessJumplinks extends Process
         $selectorUsed = false;
         $selectorMatched = false;
 
-        $convertedWildcards = preg_replace_callback("~\[\[([\w-_\/\s=\",.'|@]+)\]\]~i", function ($selectorCaptures) use (&$selectorUsed, &$selectorMatched) {
+        $convertedWildcards = preg_replace_callback("~\[\[([\w\-_\/\s=\",.'|@]+)\]\]~i", function ($selectorCaptures) use (&$selectorUsed, &$selectorMatched) {
           $selectorUsed = true;
           $page = $this->pages->get($selectorCaptures[1]);
           if ($page->id > 0) {
