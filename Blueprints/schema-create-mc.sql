@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS <table-name>_mc (
     `updated_at` TIMESTAMP NULL,
     PRIMARY KEY (id),
     UNIQUE KEY(collection_name)
-) ENGINE = MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;

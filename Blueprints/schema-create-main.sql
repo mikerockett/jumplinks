@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS <table-name> (
     `created_at` TIMESTAMP NULL,
     `updated_at` TIMESTAMP NULL,
     PRIMARY KEY(id)
-) ENGINE = MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
