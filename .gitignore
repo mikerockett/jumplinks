@@ -5,3 +5,5 @@ $RECYCLE.BIN/
 *.lnk
 *.sublime-*
 .phpintel/
+.DS_Store
+

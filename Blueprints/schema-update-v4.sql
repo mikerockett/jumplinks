@@ -5,4 +5,4 @@ CREATE TABLE <table-name>_nf (
     `user_agent` VARCHAR(255) DEFAULT '',
     `created_at` TIMESTAMP,
     PRIMARY KEY (id)
-) ENGINE = MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8;
