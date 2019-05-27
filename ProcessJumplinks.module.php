@@ -1763,7 +1763,7 @@ class ProcessJumplinks extends Process
     }
 
     $this->commitMappingCollection($input->collectionName, $input->collectionData, $id);
-    $this->message(sprintf($this->_("Mapping Collection '%s' saved."), $collectionName));
+    $this->message(sprintf($this->_("Mapping Collection '%s' saved."), $input->collectionName));
     $this->session->redirect('../');
   }
 
