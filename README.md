@@ -16,6 +16,12 @@ As of version 1.5.0, Jumplinks requires at least ProcessWire 2.6.1 to run. At th
 
 ### Quick Installation
 
+```
+composer require rockett/jumplinks
+```
+
+OR
+
 1. Under *Modules*, go to the *New* tab.
 2. Enter the class name (*ProcessJumplinks*) and click *Download & Install*.
 
