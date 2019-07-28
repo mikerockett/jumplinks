@@ -1,0 +1,117 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "9cf9240f1f726a94df57220e7d04f1e2",
+    "packages": [
+        {
+            "name": "hari/pw-module",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/harikt/pwmoduleinstaller.git",
+                "reference": "72baf9e2a6c810f09ce67a9f2c1ce079e57bea43"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/harikt/pwmoduleinstaller/zipball/72baf9e2a6c810f09ce67a9f2c1ce079e57bea43",
+                "reference": "72baf9e2a6c810f09ce67a9f2c1ce079e57bea43",
+                "shasum": ""
+            },
+            "type": "composer-installer",
+            "extra": {
+                "class": "PW\\Composer\\SystemInstaller"
+            },
+            "autoload": {
+                "psr-0": {
+                    "PW\\Composer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Paul M. Jones",
+                    "email": "pmjones88@gmail.com",
+                    "homepage": "http://paul-m-jones.com"
+                },
+                {
+                    "name": "Hari KT",
+                    "email": "kthari85@gmail.com",
+                    "homepage": "http://harikt.com"
+                },
+                {
+                    "name": "Kyle Robinson Young",
+                    "email": "kyle@dontkry.com",
+                    "homepage": "https://github.com/shama"
+                }
+            ],
+            "description": "Installs processwire 3rd party modules to PW system \"site/modules\" directory.",
+            "keywords": [
+                "installer",
+                "module",
+                "processwire"
+            ],
+            "time": "2016-03-11T04:01:22+00:00"
+        },
+        {
+            "name": "wireframe-framework/processwire-composer-installer",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wireframe-framework/processwire-composer-installer.git",
+                "reference": "5d398e4549238d52f5a65a6fa650586cee0375db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wireframe-framework/processwire-composer-installer/zipball/5d398e4549238d52f5a65a6fa650586cee0375db",
+                "reference": "5d398e4549238d52f5a65a6fa650586cee0375db",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0",
+                "hari/pw-module": "^1.0.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "wireframe\\ComposerInstaller\\Plugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "wireframe\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MPL-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Teppo Koivula",
+                    "email": "teppo@wireframe-framework.com",
+                    "homepage": "https://wireframe-framework.com"
+                }
+            ],
+            "description": "Custom Composer installer for the ProcessWire CMS/CMF modules and site profiles.",
+            "homepage": "https://wireframe-framework.com/docs/processwire-composer-installer/",
+            "keywords": [
+                "composer",
+                "installer",
+                "processwire"
+            ],
+            "time": "2019-07-11T15:05:23+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

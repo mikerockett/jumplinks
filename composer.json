@@ -1,0 +1,9 @@
+{
+  "name": "rockett/jumplinks",
+  "description": "Manage permanent and temporary redirects in ProcessWire 2.6.1+. Version 2 in the works.",
+  "type": "pw-module",
+  "license": "ISC",
+  "require": {
+    "wireframe-framework/processwire-composer-installer": "^1.0"
+  }
+}

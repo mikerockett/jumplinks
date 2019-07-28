@@ -7,7 +7,7 @@
  * Process module for ProcessWire 2.6.1+
  *
  * @author Mike Rockett
- * @copyright (c) 2015-18, Mike Rockett. All Rights Reserved.
+ * @copyright (c) 2015-19, Mike Rockett. All Rights Reserved.
  * @license ISC
  *
  * @see Documentation:     https://jumplinks.rockett.pw

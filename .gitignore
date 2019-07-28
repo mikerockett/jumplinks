@@ -6,4 +6,4 @@ $RECYCLE.BIN/
 *.sublime-*
 .phpintel/
 .DS_Store
-
+/vendor/
