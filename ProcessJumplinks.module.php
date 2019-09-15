@@ -19,7 +19,7 @@
 class ProcessJumplinks extends Process
 {
   /** Schema version for current release */
-  const SCHEMA_VERSION = 5;
+  const SCHEMA_VERSION = 6;
 
   /** NULL Date **/
   const NULL_DATE = '0000-00-00 00:00:00';
@@ -229,7 +229,7 @@ class ProcessJumplinks extends Process
       ++$this->_schemaVersion;
       $memoryVersion = $this->_schemaVersion;
       switch (true) {
-        case ($memoryVersion <= 5):
+        case ($memoryVersion <= 6):
           $statement = $this->blueprint("schema-update-v{$memoryVersion}");
           break;
         default:

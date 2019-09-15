@@ -1,1 +1,4 @@
-ALTER TABLE <table-name>_nf CHANGE `referrer` `referrer` TEXT DEFAULT '';
+ALTER TABLE
+  <table-name>_nf
+MODIFY
+  COLUMN referrer TEXT;
