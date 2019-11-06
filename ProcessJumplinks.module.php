@@ -374,7 +374,7 @@ class ProcessJumplinks extends Process
     }
 
     $input = preg_replace("~%u([a-f\d]{3,4})~i", '&#x\\1;', urldecode($input));
-    $input = preg_replace("~[^\\pL\d\/]+~u", '-', $input);
+    $input = preg_replace("~[^\\pL\d\/\?\&]+~u", '-', $input);
     $input = iconv('utf-8', 'us-ascii//TRANSLIT', $input);
 
     if ($this->enhancedWildcardCleaning) {
@@ -382,7 +382,7 @@ class ProcessJumplinks extends Process
     }
 
     $input = trim($input, '-');
-    $input = preg_replace('~[^\-\w\/]+~', '', $input);
+    $input = preg_replace('~[^\-\w\/\?\&]+~', '', $input);
     if (!$noLower) {
       $input = strtolower($input);
     }
