@@ -527,7 +527,7 @@ class ProcessJumplinks extends Process
     // Log the 404 if it matches specific criteria
     if ($canLog) {
       $this->database->prepare($this->sql->notFoundMonitor->insert)->execute([
-        'request_uri' => $request,
+        'request_uri' => substr($request, 0, 512),
         'referrer' => @$_SERVER['HTTP_REFERER'],
         'user_agent' => @$_SERVER['HTTP_USER_AGENT'],
       ]);
@@ -548,7 +548,7 @@ class ProcessJumplinks extends Process
     $jumplinks = $this->database->query($this->sql->entity->selectAll);
 
     // If there aren't any, then log the hit and break out
-    if ($jumplinks->rowCount() === 0) {
+    if ($jumplinks->rowCount() === 0 && $this->enable404Monitor == true) {
       $this->log404($request);
       return false;
     }
