@@ -1122,12 +1122,15 @@ class ProcessJumplinks extends Process
       while ($notFoundEntity = $notFoundEntities->fetchObject()) {
         $userAgentParsed = ParseUserAgent::get($notFoundEntity->user_agent);
         $source = urlencode($notFoundEntity->request_uri);
+        $uaString = htmlentities($notFoundEntity->user_agent);
+        $uaBrowser = htmlentities($userAgentParsed['browser']);
+        $uaVersion = htmlentities($userAgentParsed['version']);
 
         // Add the 404 row.
         $notFoundMonitorTable->row([
           $notFoundEntity->request_uri => "{$this->entityFormPath}?id=0&source={$source}",
           (!null === $notFoundEntity->referrer) ? $notFoundEntity->referrer : '',
-          "<abbr title=\"{$notFoundEntity->user_agent}\">{$userAgentParsed['browser']} {$userAgentParsed['version']}</abbr>",
+          "<abbr title=\"{$uaString}\">{$uaBrowser} {$uaVersion}</abbr>",
           $notFoundEntity->created_at,
         ]);
       }
