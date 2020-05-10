@@ -947,24 +947,28 @@ class ProcessJumplinks extends Process
         break;
     }
 
-    // Build Register button
+    // Init buttons markup string
+    $buttons = "";
+
+    // Build and add Register button
     $registerJumplinkButton = $this->populateInputField($this->modules->get('InputfieldButton'), [
       'id' => 'registerJumplink',
       'href' => $this->entityFormPath,
       'value' => $registerJumplinkButtonLabel,
       'icon' => 'plus-circle',
     ])->addClass('head_button_clone');
+    $buttons .= $registerJumplinkButton->render();
 
-    // Build config button
-    $moduleConfigLinkButton = $this->populateInputField($this->modules->get('InputfieldButton'), [
-      'id' => 'moduleConfigLink',
-      'href' => $this->getModuleConfigUri(),
-      'value' => $this->_('Configuration'),
-      'icon' => 'cog',
-    ])->addClass('ui-priority-secondary ui-button-float-right');
-
-    // Add buttons
-    $buttons = $registerJumplinkButton->render() . $moduleConfigLinkButton->render();
+    if ($this->user->hasPermission('module-admin')) {
+      // Build and add config button
+      $moduleConfigLinkButton = $this->populateInputField($this->modules->get('InputfieldButton'), [
+        'id' => 'moduleConfigLink',
+        'href' => $this->getModuleConfigUri(),
+        'value' => $this->_('Configuration'),
+        'icon' => 'cog',
+      ])->addClass('ui-priority-secondary ui-button-float-right');
+      $buttons .= $moduleConfigLinkButton->render();
+    }
 
     // Render and append the table container
     $jumplinksTableContainer = $this->modules->get('InputfieldMarkup');
