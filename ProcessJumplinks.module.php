@@ -151,8 +151,10 @@ class ProcessJumplinks extends Process
     ]);
     if ($redirectsTableNameQuery->rowCount() > 0) {
       $redirectsTableNameResult = $redirectsTableNameQuery->fetch(PDO::FETCH_OBJ)->TABLE_NAME;
-      if ($this->redirectsTableName == $redirectsTableNameResult ||
-        strtolower($this->redirectsTableName) == $redirectsTableNameResult) {
+      if (
+        $this->redirectsTableName == $redirectsTableNameResult ||
+        strtolower($this->redirectsTableName) == $redirectsTableNameResult
+      ) {
         $this->redirectsTableName = $redirectsTableNameResult;
       }
     }
@@ -344,7 +346,6 @@ class ProcessJumplinks extends Process
 
       return $destination;
     }
-
   }
 
   /**
@@ -423,7 +424,6 @@ class ProcessJumplinks extends Process
       foreach ($metaNames as $metaName) {
         $field->$metaName = $metaInfo;
       }
-
     }
 
     return $field;
@@ -431,7 +431,7 @@ class ProcessJumplinks extends Process
 
   /**
    * Given a an Inputfield, add props and return
-   * @param  string $field
+   * @param  object $field
    * @param  array  $meta
    * @return Inputfield
    */
@@ -442,7 +442,6 @@ class ProcessJumplinks extends Process
       foreach ($metaNames as $metaName) {
         $field->$metaName = $metaInfo;
       }
-
     }
 
     return $field;
@@ -918,8 +917,10 @@ class ProcessJumplinks extends Process
 
       // If the last hit was more than 30 days ago,
       // let the user know so that it may be deleted.
-      if (strtotime($jumplink->last_hit) > $this->lowestDate &&
-        strtotime($jumplink->last_hit) < strtotime('-30 days')) {
+      if (
+        strtotime($jumplink->last_hit) > $this->lowestDate &&
+        strtotime($jumplink->last_hit) < strtotime('-30 days')
+      ) {
         $jumplinkHits .= '<span id="staleJumplink"></span>';
       }
       $hits = $hits + $jumplink->hits;
@@ -1124,11 +1125,17 @@ class ProcessJumplinks extends Process
 
       // Loop through each 404, formatting as we go along.
       while ($notFoundEntity = $notFoundEntities->fetchObject()) {
-        $userAgentParsed = ParseUserAgent::get($notFoundEntity->user_agent);
         $source = urlencode($notFoundEntity->request_uri);
+        $uaParsed = ParseUserAgent::get($notFoundEntity->user_agent);
         $uaString = htmlentities($notFoundEntity->user_agent);
-        $uaBrowser = htmlentities($userAgentParsed['browser']);
-        $uaVersion = htmlentities($userAgentParsed['version']);
+
+        $uaBrowser = $uaParsed['browser']
+          ? htmlentities($uaParsed['browser'])
+          : 'Unknown Browser';
+
+        $uaVersion = $uaParsed['version']
+          ? htmlentities($uaParsed['version'])
+          : 'Unknown Version';
 
         // Add the 404 row.
         $notFoundMonitorTable->row([
@@ -1196,9 +1203,11 @@ class ProcessJumplinks extends Process
       $query->execute([
         'id' => $editingId,
       ]);
-      list($id, $sourcePath, $destinationUriUrl, $hits,
+      list(
+        $id, $sourcePath, $destinationUriUrl, $hits,
         $userCreated, $userUpdated, $dateStart, $dateEnd,
-        $createdAt, $updatedAt, $lastHit) = $query->fetch();
+        $createdAt, $updatedAt, $lastHit
+      ) = $query->fetch();
 
       // Format dates (times)
       $dateStart = (strtotime($dateStart) > $this->lowestDate) ? date('Y-m-d h:m A', strtotime($dateStart)) : null;
@@ -1218,9 +1227,11 @@ class ProcessJumplinks extends Process
       'value' => $editingId,
     ]));
 
-    if ($editingId > 0 &&
+    if (
+      $editingId > 0 &&
       strtotime($lastHit) > $this->lowestDate &&
-      strtotime($lastHit) < strtotime('-30 days')) {
+      strtotime($lastHit) < strtotime('-30 days')
+    ) {
       $field = $this->modules->get('InputfieldMarkup');
       $form->add($this->populateInputField($field, [
         'id' => 'staleJumplink',
@@ -1408,7 +1419,7 @@ class ProcessJumplinks extends Process
 
   /**
    * Commit a new jumplink
-   * @param  String $input
+   * @param  object $input
    * @param  int    $hits     = 0
    * @param  bool   $updating = false
    * @param  int    $id       = 0
@@ -2032,7 +2043,6 @@ class ProcessJumplinks extends Process
       default:
         $this->session->redirect('../');
     }
-
   }
 
   /**
@@ -2082,5 +2092,4 @@ class ProcessJumplinks extends Process
     var_dump($mixed);
     $die && die;
   }
-
 }
