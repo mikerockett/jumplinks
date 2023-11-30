@@ -202,8 +202,18 @@ class ProcessJumplinks extends Process
       $this->updateDatabaseSchema();
     }
 
+    // Bail if we are running in the CLI (such as in a PW-bootstrapped script),
+    // or if we cannot safely resolve REQUEST_URI.
+    if (
+      php_sapi_name() === 'cli' ||
+      !isset($_SERVER['REQUEST_URI']) ||
+      in_array($_SERVER['REQUEST_URI'], [false, null], true)
+    ) {
+      return;
+    }
+
     // Get the current request
-    $this->request = ltrim(@$_SERVER['REQUEST_URI'], '/');
+    $this->request = ltrim($_SERVER['REQUEST_URI'], '/');
 
     // Trim out index.php from the beginning of the URI if it is suffixed with a path.
     // ProcessWire doesn't support these anyway.
